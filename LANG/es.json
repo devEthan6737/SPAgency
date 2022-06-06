@@ -1,0 +1,369 @@
+{
+    "events": {
+        "channelCreate": {
+            "log_channelCreate": "Canal creado"
+        },
+        "channelDelete": {
+            "log_channelDelete": "Canal eliminado",
+            "partnerChannelDeleted": ", el canal de anuncios de socio ha sido eliminado en este servidor, este es el nuevo canal de socio.\n\nSi desea cancelar el partner con la agencia escribe `<var1>partner cancel`"
+        },
+        "guildBanAdd": {
+            "log_banAdd": "Baneo añadido",
+            "log_author": "Autor del baneo",
+            "log_bannedPerson": "Persona baneada"
+        },
+        "guildBanRemove": {
+            "log_banRemoved": "Baneo removido",
+            "log_author": "Autor del desbaneo",
+            "log_unbannedPerson": "Persona desbaneada"
+        },
+        "guildMemberAdd": {
+            "log_memberAdd": "Nueva entrada de usuario",
+            "log_person": "Persona",
+            "kickBloqUser": "has sido __baneado__ de `<var1>` ya que eres considerado como un usuario demasiado peligroso",
+            "kickBloqUserReason": "Usuario demasiado peligroso",
+            "antijoinsMessage": "has sido __baneado__ de `<var1>`.\n`El servidor tenía activada la expulsión de nuevos usuarios y decidiste volver a entrar.`\n\n**__Si necesitas__ contactar con nosotros ve a [Nuestro Servidor De Soporte](https://discord.gg/RuBvM5r9eM)**",
+            "antijoinsReason": "Entró dos veces a la vez con el antijoins activo",
+            "antijoinsMessage1": "has sido expulsado de `<var1>`.\n`El servidor tenía activada la expulsión de nuevos usuarios.`\n\n**__Si necesitas__ contactar con nosotros ve a [Nuestro Servidor De Soporte](https://discord.gg/RuBvM5r9eM)**",
+            "antijoinsReason1": "Antijoins activo",
+            "warnEntry_MessagePart1": "Un usuario malicioso ha sido detectado en",
+            "warnEntry_MessagePart2": "**- Con el __El Detector De Usuarios Maliciosos__ activado, el *Equipo De Soporte SP* puede expulsar a",
+            "warnEntry_MessagePart3": "del servidor**",
+            "warnEntry_MessagePart4": "Datos del usuario",
+            "warnEntry_MessagePart5": "Razón",
+            "kickMaliciousBanMessage1": "has sido __baneado__ de",
+            "kickMaliciousBanMessage2": "Los administradores no desean este tipo de visita y has decidido insistir.`\n\n**__Si necesitas__ contactar con nosotros ve a [Nuestro Servidor De Soporte]",
+            "kickMaliciousBanReason": "Entró dos veces a la vez, es un usuario malicioso",
+            "kickMaliciousKickMessage1": "has sido expulsado de",
+            "kickMaliciousKickMessage2": "Eres un usuario malicioso y los administradores no desean este tipo visita.`\n\n**__Si necesitas__ contactar con nosotros ve a [Nuestro Servidor De Soporte]",
+            "kickMaliciousKickReason": "Expulsar maliciosos activo",
+            "antibotsKickReason": "Sistema antibots activo",
+            "antibotsMessage1": "El sujeto",
+            "antibotsMessage2": "es un bot y ha sido expulsado por seguridad",
+            "antibotsMessage3": "es un bot no verificado y ha sido expulsado por seguridad",
+            "antibotsMessage4": "es un bot verificado y ha sido expulsado por seguridad",
+            "saveBotsEntrities": "Bot raider",
+            "antitokensKickReason": "Posible token detectado",
+            "antitokensMessage": "Has sido marcado como un posible token (Sistema antitokens, demasiadas entradas en el mismo segundo).\n\n`Esto no quiere decir que seas marcado como usuario malicioso u otro. Si fue un error, espere dos minutos y elimine caracteres repetidos en su apodo"
+        },
+        "guildMemberRemove": {
+            "logMessage": "Salida de un usuario",
+            "author": "Persona"
+        },
+        "guildMemberUpdate": {
+            "roleRemoved": "Miembro actualizado: Rol eliminado",
+            "roleDelete": "Rol eliminado",
+            "roleDeleteBy": "Rol eliminado por",
+            "roleDeleteTo": "Rol eliminado a",
+            "roleCreated": "Miembro actualizado: Rol añadido",
+            "roleAdded": "Rol añadido",
+            "roleAddedBy": "Rol añadido por",
+            "roleAddedTo": "Rol añadido a"
+        },
+        "messageDelete": {
+            "logMessage1": "Mensaje eliminado",
+            "logMessage2": "En el canal"
+        },
+        "ready": {
+            "theUser": "El usuario",
+            "unbanned": "ha sido desbaneado después de",
+            "unmuted": "ha sido desmuteado después de"
+        },
+        "roleCreate": {
+            "logMessage1": "Rol creado"
+        },
+        "roleDelete": {
+            "logMessage1": "Rol eliminado"
+        }
+    },
+
+    "commands": {
+        "config": {
+            "language": {
+                "message1": "No has especificado el idioma",
+                "message2": "Ese lenguaje no existe o no está disponible",
+                "message3": "Lenguaje cambiado"
+            }
+        },
+        "mod": {
+            "ghostping": {
+                "message1": "Detector de pings fantasmas activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Detector de pings fantasmas desactivado"
+            },
+            "nsfwFilter": {
+                "message1": "Detector de contenido NSFW activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Detector de contenido NSFW desactivado"
+            },
+            "iploggerFilter": {
+                "message1": "Detector de iploggers activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Detector de iploggers desactivado"
+            },
+            "warns": {
+                "message1": "Debes mencionar al usuario que deseas ver sus warns",
+                "message2": "El usuario mencionado no tiene warns",
+                "message3": "Estás viendo los",
+                "message4": "warns de",
+                "message5": "moderador"
+            },
+            "warn": {
+                "message1": "Debes mencionar al usuario que avisarás",
+                "message2": "El servidor tiene razones forzadas activas, es necesario adjuntar una razón en la sanción",
+                "message3": "Razones forzadas",
+                "message4": "Esa razón no es válida, el servidor tiene razones forzadas activas",
+                "message5": "has sido avisado. Tienes",
+                "message6": "warns.\n\nRazón",
+                "message7": "Moderador",
+                "message8": "El usuario",
+                "message9": "tiene muchas infracciones pero esta acción automática del automoderador fue desactivada, eso quiere decir que no puedo mutearle/banearle/expulsarle.\n\n> Acción realizada por: Sistema automoderador",
+                "message10": "Activar el sistema",
+                "message11": "He muteado a",
+                "message12": "durante",
+                "message13": "Acción realizada por: Sistema automoderador ya que tenía muchas infracciónes",
+                "message14": "No repetir esta acción",
+                "message15": "He baneado a",
+                "message16": "Acción realizada por: Sistema automoderador ya que tenía el máximo de infracciónes",
+                "message17": "Sin especificar"
+            },
+            "unwarn": {
+                "message1": "Debes mencionar al usuario que deseas eliminarle un warn",
+                "message2": "El usuario mencionado no tiene warns",
+                "message3": "Los",
+                "message4": "warns del usuario han sido eliminados",
+                "message5": "Estás viendo los",
+                "message6": "warns de",
+                "message7": "después de este mensaje escribe el numero adjunto al warn para eliminarlo",
+                "message8": "Eso no era un número",
+                "message9": "No he encontrado un número tan alto de warns",
+                "message10": "El warn número",
+                "message11": "con la razón de",
+                "message12": "agregado por",
+                "message13": "ha sido eliminado",
+                "message14": "Colector detenido"
+            },
+            "untimeout": {
+                "message1": "Debes mencionar al usuario que deseas aislar",
+                "message2": "No",
+                "message3": "La persona tiene un rol más alto que tú o tiene el mismo rol",
+                "message4": "No tengo permisos para moderar al usuario mencionado",
+                "message5": "He eliminado el aislamiento a",
+                "message6": "Ha sucedido un error al eliminar el aislamiento a"
+            },
+            "unmute": {
+                "message1": "Debes mencionar al usuario que deseas desmutear",
+                "message2": "No",
+                "message3": "La persona tiene un rol más alto que tú o tiene el mismo rol",
+                "message4": "Ese usuario no está muteado",
+                "message5": "He desmuteado al usuario"
+            },
+            "unban": {
+                "message1": "Debes escribir la id del usuario que deseas desbanear",
+                "message2": "He desbaneado a",
+                "message3": "He desbaneado al usuario"
+            },
+            "timeout": {
+                "message1": "Debes mencionar al usuario que deseas aislar",
+                "message2": "No",
+                "message3": "La persona tiene un rol más alto que tú o tiene el mismo rol",
+                "message4": "No tengo permisos para moderar al usuario mencionado",
+                "message5": "Debes escribir el tiempo que deseas aislar",
+                "message6": "Sin razón",
+                "message7": "He aislado a",
+                "message8": "durante",
+                "message9": "Ha sucedido un error al aislar a"
+            }
+        },
+        "others": {
+            "apelar": {
+                "message1": "Usted no está marcado como un usuario malicioso, commands",
+                "message2": "No puedes apelar hasta el",
+                "message3": "Su apelación está siendo procesada o ya fue enviada. Este procedimiento puede tardar unos días/semanas",
+                "message4": "Usted era malicioso y fue eliminado de la lista negra para tiempo más tarde volver a ser añadido por sus malas acciones (No puede volver a apelar)",
+                "message5": "Debes escribir la razón de por qué serás eliminado de la blacklist",
+                "message6": "Debes escribir una razón decente y formal, mínimo 50 palabras",
+                "message7": "acabas de enviar tu apelación. No podrás volver a apelar en caso de que seas rechazado.\n__Si tu apelación no tiene el fin que buscamos y lo usas de mala manera serás bloqueado de las apelaciónes para siempre.__",
+                "message8": "Usted no está marcado como un usuario malicioso"
+            },
+            "ayuda": {
+                "message1": "¿Qué ayuda requieres?"
+            },
+            "biblioteca": {
+                "message1": "No has especificado el comando",
+                "message2": "Opcional",
+                "message3": "Requerido",
+                "message4": "Función",
+                "message5": "Ese comando no existe"
+            },
+            "bug": {
+                "message1": "No has especificado el mensaje del bug",
+                "message2": "Estás a punto de enviar ese mensaje a los agentes de SP Agency (Quiere decir que el personal de la agencia lo leerá).\n\nPara continuar escribe `enviar`",
+                "message3": "Bug enviado al soporte de SPA",
+                "message4": "Entendido, he detenido el comando"
+            },
+            "comandos": {
+                "message1": "Para obtener más información de un comando escribe",
+                "message2": "puedes invitarme con",
+                "message3": "Las llaves con un número en medio",
+                "message4": "significan que __el comando tiene más de una función__"
+            },
+            "invite": {
+                "message1": "¿Me invitarás a tu servidor?\n\n<a:sp_si:805810572599099413> **Permíteme gestionar tu servidor**\n<a:sp_si:805810572599099413> **Expulsar y Banear miembros**\n<a:sp_si:805810572599099413> **Mantenerte seguro**\n<a:sp_no:805810577448239154> **Robar tu tarta**"
+            },
+            "me": {
+                "message1": "El usuario no está marcado como un usuario malicioso pero tiene antecedentes",
+                "message2": "Información De Lista Negra",
+                "message3": "No se puede mostrar la prueba de la persona debido a la protección de datos de usuarios",
+                "message4": "Razón",
+                "message5": "El usuario puede apelar hace",
+                "message6": "Se obliga al usuario a permanecer en la lista negra durante",
+                "message7": "Y tiene antecedentes",
+                "message8": "El usuario no está marcado como un usuario malicioso",
+                "message9": "Pero tiene antecedentes",
+                "message10": "Usted no está marcado como un usuario malicioso, antecedentes",
+                "message11": "Tu castigo obligatorio expiró hace",
+                "message12": "Tu castigo obligatorio expirará en",
+                "message13": "Y tienes antecedentes",
+                "message14": "Usted no está marcado como un usuario malicioso"
+            },
+            "perfil": {
+                "message1": "Logros",
+                "message2": "Premium",
+                "message3": "Premium acaba en"
+            },
+            "premium": {
+                "message1": "¡Has obtenido premium infinito!",
+                "message2": "Acabas de obtener un logro, mira tu perfil",
+                "message3": "¡Has obtenido/acumulado premium durante",
+                "message4": "Ese código no existe o ya fue canjeado",
+                "message5": "Tu premium acabó hace",
+                "message6": "Si quieres canjear o acumular tiempo en premium, escribe",
+                "message7": "Tu premium acaba en",
+                "message8": "Tienes premium infinito, eso quiere decir que te envidio",
+                "message9": "`> 🛡  >` Sistema CET.\n`> ⏰ >` Sistema de SOS inteligente.\n`> 📂 >` Backups.\n`> 💻 >` Sistema personalizado.\n`> 📣 >` Sin respuesta al ser mencionado.\n`> ⚔  >` Sistema centinela.\n`> 🔨 >` Comando forceban desbloqueado al completo.",
+                "message10": "Obtener ahora",
+                "message11": "`>` **0.20€** dos meses.\n`> Más vendido:` **0.51€** cinco meses.\n`>` **1.02€** un año.\n`>` **1.95€** dos años.\n`> Segundo más vendido:` **3.09€** premium sin caducidad __(INFINITO)__.\n\n> **Pago por [paypal](https://paypal.me/0spagency) <:spaypal:909576968209588294>**\n> Considera habilitar mensajes privados al comprar nuestro premium, __y agregar tu id o tag COMPLETO en la nota de paypal para identificarte__"
+            },
+            "queja": {
+                "message1": "No has especificado el mensaje de la queja",
+                "message2": "Estás a punto de enviar ese mensaje a los agentes de SP Agency (Quiere decir que el personal de la agencia lo leerá).\n\nPara continuar escribe",
+                "message3": "Queja enviada al soporte de SPA",
+                "message4": "Entendido, he detenido el comando"
+            }
+        },
+        "protect": {
+            "2fa": {
+                "message1": "No has escrito la contraseña",
+                "message2": "2fa activado, vuelve a escribir el comando para desactivarlo",
+                "message3": "El sistema 2fa ya estaba activado",
+                "message4": "2fa desactivado",
+                "message5": "El sistema 2fa ya estaba desactivado",
+                "message6": "Debes indicar la función del comando"
+            },
+            "antibots": {
+                "message1": "Estoy activando el antibots. Mientras tanto, ¿Qué tipo de acción deseas? Después de este mensaje escribe el número adjunto al tipo de acción para que yo lo pueda detectar.\n\nCuando un bot sea invitado:\n`1.` Expulsarlo, sin importar si es verificado o no.\n`2.` Expulsarlo en el caso de que __**no** sea verificado__.\n`3.` __En el caso de **ser** un bot verificado__, expulsarlo",
+                "message2": "Antibots activado, vuelve a escribir el comando para desactivarlo",
+                "message3": "No te he entendido, desactivaré el comando",
+                "message4": "Antibots desactivado"
+            },
+            "antiflood": {
+                "message1": "El argumento no es un número",
+                "message2": "Dato actualizado con éxito, para recordar: recomendamos mantener este valor en __5__",
+                "message3": "Antiflood activado, vuelve a escribir el comando para desactivarlo.\n\nAl escribir de nuevo el comando, puedes adjuntar el número de mensajes que debo recopilar para considerar un evento de flood",
+                "message4": "Antiflood desactivado"
+            },
+            "antijoins": {
+                "message1": "Antijoins activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Antijoins desactivado"
+            },
+            "antiraid": {
+                "message1": "Antiraid activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Antiraid desactivado"
+            },
+            "antitokens": {
+                "message1": "Antitokens activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Parece que la verificación de tipo 4 se rige en base a este sistema, debes desactivar la verificación antes de desactivar este también",
+                "message3": "Antitokens desactivado"
+            },
+            "warn-entry": {
+                "message1": "Warn-entry activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Warn-entry desactivado"
+            },
+            "status": {
+                "enable": "Activado",
+                "disable": "Desactivado"
+            },
+            "pwa": {
+                "message1": "purgeWebhooksAttacks activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "purgeWebhooksAttacks desactivado"
+            },
+            "ownsystem": {
+                "message1": "ownSystem activado, vuelve a escribir el comando para desactivarlo.\nPuedes personalizarlo desde la dashboard",
+                "message2": "ownSystem desactivado"
+            },
+            "markmalicious": {
+                "message1": "Estoy activando el sistema. Mientras tanto, ¿Qué tipo de acción deseas? Después de este mensaje escribe el número adjunto al tipo de acción para que yo lo pueda detectar.\n\nCuando se una un usuario malicioso:\n`1.` Añadirle un rol (Incluir en el mensaje la mención de este).\n`2.` Cambiar su apodo.\n`3.` Enviar un log (Antes deben estar los logs activos",
+                "message2": "Notificar al propietario por privado",
+                "message3": "Para una mayor seguridad con esta función, necesitas ser __El propietario De Este Servidor__",
+                "message4": "¡La manción de un rol es obligatoria para activar esta función!",
+                "message5": "Este server no tiene ningún rol con esa id",
+                "message6": "markMalicious activado, vuelve a escribir el comando para desactivarlo",
+                "message7": "Antes debes activar el sistema de logs",
+                "message8": "No te he entendido, desactivaré el comando",
+                "message9": "Colector detenido",
+                "message10": "markMalicious desactivado"
+            },
+            "kickmalicious": {
+                "message1": "kickMalicious activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "kickMalicious desactivado"
+            },
+            "intelligentsos": {
+                "message1": "SOS inteligente activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "SOS inteligente desactivado"
+            },
+            "iAntiflood": {
+                "message1": "Antiflood inteligente activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "Antiflood inteligente desactivado"
+            },
+            "cet": {
+                "message1": "cannotEnterTwice activado, vuelve a escribir el comando para desactivarlo",
+                "message2": "cannotEnterTwice desactivado"
+            },
+            "becu": {
+                "message1": "Debes especificar lo antigua que debe ser la cuenta para que pueda ingresar al servidor",
+                "message2": "He activado el sistema, para activarlo vuelve a escribir el comando.\nSi el nuevo usuario lleva en Discord menos de",
+                "message3": "será expulsado"
+            },
+            "bebn": {
+                "message1": "Debes escribir la función del comando",
+                "message2": "Debes escribir el nombre que deseas bloquear",
+                "message3": "He agregado el nombre",
+                "message4": "a la lista",
+                "message5": "No hay nombres bloqueados en la lista",
+                "message6": "Estás viendo los nombres bloqueados en el servidor, después de este mensaje escribe el numero adjunto al nombre para eliminarlo",
+                "message7": "Eso no era un número",
+                "message8": "No he encontrado un número tan alto de nombres bloqueados",
+                "message9": "El nombre adjunto al número",
+                "message10": "ha sido eliminado",
+                "message11": "Colector detenido",
+                "message12": "La lista de nombres bloqueados ha sido limpiada",
+                "message13": "¡Esa función no es válida!"
+            }
+        },
+        "staff": {
+            "commandDoesNotExit": "¡Lástima! Ese comando no existe."
+        }
+    },
+
+    "data": {
+        "permissionsADMINme": "Necesito permiso de __Administrador__",
+        "permissionsRolesme": "Necesitas permisos de __Gestionar Roles__",
+        "permissionsMessagesMe": "Necesito permisos de __Gestionar Mensajes__",
+        "permissionsBanMe": "Necesito permisos de __Banear Miembros__",
+
+        "permissionsChannelsU": "Necesitas permisos de __Gestionar Canales__",
+        "permissionsOwner": "Necesitas ser __El propietario De Este Servidor__",
+        "permissionsADMIN": "Necesitas permiso de __Administrador__",
+        "permissionsMessages": "Necesitas permisos de __Gestionar Mensajes__",
+        "permissionsKick": "Necesitas permisos de __Expulsar Miembros__",
+        "permissionsBan": "Necesitas permisos de __Banear Miembros__"
+    }
+}

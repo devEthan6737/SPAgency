@@ -1,0 +1,1 @@
+// No deseamos que pueda leer la estructura de database de nuestra API.
