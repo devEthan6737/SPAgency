@@ -1,0 +1,26 @@
+{
+    "README": "Use objetos para poner anuncios en su bot. El tercero no está implementado. Puede cambiar los precios a su gusto.",
+
+    "mentionButton": {
+        "has": false,
+        "panel": "Panel para un anuncio.",
+        "url": "Url de un anuncio",
+        "emoji": null,
+        "price": "1.99€ x mes"
+    },
+    "botStatus": {
+        "has": false,
+        "message": "https://google.com/ !",
+        "type": "PLAYING",
+        "price": "9.99€ x mes"
+    },
+    "embedInCommandsPanel": {
+        "has": false,
+        "buttonPanel": "Ver google",
+        "embedTitle": "¿Qué es google?",
+        "embedDescription": "No lo sé, pero probablemente te interese reservar este espacio por un mes para hacer promoción de lo que desees.",
+        "embedImage": "https://unaimagen.png",
+        "embedColor": "BLUE",
+        "price": "4.99€ x mes"
+    }
+}

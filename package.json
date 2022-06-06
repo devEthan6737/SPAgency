@@ -1,0 +1,40 @@
+{
+  "name": "spagency",
+  "canary": true,
+  "version": "6.8.1",
+  "description": "Bot de seguridad.",
+  "main": "index.js",
+  "achievements": { "1": { "name": "Cazador de bugs.", "description": "Reporta hasta 2 bugs en el bot." }, "2": { "name": "Rey de gremios.", "description": "Agrega a SPA a 10 servidores." }, "3": { "name": "Socio eterno.", "description": "Sé socio de SPA durante 2 años." }, "4": { "name": "Bisocio.", "description": "Sé socio de SPA en dos servidores." }, "5": { "name": "Socio.", "description": "Sé socio de SPA." }, "6": { "name": "Rey de mensajes.", "description": "Envía 100000 de mensajes en servidores con el antiraid inteligente activo." }, "7": { "name": "Buen ciudadano.", "description": "Reporta a 10 usuarios en SPA" }, "8": { "name": "Amante de SPA.", "description": "Boostea la pública de SPA." }, "9": { "name": "Premium.", "description": "Ser premium al menos una vez." }, "10": { "name": "Votante.", "description": "Vota 10 veces a SPA en top.gg" }, "11": { "name": "Votante con estilo.", "description": "Vota 100 veces a SPA en top.gg" }, "12": { "name": "Partidario inicial.", "description": "Haber usado a SPA entre 2020 y 2022." }, "13": { "name": "Mentalidad de elefante.", "description": "Obtén todos los logros." }, "14": { "name": "Humano.", "description": "Ser una persona hermosa y adorable." }, "15": { "name": "Sr humorístico.", "description": "Enviar un emoji al privado de SP Agency." } },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "The Indie Brand",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "@top-gg/sdk": "^3.1.3",
+    "anti-ip-logger": "^1.0.1",
+    "bufferutil": "^4.0.4",
+    "byte-size": "^8.1.0",
+    "cpu-stat": "^2.0.1",
+    "danbot-hosting": "^0.1.6",
+    "discord-api-types": "^0.23.1",
+    "discord.js": "^13.3.1",
+    "discord.js-light": "^4.7.0",
+    "fs": "^0.0.1-security",
+    "megadb": "^3.4.0",
+    "mongoose": "^6.0.7",
+    "ms": "^2.1.3",
+    "node-fetch": "^3.2.3",
+    "os": "^0.1.2",
+    "process": "^0.11.10",
+    "topgg-autoposter": "^2.0.1",
+    "ubfb": "^1.2.11",
+    "utf-8-validate": "^5.0.6"
+  },
+  "devDependencies": {
+    "eslint": "^7.25.0"
+  }
+}
