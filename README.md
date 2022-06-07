@@ -1,4 +1,4 @@
-# SP Agency
+# SP Agency Community Edition
 
 El bot de discord enfocado en la seguridad de los servidores. Eficaz, configurable e innovador.
 
