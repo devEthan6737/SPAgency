@@ -46,7 +46,7 @@ const client = new Discord.Client({
 });
 
 const mongoose = require('mongoose');
-mongoose.connect(package.canary? 'db de tu bot canario' : 'db del bot oficial', {
+mongoose.connect(package.canary? process.env.CANARY_BOT_DB : process.env.BOT_DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -66,13 +66,13 @@ client.on("shardConnect", async (shardId, guilds) => {
     console.log('Shard num' + shardId + ': LANZADO PARA ' + guilds.length + ' SERVIDORES.');
 });
 
-client.login(package.canary? "token de tu bot canario" : "token de tu bot oficial").then(async () => {
+client.login(package.canary? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKEN).then(async () => {
     console.log(`${client.user.tag} (${client.user.id}) se ha encendido con ${client.guilds.cache.size} servidores. Versión: ${package.version}.`);
 
     const ubfb = require('ubfb');
     client.ubfb = new ubfb(client, {
-        token: 'ubfb-token',
-        password: '#?'
+        token: process.env.UBFB_TOKEN,
+        password: process.env.UBFB_PASSWORD
     });
 
     // ------------------------------------
@@ -107,7 +107,7 @@ client.login(package.canary? "token de tu bot canario" : "token de tu bot oficia
     if(!package.canary) {
         // Si no te interesa publicar tus datos a DBH, elimina de la linea 92 a 96.
         const DanBotHosting = require("danbot-hosting");
-        client.danbot = new DanBotHosting.Client("danbot-token", client);
+        client.danbot = new DanBotHosting.Client(process.env.DANBOT_TOKEN, client);
         try{ await client.danbot.autopost(); }catch(err) {};
     }
 
