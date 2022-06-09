@@ -14,6 +14,7 @@ Explicaciones básicas:
 - Encontrarás código con ids de nuestros antiguos servidores o canales, cambialos.
 */
 
+require('dotenv').config();
 const package = require('./package.json');
 const Discord = require('discord.js-light');
 const client = new Discord.Client({
