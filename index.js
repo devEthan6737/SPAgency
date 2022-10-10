@@ -12,6 +12,7 @@ Explicaciones básicas:
 - Mantenga siempre discord.js-light en su última versión si usa shards.
 - En nuevos comandos requiera siempre discord.js-light y no discord.js
 - Encontrarás código con ids de nuestros antiguos servidores o canales, cambialos.
+- Antes de encender el bot debes rellenar los datos que se piden en el .env o .env.example. Si el archivo se llama .env.example cámbiale el nombre a .env.
 */
 
 require('dotenv').config();
@@ -46,7 +47,7 @@ const client = new Discord.Client({
 });
 
 const mongoose = require('mongoose');
-mongoose.connect(package.canary? process.env.CANARY_BOT_DB : process.env.BOT_DB, {
+mongoose.connect(package.canary ? process.env.CANARY_BOT_DB : process.env.BOT_DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -62,11 +63,7 @@ client.database = {
     users: new cacheManagerDatabase(client, 'u') // Caché para usuarios.
 }
 
-client.on("shardConnect", async (shardId, guilds) => {
-    console.log('Shard num' + shardId + ': LANZADO PARA ' + guilds.length + ' SERVIDORES.');
-});
-
-client.login(package.canary? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKEN).then(async () => {
+client.login(package.canary ? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKEN).then(async () => {
     console.log(`${client.user.tag} (${client.user.id}) se ha encendido con ${client.guilds.cache.size} servidores. Versión: ${package.version}.`);
 
     const ubfb = require('ubfb');
@@ -75,47 +72,31 @@ client.login(package.canary? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKE
         password: process.env.UBFB_PASSWORD
     });
 
-    // ------------------------------------
-    /* ----- Command + Event handler -----*/
-    // ------------------------------------
+    // ---------------------------------------------
+    /* ----- Command + Event + Error Handler -----*/
+    // ---------------------------------------------
 
-    const { readdirSync } = require('fs');
-    client.comandos = new Discord.Collection();
-    for(const file of readdirSync('./eventos/')) {
-        if(file.endsWith('.js')) {
-            const fileName = file.substring(0, file.length - 3);
-            const fileContents = require(`./eventos/${file}`);
-            client.on(fileName, fileContents.bind(null, client));
-            delete require.cache[require.resolve(`./eventos/${file}`)];
-        }
-    }
+    const EventsHandler = require('./handlers/events.js');
+    const CommandsHandler = require('./handlers/commands.js');
+    const ErrorsHandler = require('./handlers/errors.js');
 
-    for(const subcarpeta of readdirSync('./comandos/')) { 
-        for(const file of readdirSync('./comandos/' + subcarpeta)) { 
-            if(file.endsWith(".js")) {
-                let fileName = file.substring(0, file.length - 3); 
-                let fileContents = require(`./comandos/${subcarpeta}/${file}`); 
-                client.comandos.set(fileName, fileContents);
-            }
-        }
-    }
+    EventsHandler(client);
+    CommandsHandler(client);
 
-    // ------------------------------------
-    /* ----- Command + Event handler -----*/
-    // ------------------------------------
+    // ---------------------------------------------
+    /* ----- Command + Event + Error Handler -----*/
+    // ---------------------------------------------
 
     if(!package.canary) {
         // Si no te interesa publicar tus datos a DBH, elimina de la linea 92 a 96.
         const DanBotHosting = require("danbot-hosting");
         client.danbot = new DanBotHosting.Client(process.env.DANBOT_TOKEN, client);
-        try{ await client.danbot.autopost(); }catch(err) {};
+        try{ await client.danbot.autopost(); } catch(err) {};
     }
 
 });
 
-process.on('unhandledRejection', async (err) => {
-    console.error(err);
-});
+process.on('unhandledRejection', (err) => ErrorsHandler(err, client));
 
 /*
 ARCHIVOS QUE NO USAN SISTEMA DE LENGUAJES:
