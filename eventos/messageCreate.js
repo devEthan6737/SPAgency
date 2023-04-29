@@ -141,7 +141,7 @@ module.exports = async (client, message) => {
                 totalSeconds %= 3600;
                 let minutes = Math.floor(totalSeconds / 60);
                 let seconds = Math.floor(totalSeconds % 60);
-                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/RuBvM5r9eM', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor de Discord.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://top.gg/bot/779660400081764393).\n\n¿Conoces a mis creadores?\n\`↳\` **[! Ethan.#6737](https://youtu.be/fDWm3hND7q8)** - __Fundador, dessarrollador del bot y Director.__\n\`↳\` **! Raden.#2021** - __Director y gestor.__\n\`↳\` **Lil Bartrap#3222** - __Fundador y Director.__\n\`↳\` **! Re1k1z#7777** - __Director__.').addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SPA 24/7 - Propelled by DBH') ], components: [
+                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor de Discord.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://top.gg/bot/779660400081764393).\n\n¿Conoces a mis creadores?\n\`↳\` **[Ether#6267](https://youtu.be/fDWm3hND7q8)** - __CEO, desarrollador del bot.__\n\`↳\` **Camilo.EXEᴰᵉᵛ#4913** - __CEO.__\n\`↳\` **Lil Bartrap#3222** - __CEO.__\n\`↳\` **! Doctor Magico ᵗᶦᵇ#8085** - __CEO__.\n\`↳\` **! ᴊǫ#8398** - __CEO__.\n\`↳\` **zEzequiel,,#0849** - __CEO__.').addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SP Agency by TIB - Proppelled by HN') ], components: [
                     new Discord.MessageActionRow()
                     .addComponents(new Discord.MessageButton()
                         .setLabel('Tutorial')
@@ -160,9 +160,9 @@ module.exports = async (client, message) => {
                         .setStyle('LINK'))
                 ] });
             }else if(_guild.configuration.subData.pingMessage == 'pingLessDetails') {
-                message.reply({ content: '`Soporte 24/7:` https://discord.gg/RuBvM5r9eM', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SPA 24/7 - Propelled by DBH') ] });
+                message.reply({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SPA 24/7 - Propelled by DBH') ] });
             }else if(_guild.configuration.subData.pingMessage == 'onlySupportServer') {
-                message.reply({ content: '`Soporte 24/7:` https://discord.gg/RuBvM5r9eM' });
+                message.reply({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk' });
             }
             return;
         }
