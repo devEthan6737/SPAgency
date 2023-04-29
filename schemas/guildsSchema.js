@@ -173,4 +173,4 @@ const guildsSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Guild', guildsSchema);
+module.exports = mongoose.model('spagency_Guild', guildsSchema);

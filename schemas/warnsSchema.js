@@ -7,4 +7,4 @@ const warnsSchema = new mongoose.Schema({
     subCount: mongoose.SchemaTypes.Number
 });
 
-module.exports = mongoose.model('Warns', warnsSchema);
+module.exports = mongoose.model('spagency_Warns', warnsSchema);

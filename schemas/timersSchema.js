@@ -13,4 +13,4 @@ const timersSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Timers', timersSchema);
+module.exports = mongoose.model('spagency_Timers', timersSchema);

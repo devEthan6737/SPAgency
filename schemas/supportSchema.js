@@ -13,4 +13,4 @@ const supportSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Support', supportSchema);
+module.exports = mongoose.model('spagency_Support', supportSchema);

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const db = require('megadb');
 const dev = new db.crearDB('devsActivos', 'data_users');
 const Timers = require('../schemas/timersSchema');
@@ -8,21 +9,21 @@ const ads = require('../ads.json');
 
 module.exports = async (client) => {
 
-    client.guilds.cache.get('824582553243222036').members.fetch();
+    client.guilds.cache.get(process.env.PRIVATE_STAFF_GUILD).members.fetch();
     await dev.purgeall();
 
     setTimeout(() => {
-        client.guilds.cache.get('824582553243222036').members.cache.forEach(async x => {
-            if(x.user.id != '779660400081764393' && x.user.id != '852196003162882068') {
-                dev.set(x.user.id, {
-                    roles: x._roles,
+        client.guilds.cache.get(process.env.PRIVATE_STAFF_GUILD).members.cache.forEach(async Member => {
+            if(!Member.user.bot) {
+                dev.set(Member.user.id, {
+                    roles: Member._roles,
                     password: Math.floor(Math.random() * 9999999999)
                 });
                 if(!dev.has('array')) dev.set('array', []);
 
-                let support = await Support.findOne({ fetchStaff: x.user.id });
+                let support = await Support.findOne({ fetchStaff: Member.user.id });
                 if(!support) {
-                    dev.push('array', x.user.id);
+                    dev.push('array', Member.user.id);
                 }
             }
 
@@ -31,10 +32,10 @@ module.exports = async (client) => {
             let _timers = await Timers.findOne({ });
             let savingDevs = await dev.get('array');
             let newDevArray = [];
-            savingDevs.forEach(async x => {
-                let gettingDev = await dev.get(x);
+            savingDevs.forEach(async Dev => {
+                let gettingDev = await dev.get(Dev);
                 newDevArray.push({
-                    userId: x,
+                    userId: Dev,
                     password: gettingDev.password,
                     roles: gettingDev.roles
                 });
@@ -53,7 +54,9 @@ module.exports = async (client) => {
 
         let _timers = await Timers.findOne({ });
         let count = 0;
-        
+
+        if(!_timers.servers)return;
+
         for(x of _timers.servers) {
             if(typeof x != 'string')return;
             let _guild = await Guild.findOne({ id: x });

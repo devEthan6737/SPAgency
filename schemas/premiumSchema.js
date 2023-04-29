@@ -4,4 +4,4 @@ const premiumSchema = new mongoose.Schema({
     codes: mongoose.SchemaTypes.Array
 });
 
-module.exports = mongoose.model('PremiumCodes', premiumSchema);
+module.exports = mongoose.model('spagency_PremiumCodes', premiumSchema);

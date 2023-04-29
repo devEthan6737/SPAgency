@@ -28,4 +28,4 @@ const antiRF_Schema = new mongoose.Schema({
     servers: mongoose.SchemaTypes.Array
 });
 
-module.exports = mongoose.model('antiRF', antiRF_Schema);
+module.exports = mongoose.model('spagency_antiRF', antiRF_Schema);

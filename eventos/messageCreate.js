@@ -1,5 +1,6 @@
+require('dotenv').config();
 const Discord = require('discord.js-light');
-const { version, canary } = require('../package.json');
+const { version } = require('../package.json');
 const Guild = require('../schemas/guildsSchema');
 const Support = require('../schemas/supportSchema');
 const antiRF = require('../schemas/antiRF_Schema');
@@ -77,7 +78,7 @@ module.exports = async (client, message) => {
     }catch(err) {}
 
     let _guild = await fecthDataBase(client, message.guild, false); // <- The object of the server's database.
-    if(!_guild)return;
+    if(!_guild)return message.reply('Hubo un error en la base de datos.');
 
     if(_guild.configuration.ignoreChannels.includes(message.channel.id) && !message.content.startsWith(`${_guild.configuration.prefix}ignoreThisChannel`))return; // <- Ignoring channels...
 
@@ -425,8 +426,8 @@ module.exports = async (client, message) => {
                 date: 'hello?',
             },
             premium: {
-                isActive: canary? true : false,
-                endAt: canary? Infinity : 0
+                isActive: process.env.TURN_ON_CANARY === 'true'? true : false,
+                endAt: process.env.TURN_ON_CANARY === 'true'? Infinity : 0
             },
             servers: []
         });
@@ -441,11 +442,12 @@ module.exports = async (client, message) => {
         message.channel.send({ content: `<@${message.author.id}>,\n\n${frases[Math.floor(Math.random() * frases.length)]}` });
     }
 
-    if(canary && _guild.configuration.prefix != 'spc!') {
-        if(canary && _guild.configuration.language != 'es') _guild.configuration.language = 'es';
-        _guild.configuration.prefix = 'spc!';
+    if(process.env.TURN_ON_CANARY === 'true' && _guild.configuration.prefix != process.env.DEFAULT_CANARY_PREFIX) {
+        if(process.env.TURN_ON_CANARY === 'true' && _guild.configuration.language != process.env.DEFAULT_LANGUAGE) _guild.configuration.language = process.env.DEFAULT_LANGUAGE;
+        _guild.configuration.prefix = process.env.DEFAULT_CANARY_PREFIX;
         updateDataBase(client, message.guild, _guild, false);
     }
+
     let args = message.content.slice(_guild.configuration.prefix.length).trim().split(/ +/);
     let command = args.shift().toLowerCase();
 

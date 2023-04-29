@@ -1,21 +1,27 @@
 /*
-LEA LA LICENCIA ANTES DE MODIFICAR, COPIAR, MEJORAR, BASAR CÓDIGO U OTRO QUE TENGA QUE VER CON ESTE
+LEA LA LICENCIA Y/O EL README ANTES DE:
+MODIFICAR, COPIAR, MEJORAR, BASAR CÓDIGO U OTRO QUE TENGA QUE VER CON ESTE.
 
-Explicaciones básicas:
-- Necesita un conocimiento intermedio en NODEJS para entender el código, encuentre cursos en yt.
-- Ese archivo gestiona el bot canario (de pruebas) y el bot oficial, podrá intercambiar entre TRUE (si quieres encender el bot canario) o FALSE (para encender el bot oficial) dentro de PACKAGE.JSON, valor "canary"
-- El código tiene algunas fallas si lo desea implementar en un bot con más de 6.0000 servidores.
-- Los lenguajes no están terminados, deberá esperar a que algún desarrollador desee acabarlo o terminarlos por usted mismo. Ruta: ./LANG/es
-- Probablemente encuentre partes de código desactualizadas, su mayoría debido a que provienen de v12. Funcionales pero puede cambiarlo a su gusto.
-- Puede encontrar el gestor de caché en ./cacheManager.js
-- No hay módulos instalados, use "npm i" en la terminal para instalar todos los módulos del package.
-- Mantenga siempre discord.js-light en su última versión si usa shards.
-- En nuevos comandos requiera siempre discord.js-light y no discord.js
-- Encontrarás código con ids de nuestros antiguos servidores o canales, cambialos.
-- Antes de encender el bot debes rellenar los datos que se piden en el .env o .env.example. Si el archivo se llama .env.example cámbiale el nombre a .env.
+---------------------------------------------------------------------------
+------- PARA LOS QUE SABEMOS QUE NO HARÁN CASO AL MENSAJE DE ARRIBA -------
+---------------------------------------------------------------------------
+
+Copie, modifique, mejore o base este código siempre que obtengamos créditos
+como "THE INDIE BRAND", "SPA BY TIB" - O similares.
+
+Por defecto, estos créditos ya están agregados al código. No debe editarlo
+si lo encuentra. Si lo hace, no olvide agregarlos en otro lado del código
+el cual sea mostrado por el bot.
+
+Vaya al archivo .env para editar la configuración.
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
 */
 
 require('dotenv').config();
+const fs = require('fs');
 const package = require('./package.json');
 const Discord = require('discord.js-light');
 const client = new Discord.Client({
@@ -44,10 +50,11 @@ const client = new Discord.Client({
         VoiceStateManager: 0 // guild.voiceStates
     }),
     intents: [ Discord.Intents.FLAGS.GUILDS, "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_BANS", "GUILDS", "GUILD_EMOJIS_AND_STICKERS", "GUILD_INVITES", "GUILD_WEBHOOKS", "GUILD_INTEGRATIONS", "GUILD_VOICE_STATES", "DIRECT_MESSAGES", "DIRECT_MESSAGE_TYPING", "GUILD_MESSAGE_TYPING", "GUILD_SCHEDULED_EVENTS" ],
+    partials: [ 'CHANNEL', 'GUILD_MEMBER', 'GUILD_SCHEDULED_EVENT', 'MESSAGE', 'REACTION', 'USER' ]
 });
 
 const mongoose = require('mongoose');
-mongoose.connect(package.canary ? process.env.CANARY_BOT_DB : process.env.BOT_DB, {
+mongoose.connect(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_DB : process.env.BOT_DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -57,13 +64,13 @@ mongoose.connect(package.canary ? process.env.CANARY_BOT_DB : process.env.BOT_DB
 const { cacheManager, cacheManagerDatabase } = require('./cacheManager');
 client.super = {
     cache: new cacheManager() // Caché para datos útiles.
-}
+};
 client.database = {
     guilds: new cacheManagerDatabase(client, 'g'), // Caché para servidores.
     users: new cacheManagerDatabase(client, 'u') // Caché para usuarios.
-}
+};
 
-client.login(package.canary ? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKEN).then(async () => {
+client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKEN).then(async () => {
     console.log(`${client.user.tag} (${client.user.id}) se ha encendido con ${client.guilds.cache.size} servidores. Versión: ${package.version}.`);
 
     const ubfb = require('ubfb');
@@ -76,27 +83,35 @@ client.login(package.canary ? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOK
     /* ----- Command + Event + Error Handler -----*/
     // ---------------------------------------------
 
-    const EventsHandler = require('./handlers/events.js');
-    const CommandsHandler = require('./handlers/commands.js');
-    const ErrorsHandler = require('./handlers/errors.js');
+    client.comandos = new Discord.Collection();
+    for(const file of fs.readdirSync('./eventos/')) {
+        if(file.endsWith('.js')) {
+            const fileName = file.substring(0, file.length - 3);
+            const fileContents = require(`./eventos/${file}`);
+            client.on(fileName, fileContents.bind(null, client));
+            delete require.cache[require.resolve(`./eventos/${file}`)];
+        }
+    }
 
-    EventsHandler(client);
-    CommandsHandler(client);
+    for(const subcarpeta of fs.readdirSync('./comandos/')) { 
+        for(const file of fs.readdirSync('./comandos/' + subcarpeta)) { 
+            if(file.endsWith(".js")) {
+                let fileName = file.substring(0, file.length - 3); 
+                let fileContents = require(`./comandos/${subcarpeta}/${file}`); 
+                client.comandos.set(fileName, fileContents);
+            }
+        }
+    }
 
     // ---------------------------------------------
     /* ----- Command + Event + Error Handler -----*/
     // ---------------------------------------------
 
-    if(!package.canary) {
-        // Si no te interesa publicar tus datos a DBH, elimina de la linea 92 a 96.
-        const DanBotHosting = require("danbot-hosting");
-        client.danbot = new DanBotHosting.Client(process.env.DANBOT_TOKEN, client);
-        try{ await client.danbot.autopost(); } catch(err) {};
-    }
-
 });
 
-process.on('unhandledRejection', (err) => ErrorsHandler(err, client));
+process.on('unhandledRejection', (err) => {
+    console.error(err);
+});
 
 /*
 ARCHIVOS QUE NO USAN SISTEMA DE LENGUAJES:

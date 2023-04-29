@@ -11,4 +11,4 @@ const maliciousSchema = new mongoose.Schema({
     record: mongoose.SchemaTypes.String
 });
 
-module.exports = mongoose.model('Malicious', maliciousSchema);
+module.exports = mongoose.model('spagency_Malicious', maliciousSchema);

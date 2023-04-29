@@ -15,4 +15,4 @@ const backupsSchema = new mongoose.Schema({
     bans: mongoose.SchemaTypes.Array 
 });
 
-module.exports = mongoose.model('Backup', backupsSchema);
+module.exports = mongoose.model('spagency_Backup', backupsSchema);
