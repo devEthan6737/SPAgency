@@ -16,10 +16,6 @@ const usersWithCooldown = new Map();
 const cooldown = new Map();
 const responses = new Map();
 
-function deleteDB() {
-    // Obsoleto
-}
-
 function pulk(array, object) { // Sustituye <var>.splice();
     let newArray = [];
     for(x of array) {
