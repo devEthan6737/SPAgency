@@ -1,21 +1,20 @@
-// No es recomendable tocar algo de aquí si no sabes lo que haces.
-// Tiempo de respuesta estimado: 0ms-1ms
+const Cacheger = require('cacheger');
 
-const cache = new Map();
-
-class cacheManager {
+class cacheManager extends Cacheger {
     
-    constructor() {}
-
-    async post(parent, obj) {
-        if(cache.size > 5000) this.purge();
-        obj.date = Date.now(); obj.id = parent;
-        if(!obj.amount) obj.amount = 0; if(!obj.remember) obj.remember = [];
-        cache.set(parent, obj);
+    constructor(name, base = {}) {
+        super(name, base);
     }
 
-    async delete(parent) {
-        if(cache.has(parent)) cache.delete(parent);
+    async post(parent, obj) {
+        if(this[this.cacheName].size > 5000) this.purgeAll();
+        obj.date = Date.now();
+        obj.id = parent;
+        
+        if(!obj.amount) obj.amount = 0;
+        if(!obj.remember) obj.remember = [];
+
+        this[this.cacheName].set(parent, obj);
     }
 
     async up(parent, obj) {
@@ -30,11 +29,6 @@ class cacheManager {
         if(obj.amount >= 0) this.post(parent, obj);
     }
 
-    async get(parent, disableAutoCreate = false) {
-        if(!cache.has(parent) && disableAutoCreate == false) this.post(parent, {});
-        return await cache.get(parent);
-    }
-
     async push(obj, str) {
         if(!obj.remember) obj.remember = [];
         obj.remember.push(str);
@@ -45,16 +39,6 @@ class cacheManager {
         if(!obj.remember) obj.remember = [];
         obj.remember.splice(obj.remember.indexOf(str), 1);
         this.post(obj.id, obj);
-    }
-
-    async purge() {
-        cache.forEach(async x => {
-            if(Date.now() > x.date + 120000) this.delete(x.id);
-        });
-    }
-
-    async purgeAll() {
-        cache.clear();
     }
 }
 
