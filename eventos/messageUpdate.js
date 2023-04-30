@@ -20,6 +20,9 @@ module.exports = async (client, oldMessage, message) => {
     let _guild = await fecthDataBase(client, message.guild, false);
     if(!_guild)return;
 
+    if(!await client.super.cache.has(message.guild.id)) client.super.cache.setGuildBase(message.guild.id);
+    let cache = client.super.cache.get(message.guild.id);
+
     try{
         // Logs:
         if(_guild.configuration.logs[0]) {
@@ -33,26 +36,28 @@ module.exports = async (client, oldMessage, message) => {
         }
         
         // Snipes:
-        if(!_guild.moderation.dataModeration.snipes) _guild.moderation.dataModeration.snipes = {
-            editeds: [],
-            deleteds: []
-        }
-        if(_guild.moderation.dataModeration.snipes.editeds.length == 5) {
-            _guild.moderation.dataModeration.snipes.editeds = await pulk(_guild.moderation.dataModeration.snipes.editeds, _guild.moderation.dataModeration.snipes.editeds[0]);
-            _guild.moderation.dataModeration.snipes.editeds.push({
+        if(cache.snipes.editeds.length == 5) {
+            cache.snipes.editeds = await pulk(cache.snipes.editeds, cache.snipes.editeds[0]);
+            cache.snipes.editeds.push({
                 tag: message.author.tag,
                 displayAvatarURL: message.author.displayAvatarURL(),
-                content: oldMessage.content,
-                at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`
+                content: oldMessage.content? oldMessage.content : '> `Sin contenido del mensaje.`',
+                at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`,
+                attachments: {
+                    firstAttachment: oldMessage.attachments.size > 0? (oldMessage.attachments.first()).proxyURL : undefined,
+                    rest: oldMessage.attachments.size > 1? oldMessage.attachments.size - 1 : 0
+                }
             });
-        }else{
-            _guild.moderation.dataModeration.snipes.editeds.push({
-                tag: message.author.tag,
-                displayAvatarURL: message.author.displayAvatarURL(),
-                content: oldMessage.content,
-                at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`
-            });
-        }
+        }else cache.snipes.editeds.push({
+            tag: message.author.tag,
+            displayAvatarURL: message.author.displayAvatarURL(),
+            content: oldMessage.content? oldMessage.content : '> `Sin contenido del mensaje.`',
+            at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`,
+            attachments: {
+                firstAttachment: oldMessage.attachments.size > 0? oldMessage.attachments.first() : undefined,
+                rest: oldMessage.attachments.size > 1? oldMessage.attachments.size - 1 : 0
+            }
+        });
         
         if(_guild.configuration.ignoreChannels.includes(message.channel.id) && !message.content.startsWith(`${_guild.configuration.prefix}ignoreThisChannel`))return; // <- Ignoring channels...
 

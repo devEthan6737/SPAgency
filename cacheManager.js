@@ -2,43 +2,61 @@ const Cacheger = require('cacheger');
 
 class cacheManager extends Cacheger {
     
-    constructor(name, base = {}) {
+    constructor(name, base = {}, metadatable = true) {
         super(name, base);
+
+        this.metadatable = metadatable;
     }
 
-    async post(parent, obj) {
+    post(parent, obj) {
         if(this[this.cacheName].size > 5000) this.purgeAll();
-        obj.date = Date.now();
-        obj.id = parent;
-        
-        if(!obj.amount) obj.amount = 0;
-        if(!obj.remember) obj.remember = [];
+        if(this.metadatable) obj.date = Date.now();
+        if(this.metadatable) obj.id = parent;
+        if(this.metadatable && !obj.amount) obj.amount = 0;
+        if(this.metadatable && !obj.remember) obj.remember = [];
 
         this[this.cacheName].set(parent, obj);
     }
 
-    async up(parent, obj) {
+    up(parent, obj) {
+        if(!this.metadatable)return this.post(parent, obj);
+
         if(!obj.amount) obj.amount = 0;
         obj.amount = obj.amount + 1;
         if(obj.amount >= 0) this.post(parent, obj);
     }
 
-    async down(parent, obj) {
+    down(parent, obj) {
+        if(!this.metadatable)return this.post(parent, obj);
+
         if(!obj.amount) obj.amount = 0;
         obj.amount = obj.amount - 1;
         if(obj.amount >= 0) this.post(parent, obj);
     }
 
-    async push(obj, str) {
+    push(obj, str) {
+        if(!this.metadatable)return this.post(parent, obj);
+
         if(!obj.remember) obj.remember = [];
         obj.remember.push(str);
         this.post(obj.id, obj);
     }
 
-    async extract(obj, str) {
+    extract(obj, str) {
+        if(!this.metadatable)return this.post(parent, obj);
+
         if(!obj.remember) obj.remember = [];
         obj.remember.splice(obj.remember.indexOf(str), 1);
         this.post(obj.id, obj);
+    }
+
+    setGuildBase(parent) {
+        this.post(parent, {
+            snipes: {
+                editeds: [],
+                deleteds: []
+            }
+        });
     }
 }
 

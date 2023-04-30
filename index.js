@@ -65,8 +65,9 @@ const { cacheManager, cacheManagerDatabase } = require('./cacheManager');
 client.super = {
     cache: new cacheManager('utils') // Caché para datos útiles.
 };
+
 client.database = {
-    guilds: new cacheManagerDatabase(client, 'g'), // Caché para servidores.
+    guilds: new cacheManager('guilds', {}, metadabale = false), // Caché para servidores.
     users: new cacheManagerDatabase(client, 'u') // Caché para usuarios.
 };
 

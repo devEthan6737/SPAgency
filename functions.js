@@ -291,7 +291,7 @@ async function ratelimitFilter(message) {
 }
 
 async function fecthDataBase(client, guild, save = true) {
-    let database = await client.database.guilds.get(guild.id, true) || await Guild.findOne({ id: guild.id });
+    let database = await client.database.guilds.get(guild.id) || await Guild.findOne({ id: guild.id });
     if(!database)return install_commands(client, guild);
     if(save) updateDataBase(client, guild, database);
     return database;
@@ -352,7 +352,7 @@ async function getResponseAndDelete(userId) {
 }
 
 module.exports = {
-    deleteDB, selectMenu, pulk, dataRequired, automoderator, intelligentSOS, ratelimitFilter,
+    selectMenu, pulk, dataRequired, automoderator, intelligentSOS, ratelimitFilter,
     fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase, newResponse,
     getResponseAndDelete
 }

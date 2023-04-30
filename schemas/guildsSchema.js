@@ -119,10 +119,6 @@ const guildsSchema = new mongoose.Schema({
                 ghostping: mongoose.SchemaTypes.Boolean,
                 nsfwFilter: mongoose.SchemaTypes.Boolean,
                 iploggerFilter: mongoose.SchemaTypes.Boolean
-            },
-            snipes: {
-                editeds: mongoose.SchemaTypes.Array,
-                deleteds: mongoose.SchemaTypes.Array
             }
         },
         automoderator: {

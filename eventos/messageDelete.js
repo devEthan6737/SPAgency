@@ -17,6 +17,9 @@ module.exports = async (client, message) => {
     if(!_guild)return;
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
+    if(!await client.super.cache.has(message.guild.id)) client.super.cache.setGuildBase(message.guild.id);
+    let cache = client.super.cache.get(message.guild.id);
+
     try{
         // Logs:
         if(_guild.configuration.logs[0]) {
@@ -24,26 +27,28 @@ module.exports = async (client, message) => {
         }
 
         // Snipes:
-        if(!_guild.moderation.dataModeration.snipes) _guild.moderation.dataModeration.snipes = {
-            editeds: [],
-            deleteds: []
-        }
-        if(_guild.moderation.dataModeration.snipes.deleteds.length == 5) {
-            _guild.moderation.dataModeration.snipes.deleteds = await pulk(_guild.moderation.dataModeration.snipes.deleteds, _guild.moderation.dataModeration.snipes.deleteds[0]);
-            _guild.moderation.dataModeration.snipes.deleteds.push({
+        if(cache.snipes.deleteds.length == 5) {
+            cache.snipes.deleteds = await pulk(cache.snipes.deleteds, cache.snipes.deleteds[0]);
+            cache.snipes.deleteds.push({
                 tag: message.author.tag,
                 displayAvatarURL: message.author.displayAvatarURL(),
-                content: message.content,
-                at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`
+                content: message.content.length? message.content : '> `Sin contenido del mensaje.`',
+                at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`,
+                attachments: {
+                    firstAttachment: message.attachments.size > 0? (message.attachments.first()).proxyURL : undefined,
+                    rest: message.attachments.size > 1? message.attachments.size - 1 : 0
+                }
             });
-        }else{
-            _guild.moderation.dataModeration.snipes.deleteds.push({
-                tag: message.author.tag,
-                displayAvatarURL: message.author.displayAvatarURL(),
-                content: message.content,
-                at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`
-            });
-        }
+        }else cache.snipes.deleteds.push({
+            tag: message.author.tag,
+            displayAvatarURL: message.author.displayAvatarURL(),
+            content: message.content.length? message.content : '> `Sin contenido del mensaje.`',
+            at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`,
+            attachments: {
+                firstAttachment: message.attachments.size > 0? (message.attachments.first()).proxyURL : undefined,
+                rest: message.attachments.size > 1? message.attachments.size - 1 : 0
+            }
+        });
 
         if(!message.member.permissions.has('MANAGE_MESSAGES')) {
 
@@ -69,5 +74,6 @@ module.exports = async (client, message) => {
         }
 
         updateDataBase(client, message.guild, _guild, true);
+        client.super.cache.post(message.guild.id, cache);
     }catch(err) {}
 }
