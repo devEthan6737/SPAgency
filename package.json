@@ -1,7 +1,6 @@
 {
   "name": "spagency",
-  "canary": true,
-  "version": "6.8.1",
+  "version": "6.9.1",
   "description": "Bot de seguridad.",
   "main": "index.js",
   "achievements": {
@@ -79,6 +78,7 @@
     "anti-ip-logger": "^1.0.1",
     "bufferutil": "^4.0.4",
     "byte-size": "^8.1.0",
+    "cacheger": "^1.1.1",
     "cpu-stat": "^2.0.1",
     "danbot-hosting": "^0.1.6",
     "discord-api-types": "^0.23.1",
@@ -93,7 +93,7 @@
     "os": "^0.1.2",
     "process": "^0.11.10",
     "topgg-autoposter": "^2.0.1",
-    "ubfb": "^1.2.11",
+    "ubfb": "^4.0.0",
     "utf-8-validate": "^5.0.6"
   },
   "devDependencies": {
