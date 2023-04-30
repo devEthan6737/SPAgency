@@ -63,7 +63,7 @@ mongoose.connect(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_
 
 const { cacheManager, cacheManagerDatabase } = require('./cacheManager');
 client.super = {
-    cache: new cacheManager() // Caché para datos útiles.
+    cache: new cacheManager('utils') // Caché para datos útiles.
 };
 client.database = {
     guilds: new cacheManagerDatabase(client, 'g'), // Caché para servidores.
@@ -73,11 +73,13 @@ client.database = {
 client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKEN).then(async () => {
     console.log(`${client.user.tag} (${client.user.id}) se ha encendido con ${client.guilds.cache.size} servidores. Versión: ${package.version}.`);
 
-    const ubfb = require('ubfb');
-    client.ubfb = new ubfb(client, {
-        token: process.env.UBFB_TOKEN,
-        password: process.env.UBFB_PASSWORD
-    });
+    // UBFB obsoleto por el momento.
+    client.ubfb = {};
+    // const ubfb = require('ubfb');
+    // client.ubfb = new ubfb(client, {
+    //     token: process.env.UBFB_TOKEN,
+    //     password: process.env.UBFB_PASSWORD
+    // });
 
     // ---------------------------------------------
     /* ----- Command + Event + Error Handler -----*/
