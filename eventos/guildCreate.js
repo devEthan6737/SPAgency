@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Discord = require('discord.js-light');
 const antiRF = require('../schemas/antiRF_Schema');
 const Timers = require('../schemas/timersSchema');
@@ -9,7 +10,7 @@ module.exports = async (client, guild) => {
             await install_commands(client, guild);
 
             // Notificación de nuevo gremio.
-            client.channels.cache.get('822642842098597958').send({ embeds: [ new Discord.MessageEmbed().setThumbnail(`${guild.iconURL()}`).setTitle('Nuevo Servidor.').addField('Servidor', `${guild.name} (${guild.id})`).addField('Region', `${guild.region}`).addField('Roles', `${guild.roles.cache.size}`).addField('Miembros', `${guild.memberCount}`).setTimestamp().setColor(0x0056ff).setFooter(`${guild.name}`, `${guild.iconURL()}`) ] });
+            client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ new Discord.MessageEmbed().setThumbnail(`${guild.iconURL()}`).setTitle('Nuevo Servidor.').addField('Servidor', `${guild.name} (${guild.id})`).addField('Region', `${guild.region}`).addField('Roles', `${guild.roles.cache.size}`).addField('Miembros', `${guild.memberCount}`).setTimestamp().setColor(0x0056ff).setFooter(`${guild.name}`, `${guild.iconURL()}`) ] });
 
             // Requiriendo usuario de mongoose:
             let user = await antiRF.findOne({ user: guild.ownerId });

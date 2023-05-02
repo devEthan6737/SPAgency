@@ -63,7 +63,8 @@ mongoose.connect(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_
 
 const { cacheManager, cacheManagerDatabase } = require('./cacheManager');
 client.super = {
-    cache: new cacheManager('utils') // Caché para datos útiles.
+    cache: new cacheManager('utils'), // Caché para datos útiles.
+    staff: new cacheManager('staff') // Caché para el staff del bot.
 };
 
 client.database = {

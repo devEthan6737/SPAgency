@@ -1,48 +1,22 @@
 require('dotenv').config();
-const db = require('megadb');
-const dev = new db.crearDB('devsActivos', 'data_users');
 const Timers = require('../schemas/timersSchema');
 const Guild = require('../schemas/guildsSchema');
-const Support = require('../schemas/supportSchema');
 const { pulk } = require('../functions');
 const ads = require('../ads.json');
 
 module.exports = async (client) => {
 
     client.guilds.cache.get(process.env.PRIVATE_STAFF_GUILD).members.fetch();
-    await dev.purgeall();
 
     setTimeout(() => {
         client.guilds.cache.get(process.env.PRIVATE_STAFF_GUILD).members.cache.forEach(async Member => {
-            if(!Member.user.bot) {
-                dev.set(Member.user.id, {
+            if(!Member.user.bot && Member._roles.includes('1055967318485762140')) {
+                client.super.staff.post(Member.user.id, {
                     roles: Member._roles,
                     password: Math.floor(Math.random() * 9999999999)
                 });
-                if(!dev.has('array')) dev.set('array', []);
-
-                let support = await Support.findOne({ fetchStaff: Member.user.id });
-                if(!support) {
-                    dev.push('array', Member.user.id);
-                }
             }
-
         });
-        setTimeout(async () => {
-            let _timers = await Timers.findOne({ });
-            let savingDevs = await dev.get('array');
-            let newDevArray = [];
-            savingDevs.forEach(async Dev => {
-                let gettingDev = await dev.get(Dev);
-                newDevArray.push({
-                    userId: Dev,
-                    password: gettingDev.password,
-                    roles: gettingDev.roles
-                });
-            });
-            _timers.staff = newDevArray;
-            _timers.save();
-        }, 10000);
     }, 60000);
 
     setInterval(async () => {
@@ -50,8 +24,7 @@ module.exports = async (client) => {
             type: `${ads.botStatus.has? ads.botStatus.type : 'PLAYING'}`
         });
 
-        client.super.cache.purgeAll();
-
+        return; // A partir de aquí saltan errores.
         let _timers = await Timers.findOne({ });
         let count = 0;
 
