@@ -141,7 +141,7 @@ module.exports = async (client, message) => {
                 totalSeconds %= 3600;
                 let minutes = Math.floor(totalSeconds / 60);
                 let seconds = Math.floor(totalSeconds % 60);
-                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor de Discord.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://discord.com/oauth2/authorize?client_id=' + (process.env.TURN_ON_CANARY === 'true'? '1101973023952740364' : '1038614901394002020') + '&permissions=8&scope=bot).\n\n¿Conoces a mis creadores?\n\`↳\` **[Ether#6267](https://youtu.be/fDWm3hND7q8)** - __CEO, desarrollador del bot.__\n\`↳\` **Camilo.EXEᴰᵉᵛ#4913** - __CEO.__\n\`↳\` **Lil Bartrap#3222** - __CEO.__\n\`↳\` **! Doctor Magico ᵗᶦᵇ#8085** - __CEO__.\n\`↳\` **! ᴊǫ#8398** - __CEO__.\n\`↳\` **zEzequiel,,#0849** - __CEO__.').addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SP Agency by TIB - Proppelled by HN') ], components: [
+                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor de Discord.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://discord.com/oauth2/authorize?client_id=' + (process.env.TURN_ON_CANARY === 'true'? '1101973023952740364' : '1038614901394002020') + '&permissions=8&scope=bot).\n\n¿Conoces a mis creadores?\n\`↳\` **[Ether#6267](https://youtu.be/fDWm3hND7q8)** - __Fundador y contribuidor.__\n\`↳\` **[Dirquel](https://github.com/dirquel)** - __Contribuidor.__\n\`↳\` **[Danielmoraless](https://github.com/danielmoraless)** - __Contribuidor.__').addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SP Agency by TIB - Proppelled by HN') ], components: [
                     new Discord.MessageActionRow()
                     .addComponents(new Discord.MessageButton()
                         .setLabel('Tutorial')
@@ -491,14 +491,10 @@ module.exports = async (client, message) => {
         return;
     }
 
-    if(await ratelimitFilter(message) == true) {
-        if(_guild.protection.intelligentSOS.cooldown == true) _guild.protection.intelligentSOS.cooldown == false;
-        let moreData = [];
-        if(message.guild.roles.highest.id != message.guild.me.roles.highest.id) moreData.push('`> Alerta de seguridad:` El bot no tiene el rol más alto en el servidor.');
-        if(_guild.protection.antiraid.enable == false) moreData.push('`> Alerta de seguridad:` El sistema antiraid está desactivado en este servidor (Activar con `' + _guild.configuration.prefix + 'antiraid`).');
-        if(moreData.length >= 1 && Math.floor(Math.random() * 100) >= 50) {
-            message.channel.send({ content: '**Recordatorio:**', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${moreData.map(x => `${x}\n`).join('\n')}`) ] });
-        }
+    if(await ratelimitFilter(message)) {
+        if(_guild.protection.intelligentSOS.cooldown) _guild.protection.intelligentSOS.cooldown = false;
+        if((message.guild.roles.highest.id != message.guild.me.roles.highest.id || !_guild.protection.antiraid.enable) && Math.floor(Math.random() * 100) >= 50) message.channel.send({ content: '**Recordatorio:**', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription((message.guild.roles.highest.id != message.guild.me.roles.highest.id? '`> Alerta de seguridad:` El bot no tiene el rol más alto en el servidor.\n' : '') + (!_guild.protection.antiraid.enable? '`> Alerta de seguridad:` El sistema antiraid está desactivado en este servidor (Activar con `' + _guild.configuration.prefix + 'antiraid`).' : '')) ] });
+
         await cmd.run(client, message, args, _guild, user);
     }
 }

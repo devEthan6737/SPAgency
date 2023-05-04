@@ -73,6 +73,7 @@ client.database = {
 };
 
 client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKEN : process.env.BOT_TOKEN).then(async () => {
+    Discord.client = client;
     console.log(`${client.user.tag} (${client.user.id}) se ha encendido con ${client.guilds.cache.size} servidores. Versión: ${package.version}.`);
 
     // UBFB obsoleto por el momento.

@@ -8,7 +8,7 @@ module.exports = async (client) => {
 
     client.guilds.cache.get(process.env.PRIVATE_STAFF_GUILD).members.fetch();
 
-    setTimeout(() => {
+    setTimeout(async () => {
         client.guilds.cache.get(process.env.PRIVATE_STAFF_GUILD).members.cache.forEach(async Member => {
             if(!Member.user.bot && Member._roles.includes('1055967318485762140')) {
                 client.super.staff.post(Member.user.id, {
@@ -17,9 +17,7 @@ module.exports = async (client) => {
                 });
             }
         });
-    }, 60000);
 
-    setInterval(async () => {
         client.user.setActivity(`${ads.botStatus.has? ads.botStatus.message : 'https://dash.huguitishosting.com/ !'}`, {
             type: `${ads.botStatus.has? ads.botStatus.type : 'PLAYING'}`
         });
@@ -91,7 +89,6 @@ module.exports = async (client) => {
                 }
             });
         }
+    }, 60000);
 
-    }, 120000);
-
-};
+};  

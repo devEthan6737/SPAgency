@@ -1,4 +1,5 @@
 const Cacheger = require('cacheger');
+const client = require('discord.js-light').client;
 
 class cacheManager extends Cacheger {
     
@@ -53,8 +54,18 @@ class cacheManager extends Cacheger {
     setGuildBase(parent) {
         this.post(parent, {
             snipes: {
-                editeds: [],
-                deleteds: []
+                editeds: [
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                ],
+                deleteds: [
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                ]
             }
         });
     }
