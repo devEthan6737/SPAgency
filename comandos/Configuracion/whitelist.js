@@ -14,7 +14,6 @@ module.exports = {
         if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
 
         let row = []; // Row del comando "remove", se declara aquí para evitar errores.
-        message.guild.members.fetch();
         if(args[0] == 'add') {
             let botID = message.mentions.users.first();
             if(!botID)return message.reply(await dataRequired('¡Necesitas mencionar a un usuario!\n\n' + _guild.configuration.prefix + 'whitelist <verifiedBotMention>'));
@@ -33,7 +32,7 @@ module.exports = {
                 message.reply('<a:sp_loading:805810562349006918> Generando row...').then(x => {
                     setTimeout(async () => {
                         _guild.configuration.whitelist.forEach(async x => {
-                            let dataBot = await client.users.cache.get(x);
+                            let dataBot = await client.users.cache.get(x) || await client.users.fetch(x);
                             if(dataBot) {
                                 row.push({
                                     label: `${dataBot.username}`,
