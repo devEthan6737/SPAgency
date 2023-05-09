@@ -1,6 +1,6 @@
 {
   "name": "spagency",
-  "version": "6.9.4",
+  "version": "6.9.5",
   "description": "Bot de seguridad.",
   "main": "index.js",
   "achievements": {
