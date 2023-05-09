@@ -1,6 +1,7 @@
 const Discord = require('discord.js-light');
 const { dataRequired } = require('../../functions');
 const _queja = new Discord.MessageEmbed().setColor(0x0056ff);
+require('dotenv').config();
 
 module.exports = {
     nombre: "queja",
@@ -21,7 +22,7 @@ module.exports = {
                 if(`${m.content}`.toLowerCase() == 'enviar') {
                     _queja.setDescription(args.join(' ')).setTitle('' + LANG.commands.others.queja.message3 + '.');
                     message.reply({ embeds: [ _queja ], ephemeral: true });
-                    client.channels.cache.get('782712586519969792').send({ embeds: [ _queja.setTitle('Queja.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _queja.setTitle('Queja.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
                     collector.stop();
                 }else {
                     message.channel.send({ content: '' + LANG.commands.others.queja.message4 +'.' });

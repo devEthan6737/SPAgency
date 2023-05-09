@@ -6,6 +6,7 @@ const Discord = require('discord.js-light');
 const ms = require('ms');
 const { pulk, fecthDataBase, updateDataBase, fecthUsersDataBase } = require('../functions');
 const characters = 'qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM1234567890';
+require('dotenv').config();
 
 module.exports = async (client, member) => {
     client.users.fetch(member.guild.ownerId);
@@ -102,7 +103,7 @@ module.exports = async (client, member) => {
         if(_guild.protection.warnEntry == true) {
             if(malicious && malicious.isMalicious) {
                 client.users.cache.get(member.guild.ownerId).send({ embeds: [new Discord.MessageEmbed().setDescription(`${LANG.events.guildMemberAdd.warnEntry_MessagePart1} \`${member.guild.name}\`.\n\n${LANG.events.guildMemberAdd.warnEntry_MessagePart2} <@${member.user.id}> (${member.user.id}) ${LANG.events.guildMemberAdd.warnEntry_MessagePart3} \`${member.guild.name} (${member.guild.id})\`.`).addField(`${LANG.events.guildMemberAdd.warnEntry_MessagePart4}:`, `Tag: **${member.user.tag}**\nID: **${member.user.id}**\n${LANG.events.guildMemberAdd.warnEntry_MessagePart5}: **${malicious.reason}**`).setColor(0x0056ff) ] }).catch(err => {});
-                client.channels.cache.get('822649641715630151').send({ embeds: [ new Discord.MessageEmbed().setDescription(`Usuario Malicioso Detectado En \`${member.guild.name} (${member.guild.id})\``).addField('Usuario:', `<@${member.user.id}> (${member.user.id})`, true).setTimestamp().setColor(0x0056ff) ] }).catch(err => {});
+                client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ new Discord.MessageEmbed().setDescription(`Usuario Malicioso Detectado En \`${member.guild.name} (${member.guild.id})\``).addField('Usuario:', `<@${member.user.id}> (${member.user.id})`, true).setTimestamp().setColor(0x0056ff) ] }).catch(err => {});
             }
         }
 

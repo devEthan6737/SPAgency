@@ -1,6 +1,7 @@
 const Discord = require('discord.js-light');
 const { dataRequired } = require('../../functions');
 const _sugerencia = new Discord.MessageEmbed().setColor(0x0056ff);
+require('dotenv').config();
 
 module.exports = {
     nombre: "sugerencia",
@@ -20,7 +21,7 @@ module.exports = {
                 if(`${m.content}`.toLowerCase() == 'enviar') {
                     _sugerencia.setDescription(args.join(' ')).setTitle('Sugerencia enviada al soporte de SPA.');
                     message.reply({ embeds: [ _sugerencia ], ephemeral: true });
-                    client.channels.cache.get('782712586519969792').send({ embeds: [ _sugerencia.setTitle('Sugerencia.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _sugerencia.setTitle('Sugerencia.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
                     collector.stop();
                 }else {
                     message.channel.send({ content: 'Entendido, he detenido el comando.' });

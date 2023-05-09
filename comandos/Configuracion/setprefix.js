@@ -1,4 +1,5 @@
 const { dataRequired, updateDataBase } = require('../../functions');
+require('dotenv').config();
 
 module.exports = {
     nombre: "setprefix",
@@ -14,6 +15,6 @@ module.exports = {
         _guild.configuration.prefix = args[0];
         updateDataBase(client, message.guild, _guild, true);
         message.reply({ content: `> Prefijo actualizado a \`${args[0]}\`` });
-        client.channels.cache.get('822642829335593081').send(`Prefix actualizado a \`${args[0]}\` en **${message.guild.name}** (${message.guild.id})`);
+        client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send(`Prefix actualizado a \`${args[0]}\` en **${message.guild.name}** (${message.guild.id})`);
     }
 }

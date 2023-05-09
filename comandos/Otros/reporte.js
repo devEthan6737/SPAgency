@@ -5,6 +5,7 @@ const Malicious = require('../../schemas/maliciousSchema');
 const { fecthUsersDataBase } = require('../../functions');
 const _reporte = new Discord.MessageEmbed().setColor(0x0056ff);
 const razones = [ 'Raider', 'Miembro de una squad', 'Dox', 'Bot raider', 'Spam al md', 'Flood', 'Suplantar identidad', 'Nsfw', 'Toxicidad', 'Amenaza', 'Estafa', 'Infectar usuarios', 'Multicuenta maliciosa', 'Infiltración', 'Plagio', 'Generadores uncheked', 'Uso de tools', 'Incitación a lo repulsivo', 'Violación del Tos', 'Selfbot', 'Abuso de SP Agency', 'DDos'];
+require('dotenv').config();
 
 module.exports = {
     nombre: "reporte",
@@ -63,7 +64,7 @@ module.exports = {
                                     return;
                                 }
                                 args[2] = __m.content;
-                                client.channels.cache.get('782712586519969792').send({ embeds: [ _reporte.setTitle('Reporte.').setDescription('```js\n' + args[0] + '\n' + args[1] + '\n' + args[2] + '```').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                                client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _reporte.setTitle('Reporte.').setDescription('```js\n' + args[0] + '\n' + args[1] + '\n' + args[2] + '```').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
                                 _timers.maliciousQueue.push({
                                     id: args[0],
                                     reason: args[1],
