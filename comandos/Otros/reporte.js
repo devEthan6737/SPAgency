@@ -64,7 +64,7 @@ module.exports = {
                                     return;
                                 }
                                 args[2] = __m.content;
-                                client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _reporte.setTitle('Reporte.').setDescription('```js\n' + args[0] + '\n' + args[1] + '\n' + args[2] + '```').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                                client.channels.cache.get(process.env.UBFB_REPORTS).send({ embeds: [ _reporte.setTitle('Reporte.').setDescription('```js\n' + args[0] + '\n' + args[1] + '\n' + args[2] + '```').setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
                                 _timers.maliciousQueue.push({
                                     id: args[0],
                                     reason: args[1],
