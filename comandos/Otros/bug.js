@@ -20,10 +20,10 @@ module.exports = {
         collector.on('collect', async m => {
             if(m.content == '')return;
             if(m.author.id == message.author.id) {                    
-                if(`${m.content}`.toLowerCase() == 'enviar') {
+                if(`${m.content}`.toLowerCase() == 'enviar') { // esto hay que ver con los lenguajes para que si está en inglés tengas que poner send en vez de enviar, etc.
                     _bug.setDescription(args.join(' ')).setTitle(`${LANG.commands.others.bug.message3}.`);
                     message.reply({ embeds: [ _bug ], ephemeral: true });
-                    client.channels.cache.get('782712586519969792').send({ embeds: [ _bug.setTitle('Bug.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _bug.setTitle('Bug.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
                     collector.stop();
                 }else {
                     message.channel.send({ content: `${LANG.commands.others.bug.message4}.` });

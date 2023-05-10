@@ -240,8 +240,7 @@ async function intelligentSOS(_guild, client, eventType) {
         let guild = await client.guilds.cache.get(_guild.id) || await client.guilds.fetch(_guild.id);
         let invite = await guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
         if(invite != undefined) {
-            client.channels.cache.get('0').send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
-            client.channels.cache.get('0').send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
+            client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
         }
 
         _guild.protection.intelligentSOS.cooldown = true;
