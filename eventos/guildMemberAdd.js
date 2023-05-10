@@ -6,7 +6,6 @@ const Discord = require('discord.js-light');
 const ms = require('ms');
 const { pulk, fecthDataBase, updateDataBase, fecthUsersDataBase } = require('../functions');
 const characters = 'qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM1234567890';
-require('dotenv').config();
 
 module.exports = async (client, member) => {
     client.users.fetch(member.guild.ownerId);
