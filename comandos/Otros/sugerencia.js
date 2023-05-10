@@ -1,7 +1,6 @@
 const Discord = require('discord.js-light');
 const { dataRequired } = require('../../functions');
 const _sugerencia = new Discord.MessageEmbed().setColor(0x0056ff);
-require('dotenv').config();
 
 module.exports = {
     nombre: "sugerencia",
