@@ -1,6 +1,5 @@
 const Discord = require('discord.js-light');
 const ms = require('ms');
-require('dotenv').config();
 
 module.exports = async (client, malicious) => {
     await client.users.fetch(malicious.userId);
