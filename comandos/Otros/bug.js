@@ -2,7 +2,6 @@ const Discord = require('discord.js-light');
 const antiRF = require('../../schemas/antiRF_Schema');
 const { dataRequired, fecthUsersDataBase } = require('../../functions');
 const _bug = new Discord.MessageEmbed().setColor(0x0056ff);
-require('dotenv').config();
 
 module.exports = {
     nombre: "bug",
