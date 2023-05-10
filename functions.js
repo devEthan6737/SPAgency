@@ -15,7 +15,6 @@ const dataRow = new db.crearDB('dataRows', 'data_bot');
 const usersWithCooldown = new Map();
 const cooldown = new Map();
 const responses = new Map();
-require('dotenv').config()
 
 function pulk(array, object) { // Sustituye <var>.splice();
     let newArray = [];
