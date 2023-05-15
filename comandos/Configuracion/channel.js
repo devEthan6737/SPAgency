@@ -23,7 +23,7 @@ module.exports = {
                 let channelMention = message.mentions.channels.first();
                 if(!channelMention)return message.reply(await dataRequired(LANG.commands.config.channel.message6 + _guild.configuration.prefix + LANG.commands.config.channel.message7));
                 if(message.guild.channels.cache.has(channelMention.id)) {
-                    if(!channelMention.parentId)return message.reply(LANG.errors.e3);
+                    if(!channelMention.parentId)return message.reply(LANG..commands.config.channel.message11);
                     channelMention.delete().catch(err => {});
                     message.reply({ content: LANG.commands.config.channel.message8, ephemeral: true });
                 }else{
