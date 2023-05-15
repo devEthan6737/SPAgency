@@ -92,6 +92,53 @@
                 "message10": "¡Esa función no es válida!\n\n",
                 "message11": "`Error 003`: El canal debe estar en este servidor."
             },
+            "guild": {
+                "message1": "No has especificado la función del comando.\n\n",
+                "message2": "guild {setIcon <url>, setName <message>, createInvite, info}",
+                "message3": "No has especificado el nuevo nombre del servidor.\n\n",
+                "message4": "guild setName <newName>",
+                "message5": "No has especificado el nuevo icono del servidor.\n\n",
+                "message6": "guild setName <newUrl>",
+                "message7": "Icono del gremio editado.",
+                "message8": [
+                    "Canal AFK:",
+                    "No hay canal afk.",
+                    "No hay ID del canal afk.",
+                    "Tiempo para establecer afk:",
+                    "Sin tiempo establecido.",
+                    "Cantidad de baneos:",
+                    "Cantidad de canales:",
+                    "Creado el:",
+                    "Tipo de notificaciones:",
+                    "Ninguna.",
+                    "Emojis:",
+                    "Filtro de contenido explícito:",
+                    "Sin filtro establecido.",
+                    "Miembros máximos:",
+                    "Miembros:",
+                    "Nivel de seguridad:",
+                    "Nivel de nsfw:",
+                    "Id del owner:",
+                    "Servidor partner:",
+                    "Sí.",
+                    "No.",
+                    "Boosters:",
+                    "Nivel del servidor:",
+                    "Cantidad de roles:",
+                    "Rol más alto del servidor:",
+                    "No hay rol más alto.",
+                    "Canal de reglas:",
+                    "No hay.",
+                    "Id del shard:",
+                    "Stickers:",
+                    "VanityCode:",
+                    "Nivel de verificación:",
+                    "Descripcción del servidor:",
+                    "No hay descripción."
+                ],
+                "message9": "¡Esa función no es válida!\n\n",
+                "message10": "guild {setIcon <url>, setName <message>, createInvite, info}"
+            },
             "language": {
                 "message1": "No has especificado el idioma",
                 "message2": "Ese lenguaje no existe o no está disponible",
@@ -377,6 +424,7 @@
         "permissionsADMIN": "Necesitas permiso de __Administrador__",
         "permissionsMessages": "Necesitas permisos de __Gestionar Mensajes__",
         "permissionsKick": "Necesitas permisos de __Expulsar Miembros__",
-        "permissionsBan": "Necesitas permisos de __Banear Miembros__"
+        "permissionsBan": "Necesitas permisos de __Banear Miembros__",
+        "permissionsCreateInvite": "Necesitas permisos de __Crear Invitaciones__."
     }
 }
