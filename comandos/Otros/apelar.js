@@ -1,7 +1,6 @@
 const Discord = require('discord.js-light');
 const { dataRequired } = require('../../functions');
 const Malicious = require('../../schemas/maliciousSchema');
-require('dotenv').config();
 
 module.exports = {
     nombre: "apelar",
@@ -25,7 +24,7 @@ module.exports = {
                 .setDescription(`Solicitud de apelación.\n\n**${message.author.tag}** | **${message.author.id}**`)
                 .addField('Apelación:', `\`${message}\``)
                 .setFooter(`Servidor: ${message.guild.name} (${message.guild.id})`);
-            client.channels.cache.get(process.env.UBFB_VOTES).send({ embeds: [ embed ], components: [
+            client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ embed ], components: [
 /* Estos botones no tienen código que los haga funcionar. Puedes quitarlos */                new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId(`apealAcept-${message.author.id}`).setLabel('Aceptar apelación').setStyle('PRIMARY')).addComponents(new Discord.MessageButton().setCustomId(`deniedApeal-${message.author.id}`).setLabel('Denegar apelación').setStyle('DANGER'))
             ] });
             message.reply({ content: `<@${message.author.id}> ${LANG.commands.others.apelar.message7}` });

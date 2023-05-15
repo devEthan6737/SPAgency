@@ -1,5 +1,4 @@
 const { dataRequired, updateDataBase } = require('../../functions');
-require('dotenv').config();
 
 module.exports = {
     nombre: "setprefix",
