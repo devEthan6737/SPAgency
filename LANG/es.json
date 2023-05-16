@@ -158,6 +158,11 @@
                 "message1": "Detector de iploggers activado, vuelve a escribir el comando para desactivarlo",
                 "message2": "Detector de iploggers desactivado"
             },
+            "predict": {
+                "message1": "Debes adjuntar una imagen.",
+                "message2": "Respuesta en",
+                "message3": "`Solo se admiten formatos PNG, GIF, JPG, BMP.`"
+            },
             "warns": {
                 "message1": "Debes mencionar al usuario que deseas ver sus warns",
                 "message2": "El usuario mencionado no tiene warns",
