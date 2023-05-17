@@ -1,6 +1,6 @@
 const Discord = require('discord.js-light');
 
-module.exports = {
+module.exports = { 
 	nombre: 'nuke',
 	category: 'Moderación',
     premium: false,
@@ -8,10 +8,12 @@ module.exports = {
 	description: 'Elimina todos los mensajes de un canal.',
 	usage: ['<prefix>nuke'],
 	run: async (client, message) => {
-		if(!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.channel.send('Necesito permiso de __Gestionar Canales__.');
-		if(!message.member.permissions.has('MANAGE_CHANNELS'))return message.channel.send('Necesitas permisos de __Gestionar Canales__.');
+        let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        message.reply({ content: 'Estoy a punto de clonar este canal, ¡La acción es irreversible!\n\n¿Sabes lo que haces? Si estás seguro escribe `Seguro`' });
+		if(!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.channel.send(LANG.data.permissionsChannelsMe);
+		if(!message.member.permissions.has('MANAGE_CHANNELS'))return message.channel.send(LANG.data.permissionsChannelsU);
+
+        message.reply({ content: LANG.commands.mod.nuke.message1 });
         let collector = message.channel.createMessageCollector({ time: 15000 });
         collector.on('collect', m => {
             if(m.content == '')return;
@@ -20,7 +22,7 @@ module.exports = {
                     message.channel.clone({ parent: message.channel.parentId, positon: message.channel.position }).then(nuke => {
                         message.channel.delete();
                         nuke.setPosition(message.channel.position).then(terminado => {
-                            terminado.send({ content: '✅ | `Canal nukeado con éxito.`' });
+                            terminado.send({ content: '✅ | ' + LANG.commands.mod.nuke.message2 });
                         });
                     });
                     collector.stop();
@@ -30,7 +32,7 @@ module.exports = {
             }
         });
         collector.on('end', () => {
-            message.channel.send({ content: 'Colector detenido.' });
+            message.channel.send({ content: LANG.commands.mod.nuke.message3 });
         });
 	},
 };
