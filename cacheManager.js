@@ -1,5 +1,5 @@
 const Cacheger = require('cacheger');
-const client = require('discord.js-light').client;
+const Discord = require('discord.js-light');
 
 class cacheManager extends Cacheger {
     
@@ -55,16 +55,18 @@ class cacheManager extends Cacheger {
         this.post(parent, {
             snipes: {
                 editeds: [
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } }
                 ],
                 deleteds: [
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: client.user.tag, displayAvatarURL: client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
+                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } }
                 ]
             }
         });
@@ -76,7 +78,10 @@ let cacheClient;
 
 class cacheManagerDatabase {
     
-    constructor(client, type) { client.type = type; cacheClient = client; };
+    constructor(client, type) {
+        client.type = type;
+        cacheClient = client;
+    };
 
     async post(parent, obj) {
         obj.id = parent;
