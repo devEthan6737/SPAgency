@@ -163,6 +163,25 @@
                 "message2": "Respuesta en",
                 "message3": "`Solo se admiten formatos PNG, GIF, JPG, BMP.`"
             },
+            "tempban": {
+                "message1": "Debes mencionar al usuario que deseas banear.\n\n",
+                "message2": "tempban <menciónUsuario> <tiempo> [razón]",
+                "message3": "No.",
+                "message4": "La persona tiene un rol más alto que tú o tiene el mismo rol.",
+                "message5": "Debes escribir el tiempo que estará baneado el usuario.\n\n",
+                "message6": "`Error 006`: No has especificado el tiempo.",
+                "message7": "El servidor tiene razones forzadas activas, es necesario adjuntar una razón en la sanción.\n\n",
+                "message8": "tempban <userMention> <timeout> <reason>\n\nRazones forzadas: ",
+                "message9": "Esa razón no es válida, el servidor tiene razones forzadas activas.\n\n",
+                "message10": "Sin especificar.",
+                "message11": "No puedo banear al usuario mencionado.",
+                "message12": "Has sido baneado temporalmente de `",
+                "message13": "` durante `",
+                "message14": "`.\n**Moderador:** `",
+                "message15": "`\n**__Razón:__** `",
+                "message16": "**__Miembro baneado:__**",
+                "message17": "**__Duración del baneo:__**"
+            },
             "warns": {
                 "message1": "Debes mencionar al usuario que deseas ver sus warns",
                 "message2": "El usuario mencionado no tiene warns",
