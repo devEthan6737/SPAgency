@@ -162,7 +162,7 @@ module.exports = async (client, message) => {
                     .addComponents(new Discord.MessageButton()
                         .setLabel('BotVerse')
                         .setEmoji('👨‍💻')
-                        .setURL('https://bv.botlist.es/bot/1038614901394002020')
+                        .setURL('https://disverse.space/bot/1038614901394002020')
                         .setStyle('LINK'))
                 ] });
             }else if(_guild.configuration.subData.pingMessage == 'pingLessDetails') {
