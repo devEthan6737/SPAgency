@@ -20,7 +20,6 @@ const helpOptions = new Discord.MessageActionRow().addComponents(new Discord.Mes
     }
 ]));
 
-
 module.exports = {
     nombre: "ayuda",
     category: "Otros",

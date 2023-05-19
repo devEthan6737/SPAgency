@@ -92,6 +92,28 @@
                 "message10": "¡Esa función no es válida!\n\n",
                 "message11": "`Error 003`: El canal debe estar en este servidor."
             },
+            "editpingreply": {
+                "message1": "Elige el tipo de mensaje que enviaré cuando sea mencionado.",
+                "message2": "Seleccionar detalles forzados.",
+                "message3": [
+                    [
+                        "Todos los detalles.",
+                        "El bot mostrará todos los datos necesarios."
+                    ],
+                    [
+                        "Menos detalles.",
+                        "El bot mostrará los detalles mínimos."
+                    ],
+                    [
+                        "Solo el servidor de soporte.",
+                        "El bot solo enviará el servidor de su soporte."
+                    ],
+                    [
+                        "Nada.",
+                        "[Premium] Ignorar los pings al completo."
+                    ]
+                ]
+            },
             "guild": {
                 "message1": "No has especificado la función del comando.\n\n",
                 "message2": "guild {setIcon <url>, setName <message>, createInvite, info}",
@@ -139,10 +161,25 @@
                 "message9": "¡Esa función no es válida!\n\n",
                 "message10": "guild {setIcon <url>, setName <message>, createInvite, info}"
             },
+            "ignorethischannel": {
+                "message1": "No has especificado la función del comando.\n\n",
+                "message2": "'ignoreThisChannel {enable, disable}'",
+                "message3": "Ya estoy ignorando este canal.",
+                "message4": "A partir de ahora ignoraré este canal (Este comando seguirá operativo).",
+                "message5": "Dejaré de ignorar este canal.",
+                "message6": "¡Esa función no es válida!\n\n",
+                "message7": "ignoreThisChannel {enable, disable}"
+            },
             "language": {
                 "message1": "No has especificado el idioma",
                 "message2": "Ese lenguaje no existe o no está disponible",
                 "message3": "Lenguaje cambiado"
+            },
+            "setprefix": {
+                "message1": "No has especificado el nuevo prefijo.\n\n",
+                "message2": "setprefix <newPrefix>",
+                "message3": "¡Ese prefijo es muy largo!",
+                "message4": "Prefix actualizado a `<prefix>` en **<guildName>** (<guildId>)"
             }
         },
         "mod": {
