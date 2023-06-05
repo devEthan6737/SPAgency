@@ -200,6 +200,25 @@
                 "message2": "Respuesta en",
                 "message3": "`Solo se admiten formatos PNG, GIF, JPG, BMP.`"
             },
+            "support" : {
+                "message1": "Debes escribir la función del comando.\n\n",
+                "message2": "support {sos, contact, server}",
+                "message3": "🆘 | ¡No hay developers disponibles!",
+                "message4": "Estoy a punto de avisar a un personal oficial de SP Agency, ¡La acción es irreversible!\n\n¿Sabes lo que haces? Si es así escribe `Seguro`",
+                "message5": "🆘 | ¡No hay personal disponible!",
+                "message6": "<a:sp_loading:805810562349006918> | `¡Entendido! He avisado a un staff activo",
+                "message7": "Error, no he podido crear la invitación de este servidor.",
+                "message8": "Primero debes terminar el chat actual por privado, usando `sp!close`",
+                "message9": "[<a:sp_loading:805810562349006918>] **Intentando conectar con** ",
+                "message10": "Error, abre tus MD.",
+                "message11": "[↜] **Error al conectar con** ",
+                "message12": " **se ha conectado a la conversación**.",
+                "message13": "[👁 Solo tú puedes verlo] **Has iniciado una conversación privada-internacional con un staff oficial de la agencia** ",
+                "message14": ", **consulta lo que debas y trátale con respeto (Esta conversación será almacenada)**.\n\n**Para cerrar el chat escribe** `sp!close` **aquí, el staff también puede cerrar el chat**.",
+                "message15": "He iniciado una conversación con un staff de la Agencia.",
+                "message16": "Este es mi servidor de soporte `24/7`: ",
+                "messagse17": "¡Esa función no es válida!.\n\n"
+            },
             "tempban": {
                 "message1": "Debes mencionar al usuario que deseas banear.\n\n",
                 "message2": "tempban <menciónUsuario> <tiempo> [razón]",
