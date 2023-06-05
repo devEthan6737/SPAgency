@@ -64,7 +64,8 @@ mongoose.connect(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_
 const { cacheManager, cacheManagerDatabase } = require('./cacheManager');
 client.super = {
     cache: new cacheManager('utils'), // Caché para datos útiles.
-    staff: new cacheManager('staff') // Caché para el staff del bot.
+    staff: new cacheManager('staff'), // Caché para el staff del bot.
+    languages: new cacheManager('languages') // Caché para el staff del bot.
 };
 
 client.database = {
@@ -91,8 +92,8 @@ client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKE
     client.comandos = new Discord.Collection();
     for(const file of fs.readdirSync('./eventos/')) {
         if(file.endsWith('.js')) {
-            const fileName = file.substring(0, file.length - 3);
-            const fileContents = require(`./eventos/${file}`);
+            let fileName = file.substring(0, file.length - 3);
+            let fileContents = require(`./eventos/${file}`);
             client.on(fileName, fileContents.bind(null, client));
             delete require.cache[require.resolve(`./eventos/${file}`)];
         }
@@ -105,6 +106,14 @@ client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKE
                 let fileContents = require(`./comandos/${subcarpeta}/${file}`); 
                 client.comandos.set(fileName, fileContents);
             }
+        }
+    }
+
+    for(const file of fs.readdirSync('./LANG/')) {
+        if(file.endsWith('.json')) {
+            let fileName = file.substring(0, file.length - 5);
+            let fileContents = require(`./LANG/${file}`);
+            client.super.languages.set(fileName, fileContents);
         }
     }
 
