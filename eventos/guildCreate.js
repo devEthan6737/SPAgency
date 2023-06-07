@@ -2,12 +2,12 @@ require('dotenv').config();
 const Discord = require('discord.js-light');
 const antiRF = require('../schemas/antiRF_Schema');
 const Timers = require('../schemas/timersSchema');
-const install_commands = require('../install');
+const { setGuildBase } = require('../Utils/DataBase/base');
 
 module.exports = async (client, guild) => {
     try{
         if(guild != undefined) {
-            await install_commands(client, guild);
+            await setGuildBase(guild);
 
             // Notificación de nuevo gremio.
             client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ new Discord.MessageEmbed().setThumbnail(`${guild.iconURL()}`).setTitle('Nuevo Servidor.').addField('Servidor', `${guild.name} (${guild.id})`).addField('Idioma', `${guild.preferredLocale}`).addField('Roles', `${guild.roles.cache.size}`).addField('Miembros', `${guild.memberCount}`).setTimestamp().setColor(0x0056ff).setFooter(`${guild.name}`, `${guild.iconURL()}`) ] });

@@ -10,12 +10,11 @@ const Guild = require('./schemas/guildsSchema');
 const Timers = require('./schemas/timersSchema');
 const Warns = require('./schemas/warnsSchema');
 const db = require('megadb');
-const install_commands = require('./install');
 const dataRow = new db.crearDB('dataRows', 'data_bot');
 const usersWithCooldown = new Map();
 const cooldown = new Map();
 const responses = new Map();
-const _db = require('./Utils/DataBase/Base');
+const _db = require('./Utils/DataBase/base');
 
 function pulk(array, object) { // Sustituye <var>.splice();
     let newArray = [];
@@ -307,6 +306,9 @@ async function updateDataBase(client, guild, database, important = false) {
 }
 
 async function fecthUsersDataBase(client, user, save = true) {
+    /*
+    Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
+    */
     let database = await client.database.users.get(user.id, true) || await antiRF.findOne({ user: user.id });
     if(save) updateUsersDataBase(client, user, database);
     return database;
@@ -314,6 +316,9 @@ async function fecthUsersDataBase(client, user, save = true) {
 
 let used2 = false;
 async function updateUsersDataBase(client, user, database, important = false) {
+    /*
+    Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
+    */
     if(database) {
         if(used2 == false || important == true) {
             used2 = true;
@@ -329,20 +334,7 @@ async function updateUsersDataBase(client, user, database, important = false) {
     }
 }
 
-function newResponse(response) {
-    responses.set(response.authorId, response);
-}
-
-async function getResponseAndDelete(userId) {
-    if(responses.has(userId)) {
-        let res = await responses.get(userId);
-        responses.delete(userId);
-        return res;
-    }
-}
-
 module.exports = {
     selectMenu, pulk, dataRequired, automoderator, intelligentSOS, ratelimitFilter,
-    fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase, newResponse,
-    getResponseAndDelete
+    fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase
 }
