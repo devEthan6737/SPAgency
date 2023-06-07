@@ -15,6 +15,7 @@ const dataRow = new db.crearDB('dataRows', 'data_bot');
 const usersWithCooldown = new Map();
 const cooldown = new Map();
 const responses = new Map();
+const _db = require('./Utils/DataBase/Base');
 
 function pulk(array, object) { // Sustituye <var>.splice();
     let newArray = [];
@@ -290,29 +291,19 @@ async function ratelimitFilter(message) {
 }
 
 async function fecthDataBase(client, guild, save = true) {
-    let database = await client.database.guilds.get(guild.id) || await Guild.findOne({ id: guild.id });
-    if(!database)return install_commands(client, guild);
-    if(save) updateDataBase(client, guild, database);
-    return database;
+    /*
+    Esta función ha sido transladada.
+    Está hecho de esta forma ya que pronto será creado un sistema complejo que requiere la eliminación de esta función.
+    */
+    return await _db.fetch(guild);
 }
 
-let used = false;
 async function updateDataBase(client, guild, database, important = false) {
-    if(!database) {
-        database = await install_commands(client, guild);
-    }else{
-        if(used == false || important == true) {
-            used = true;
-            let db = await Guild.findOne({ id: guild.id });
-            db = database;
-            if(db) {
-                await Guild.findOneAndUpdate({ id: guild.id }, database);
-            }
-            if(guild && guild.id) client.database.guilds.post(guild.id, db);
-
-            used = false;
-        }
-    }
+    /*
+    Esta función ha sido transladada.
+    Está hecho de esta forma ya que pronto será creado un sistema complejo que requiere la eliminación de esta función.
+    */
+    return await _db.update(guild, database);
 }
 
 async function fecthUsersDataBase(client, user, save = true) {
