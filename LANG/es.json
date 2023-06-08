@@ -175,6 +175,24 @@
                 "message2": "Ese lenguaje no existe o no está disponible",
                 "message3": "Lenguaje cambiado"
             },
+            "member": {
+                "message1": "No has mencionado al miembro.",
+                "message2": "member <userMention> {setnickname <newNickname>, removeRole <roleMention>, addRole <roleMention>, info}",
+                "message3": "No has especificado el tipo de función.",
+                "message4": "No has especificado el nuevo apodo del miembro.",
+                "message5": "member <userMention> setnickname <newNickname>",
+                "message6": "He cambiado el apodo del miembro.",
+                "message7": "No has mencionado el rol.",
+                "message8": "member <userMention> removeRole <roleMention>",
+                "message9": "Ese rol está por encima del tuyo, ponlo más abajo.",
+                "message10": "El miembro no tiene ese rol.",
+                "message11": "He removido ese rol al miembro.",
+                "message12": "El miembro ya tiene ese rol.",
+                "message13": "He añadido ese rol al miembro.",
+                "message14": "Sin roles.",
+                "message15": "No puedo mostrar más de 25 nombres de roles.",
+                "message16": "¡Esa función no es válida!"
+            },
             "setprefix": {
                 "message1": "No has especificado el nuevo prefijo.\n\n",
                 "message2": "setprefix <newPrefix>",
@@ -504,13 +522,15 @@
         "permissionsMessagesMe": "Necesito permisos de __Gestionar Mensajes__",
         "permissionsBanMe": "Necesito permisos de __Banear Miembros__",
         "permissionsChannelsMe": "Necesito permiso de __Gestionar Canales__.",
-
+        
         "permissionsChannelsU": "Necesitas permisos de __Gestionar Canales__",
         "permissionsOwner": "Necesitas ser __El propietario De Este Servidor__",
         "permissionsADMIN": "Necesitas permiso de __Administrador__",
         "permissionsMessages": "Necesitas permisos de __Gestionar Mensajes__",
         "permissionsKick": "Necesitas permisos de __Expulsar Miembros__",
         "permissionsBan": "Necesitas permisos de __Banear Miembros__",
-        "permissionsCreateInvite": "Necesitas permisos de __Crear Invitaciones__."
+        "permissionsCreateInvite": "Necesitas permisos de __Crear Invitaciones__.",
+        "permissionsManageNicknames": "Necesitas permisos de __Gestionar Apodos__.",
+        "permissionsManageRoles": "Necesitas permisos de __Gestionar Roles__."
     }
 }
