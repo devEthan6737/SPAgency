@@ -2,7 +2,7 @@
   "name": "spagency",
   "version": "6.9.10",
   "description": "Bot de seguridad.",
-  "main": "index.js",
+  "main": "launcher.js",
   "achievements": {
     "1": {
       "name": "Cazador de bugs.",
