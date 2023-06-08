@@ -26,9 +26,9 @@ function pulk(array, object) { // Sustituye <var>.splice();
     return newArray;
 }
 
-const dataRequiredEmbed = new Discord.MessageEmbed().setColor('RED');
+const dataRequiredEmbed = new Discord.MessageEmbed().setColor('RED').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
 function dataRequired(message) {
-    dataRequiredEmbed.setDescription('`' + message + '`').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
+    dataRequiredEmbed.setDescription('`' + message + '`');
     return { content: '`[]` = Opcional.\n`<>` = Requerido.\n`{}` = Función.', embeds: [ dataRequiredEmbed ] };
 }
 
@@ -239,9 +239,7 @@ async function intelligentSOS(_guild, client, eventType) {
     if(_guild.protection.intelligentSOS.cooldown == false) {
         let guild = await client.guilds.cache.get(_guild.id) || await client.guilds.fetch(_guild.id);
         let invite = await guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
-        if(invite != undefined) {
-            client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
-        }
+        if(invite != undefined) client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
 
         _guild.protection.intelligentSOS.cooldown = true;
         updateDataBase(client, guild, _guild, true);
@@ -256,14 +254,11 @@ async function intelligentSOS(_guild, client, eventType) {
 async function ratelimitFilter(message) {
     if(usersWithCooldown.has(message.author.id)) {
 		let seeCooldown = await usersWithCooldown.get(message.author.id);
-		if(seeCooldown != new Date().getHours()) {
-			usersWithCooldown.delete(message.author.id);
-		}else return false;
+		if(seeCooldown != new Date().getHours()) usersWithCooldown.delete(message.author.id);
+		else return false;
 	}
 
-	if(!cooldown.has(message.author.id)) {
-		cooldown.set(message.author.id, 1);
-	}
+	if(!cooldown.has(message.author.id)) cooldown.set(message.author.id, 1);
 
 	let stop = await cooldown.get(message.author.id);
 
