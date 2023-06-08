@@ -22,7 +22,7 @@ if(process.env.EJECT_LAUNCHER === 'true') {
                     let promise = response.data.filter(entry => entry.name != 'launcher.js').map(File => axios.get(`https://api.github.com/repos/devEthan6737/SPAgency/contents/${File.path}?ref=main`, { headers: { 'Authorization': `Bearer ${process.env.GitHubToken}` } }).then(res => {
                         if(File.type === 'dir')return axios.get(`https://api.github.com/repos/devEthan6737/SPAgency/contents/${File.path}?ref=main`, { headers: { 'Authorization': `Bearer ${process.env.GitHubToken}` } }).then(dirRes => baseLauncher(dirRes));
 
-                        if(fs.readFileSync(File.path, 'utf8') != Buffer.from(res.data.content, 'base64').toString()) {
+                        if(!fs.existsSync(File.path) || fs.readFileSync(File.path, 'utf8') != Buffer.from(res.data.content, 'base64').toString()) {
                             console.log('[LAUNCHER] '.green + `Actualizando ${File.name} en "./${File.path}".`.blue);
 
                             if(fs.existsSync(File.path)) fs.unlinkSync(File.path);
