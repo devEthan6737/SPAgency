@@ -20,7 +20,6 @@ Vaya al archivo .env para editar la configuración.
 ---------------------------------------------------------------------------
 */
 
-require('dotenv').config();
 const fs = require('fs');
 const package = require('./package.json');
 const Discord = require('discord.js-light');
