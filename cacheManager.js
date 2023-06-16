@@ -52,24 +52,7 @@ class cacheManager extends Cacheger {
     }
 
     setGuildBase(parent) {
-        this.post(parent, {
-            snipes: {
-                editeds: [
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } }
-                ],
-                deleteds: [
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } },
-                    { tag: Discord.client.user.tag, displayAvatarURL: Discord.client.user.displayAvatarURL(), content: '...', at: `${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`, attachments: { firstAttachment: undefined, rest: 0 } }
-                ]
-            }
-        });
+        this.post(parent, {});
     }
 }
 

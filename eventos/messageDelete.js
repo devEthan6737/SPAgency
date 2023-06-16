@@ -1,4 +1,3 @@
-const Guild = require('../schemas/guildsSchema');
 const Discord = require('discord.js-light');
 const { pulk, fecthDataBase, updateDataBase } = require('../functions');
 
@@ -23,54 +22,16 @@ module.exports = async (client, message) => {
     try{
         // Logs:
         if(_guild.configuration.logs[0]) {
-            client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.messageDelete.logMessage1}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription(message.content).addField(`${LANG.events.messageDelete.logMessage2}:`, `<#${message.channel.id}>`, true).addField('Bot:', `\`${message.author.bot}\``, true) ] }).catch(err => {});
-        }
-
-        // Snipes:
-        if(cache.snipes.deleteds.length == 5) {
-            cache.snipes.deleteds = await pulk(cache.snipes.deleteds, cache.snipes.deleteds[0]);
-            cache.snipes.deleteds.push({
-                tag: message.author.tag,
-                displayAvatarURL: message.author.displayAvatarURL(),
-                content: message.content.length? message.content : '> `Sin contenido del mensaje.`',
-                at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`,
-                attachments: {
-                    firstAttachment: message.attachments.size > 0? (message.attachments.first()).proxyURL : undefined,
-                    rest: message.attachments.size > 1? message.attachments.size - 1 : 0
-                }
-            });
-        }else cache.snipes.deleteds.push({
-            tag: message.author.tag,
-            displayAvatarURL: message.author.displayAvatarURL(),
-            content: message.content.length? message.content : '> `Sin contenido del mensaje.`',
-            at: `${new Date().toLocaleDateString()} a las ${new Date().toLocaleTimeString()}`,
-            attachments: {
-                firstAttachment: message.attachments.size > 0? (message.attachments.first()).proxyURL : undefined,
-                rest: message.attachments.size > 1? message.attachments.size - 1 : 0
-            }
-        });
-
-        if(!message.member.permissions.has('MANAGE_MESSAGES')) {
-
-            // Ghostping:
-            if(_guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
-                if(message.attachments.size == 1) {
-                    message.attachments.forEach(x => {
-                        message.channel.send({ content: 'Ghostping detectado (Mensaje borrado).', embeds: [
-                            new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`${message.author.username}`, `${message.author.displayAvatarURL({ })}`).setDescription(`${message.content ?? '`- SIN CONTENIDO EN EL MENSAJE`'}`).setImage(x.proxyURL)
-                        ] });
-                    });
-                }else{
-                    message.channel.send({ content: 'Ghostping detectado (Mensaje borrado).', embeds: [
-                        new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`${message.author.username}`, `${message.author.displayAvatarURL({ })}`).setDescription(`${message.content ?? 'Error.'}`)
-                    ] });
-                }
+            if(!message.member.permissions.has('MANAGE_MESSAGES') && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
+                // Ghostping
+                client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Ghostping detectado (Mensaje borrado).', embeds: [
+                    new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`${message.author.username}`, `${message.author.displayAvatarURL({ })}`).setDescription(`${message.content ?? '> `Sin contenido en el mensaje.`'}`).setImage(message.attachments.size > 0? (message.attachments.first()).proxyURL : 'https://asd.com/')
+                ] });
 
                 if(_guild.moderation.automoderator.enable == true && _guild.moderation.automoderator.events.ghostping == true) {
                     await automoderator(client, _guild, message, 'Menciones fantasmas.');
                 }
-            }
-
+            }else client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.messageDelete.logMessage1}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription(message.content).addField(`${LANG.events.messageDelete.logMessage2}:`, `<#${message.channel.id}>`, true).addField('Bot:', `\`${message.author.bot}\``, true) ] }).catch(err => {});
         }
 
         updateDataBase(client, message.guild, _guild, true);

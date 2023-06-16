@@ -10,12 +10,11 @@ const Guild = require('./schemas/guildsSchema');
 const Timers = require('./schemas/timersSchema');
 const Warns = require('./schemas/warnsSchema');
 const db = require('megadb');
-const install_commands = require('./install');
 const dataRow = new db.crearDB('dataRows', 'data_bot');
 const usersWithCooldown = new Map();
 const cooldown = new Map();
 const responses = new Map();
-const _db = require('./Utils/DataBase/Base');
+const _db = require('./Utils/DataBase/base');
 
 function pulk(array, object) { // Sustituye <var>.splice();
     let newArray = [];
@@ -27,9 +26,9 @@ function pulk(array, object) { // Sustituye <var>.splice();
     return newArray;
 }
 
-const dataRequiredEmbed = new Discord.MessageEmbed().setColor('RED');
+const dataRequiredEmbed = new Discord.MessageEmbed().setColor('RED').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
 function dataRequired(message) {
-    dataRequiredEmbed.setDescription('`' + message + '`').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
+    dataRequiredEmbed.setDescription('`' + message + '`');
     return { content: '`[]` = Opcional.\n`<>` = Requerido.\n`{}` = Función.', embeds: [ dataRequiredEmbed ] };
 }
 
@@ -240,9 +239,7 @@ async function intelligentSOS(_guild, client, eventType) {
     if(_guild.protection.intelligentSOS.cooldown == false) {
         let guild = await client.guilds.cache.get(_guild.id) || await client.guilds.fetch(_guild.id);
         let invite = await guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
-        if(invite != undefined) {
-            client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
-        }
+        if(invite != undefined) client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
 
         _guild.protection.intelligentSOS.cooldown = true;
         updateDataBase(client, guild, _guild, true);
@@ -257,14 +254,11 @@ async function intelligentSOS(_guild, client, eventType) {
 async function ratelimitFilter(message) {
     if(usersWithCooldown.has(message.author.id)) {
 		let seeCooldown = await usersWithCooldown.get(message.author.id);
-		if(seeCooldown != new Date().getHours()) {
-			usersWithCooldown.delete(message.author.id);
-		}else return false;
+		if(seeCooldown != new Date().getHours()) usersWithCooldown.delete(message.author.id);
+		else return false;
 	}
 
-	if(!cooldown.has(message.author.id)) {
-		cooldown.set(message.author.id, 1);
-	}
+	if(!cooldown.has(message.author.id)) cooldown.set(message.author.id, 1);
 
 	let stop = await cooldown.get(message.author.id);
 
@@ -307,6 +301,9 @@ async function updateDataBase(client, guild, database, important = false) {
 }
 
 async function fecthUsersDataBase(client, user, save = true) {
+    /*
+    Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
+    */
     let database = await client.database.users.get(user.id, true) || await antiRF.findOne({ user: user.id });
     if(save) updateUsersDataBase(client, user, database);
     return database;
@@ -314,6 +311,9 @@ async function fecthUsersDataBase(client, user, save = true) {
 
 let used2 = false;
 async function updateUsersDataBase(client, user, database, important = false) {
+    /*
+    Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
+    */
     if(database) {
         if(used2 == false || important == true) {
             used2 = true;
@@ -329,20 +329,7 @@ async function updateUsersDataBase(client, user, database, important = false) {
     }
 }
 
-function newResponse(response) {
-    responses.set(response.authorId, response);
-}
-
-async function getResponseAndDelete(userId) {
-    if(responses.has(userId)) {
-        let res = await responses.get(userId);
-        responses.delete(userId);
-        return res;
-    }
-}
-
 module.exports = {
     selectMenu, pulk, dataRequired, automoderator, intelligentSOS, ratelimitFilter,
-    fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase, newResponse,
-    getResponseAndDelete
+    fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase
 }
