@@ -9,10 +9,12 @@ module.exports = {
 	description: 'Muestra la latencia del bot.',
 	usage: ['<prefix>ping'],
 	run: async (client, message, args, _guild) => {
+        let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+
         try{
-            message.reply({ content: '<a:sp_loading:805810562349006918> Pingeando...' }).then(async m => {
+            message.reply('<a:sp_loading:805810562349006918> ' + LANG.commands.config.ping.message1).then(async m => {
                 let ping = m.createdTimestamp - message.createdTimestamp;
-                m.edit({ content: `:globe_with_meridians: Mensajes/ms: ${ping} (<a:sp_loading:805810562349006918>)\n:robot: Websocket/Discord Api: ${client.ws.ping}` }).then(async x => {
+                m.edit(LANG.commands.config.ping.message2.replace('<emoji1>', ':globe_with_meridians:').replace('<msgping>', ping).replace('<emoji2>', '<a:sp_loading:805810562349006918>)').replace('<emoji3>', ':robot:').replace('<apiping>', client.ws.ping)).then(async x => {
                     let timestamp = new Date().getMilliseconds();
                     Guilds.findOne({ id: message.guild.id }).then(() => {
                         let now = new Date().getMilliseconds();
@@ -23,7 +25,7 @@ module.exports = {
                     let nowcache = Date.now();
                     await client.database.guilds.get(message.guild.id, true);
                     nowcache = nowcache - Date.now();
-                    m.edit({ content: `:globe_with_meridians: Mensajes: ${ms(ping)}\n:robot: Discord Api: ${ms(client.ws.ping)}\n📚 Database: ${ms(timestamp)}\n📁 Caché: ${ms(nowcache)}` });
+                    m.edit(LANG.commands.config.ping.message2.replace('<emoji1>', ':globe_with_meridians:').replace('<msgping>', ping).replace('<emoji2>', '<a:sp_loading:805810562349006918>)').replace('<emoji3>', ':robot:').replace('<apiping>', client.ws.ping).replace('<emoji4>', '📚').replace('<dbping>', ms(timestamp)).replace('<emoji5>', '📁').replace('<cacheping>', ms(nowcache)));
                 });
             });
         }catch(err) {
