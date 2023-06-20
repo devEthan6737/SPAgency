@@ -1,5 +1,5 @@
 const antiRF = require('../../schemas/antiRF_Schema');
-const { dataRequired } = require('../../functions');
+const { dataRequired, fecthUsersDataBase } = require('../../functions');
 
 module.exports = {
 	nombre: 'globalkick',
