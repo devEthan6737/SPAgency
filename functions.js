@@ -13,7 +13,6 @@ const db = require('megadb');
 const dataRow = new db.crearDB('dataRows', 'data_bot');
 const usersWithCooldown = new Map();
 const cooldown = new Map();
-const responses = new Map();
 const _db = require('./Utils/DataBase/base');
 
 function pulk(array, object) { // Sustituye <var>.splice();
@@ -304,29 +303,14 @@ async function fecthUsersDataBase(client, user, save = true) {
     /*
     Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
     */
-    let database = await client.database.users.get(user.id, true) || await antiRF.findOne({ user: user.id });
-    if(save) updateUsersDataBase(client, user, database);
-    return database;
+
+    return {};
 }
 
-let used2 = false;
 async function updateUsersDataBase(client, user, database, important = false) {
     /*
     Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
     */
-    if(database) {
-        if(used2 == false || important == true) {
-            used2 = true;
-            let db = await antiRF.findOne({ user: user.id });
-            db = database;
-            if(db) {
-                await Guild.findOneAndUpdate({ id: user.id }, database);
-            }
-            if(user && user.id) client.database.users.post(user.id, db);
-
-            used2 = false;
-        }
-    }
 }
 
 module.exports = {
