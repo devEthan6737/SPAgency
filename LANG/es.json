@@ -218,6 +218,21 @@
                 "message1": "Detector de iploggers activado, vuelve a escribir el comando para desactivarlo",
                 "message2": "Detector de iploggers desactivado"
             },
+            "muteinfo": {
+                "message1": "Se debe especificar el rol de muteo con ` ",
+                "message2": "setmuterole <roleMention>`",
+                "message3": "Hay `",
+                "message4": "` usuarios muteados.",
+                "message5": "Desmutear a todos.",
+                "message6": "Usuarios muteados:",
+                "message7": "Si estuvieses muteado, ¿cómo escribes el comando?.",
+                "message8": "Beep, beep. El usuario no está muteado.",
+                "message9": "Roles almacenados: `",
+                "message10": " roles`\nDesmuteo programado para: `",
+                "message11": ", dentro de ",
+                "message12": "`\nFue muteado en el canal: `",
+                "message13": "El usuario está muteado de por vida."
+            },
             "predict": {
                 "message1": "Debes adjuntar una imagen.",
                 "message2": "Respuesta en",
@@ -523,7 +538,7 @@
 
     "data": {
         "permissionsADMINme": "Necesito permiso de __Administrador__",
-        "permissionsRolesme": "Necesitas permisos de __Gestionar Roles__",
+        "permissionsRolesme": "Necesito permisos de __Gestionar Roles__",
         "permissionsMessagesMe": "Necesito permisos de __Gestionar Mensajes__",
         "permissionsBanMe": "Necesito permisos de __Banear Miembros__",
         "permissionsChannelsMe": "Necesito permiso de __Gestionar Canales__.",
