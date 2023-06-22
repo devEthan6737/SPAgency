@@ -1,8 +1,6 @@
 const Discord = require('discord.js-light');
-const antiRF = require('../../schemas/antiRF_Schema');
 const Timers = require('../../schemas/timersSchema');
 const Malicious = require('../../schemas/maliciousSchema');
-const { fecthUsersDataBase } = require('../../functions');
 const _reporte = new Discord.MessageEmbed().setColor(0x0056ff);
 const razones = [ 'Raider', 'Miembro de una squad', 'Dox', 'Bot raider', 'Spam al md', 'Flood', 'Suplantar identidad', 'Nsfw', 'Toxicidad', 'Amenaza', 'Estafa', 'Infectar usuarios', 'Multicuenta maliciosa', 'Infiltración', 'Plagio', 'Generadores uncheked', 'Uso de tools', 'Incitación a lo repulsivo', 'Violación del Tos', 'Selfbot', 'Abuso de SP Agency', 'DDos'];
 
@@ -14,6 +12,8 @@ module.exports = {
     description: "¿Algún reporte de usuario para la agencia?",
     usage: ['<prefix>reporte <userId>, <userProof>, [reason]'],
     run: async (client, message, args, _guild) => {
+        return message.reply('Comando desactivado temporalmente.');
+
         message.channel.send({ content: 'Después de este mensaje, escribe la id del usuario que quieres reportar.' });
         let collector = message.channel.createMessageCollector({ time: 15000 });
         collector.on('collect', async m => {
@@ -78,12 +78,5 @@ module.exports = {
                 });
             }
         });
-
-        let user = await fecthUsersDataBase(client, message.author);
-        if(user && user.achievements.data.reports >= 10 && !user.achievements.array.includes('Buen ciudadano.')) {
-            message.channel.send({ content: 'Acabas de obtener un logro, mira tu perfil.' });
-            user.achievements.array.push('Buen ciudadano.');
-            user.save();
-        }
     }
 }
