@@ -10,6 +10,8 @@ module.exports = {
     description: "Obtén información sobre si un usuario es staff de SP Agency.",
     usage: ['<prefix>staff <userMention>'],
     run: async (client, message, args, _guild) => {
+        return message.reply('Comando desactivado temporalmente.');
+
         let img = message.mentions.users.first();
         if(!img)return message.reply(await dataRequired('¡Necesitas mencionar a un usuario!\n\n' + _guild.configuration.prefix + 'staff <userMention>'));
         if(!dev.has(img.id))return message.channel.send({ content: 'El usuario no está registrado en la membresía de SP Agency.' });
