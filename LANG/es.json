@@ -203,6 +203,11 @@
                 "message2": "setprefix <newPrefix>",
                 "message3": "¡Ese prefijo es muy largo!",
                 "message4": "Prefix actualizado a `<prefix>` en **<guildName>** (<guildId>)"
+            },
+            "unnuke": {
+                "message1": "Debes esperar 15 minutos para usar de nuevo el comando.",
+                "message2": "El servidor está siendo analizado y corregido (Puede demorarse esta acción), si falta algo podrá hacerlo de forma manual.",
+                "message3": "No se ha escrito la función del comando."
             }
         },
         "mod": {
@@ -353,6 +358,16 @@
                 "message1": "Estoy a punto de clonar este canal, ¡La acción es irreversible!\n\n¿Sabes lo que haces? Si estás seguro escribe `Seguro`",
                 "message2": "`Canal nukeado con éxito.`",
                 "message3": "Colector detenido."
+            },
+            "message": {
+                "message1": "No has escrito el contenido del mensaje."
+            },
+            "clear": {
+                "message1": "Debes escribir la cantidad de mensajes que deseas borrar.",
+                "message2": "Eso no es un número.",
+                "message3": "Borrando `<amount>` mensajes.",
+                "message4": "Aún estoy borrando `<amount>` mensajes.",
+                "message5": "<amount> mensajes borrados."
             }
         },
         "others": {
@@ -542,7 +557,7 @@
         "permissionsMessagesMe": "Necesito permisos de __Gestionar Mensajes__",
         "permissionsBanMe": "Necesito permisos de __Banear Miembros__",
         "permissionsChannelsMe": "Necesito permiso de __Gestionar Canales__.",
-        
+
         "permissionsChannelsU": "Necesitas permisos de __Gestionar Canales__",
         "permissionsOwner": "Necesitas ser __El propietario De Este Servidor__",
         "permissionsADMIN": "Necesitas permiso de __Administrador__",
