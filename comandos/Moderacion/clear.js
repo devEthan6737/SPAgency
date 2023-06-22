@@ -9,16 +9,19 @@ module.exports = {
 	description: 'Borra los mensajes de un canal de forma rápida.',
 	usage: ['<prefix>clear <messagesAmount>'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('MANAGE_MESSAGES'))return message.reply('Necesito permisos de __Gestionar mensajes__.');
-        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.reply('Necesitas permisos de __Gestionar mensajes__.');
-        if(!args[0])return message.reply(await dataRequired('Debes escribir la cantidad de mensajes que deseas borrar.\n\n' + _guild.configuration.prefix + 'clear <messagesAmount>'));
-        if(isNaN(parseInt(args[0])))return message.reply('Eso no es un número.');
+        let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+
+        if(!message.guild.me.permissions.has('MANAGE_MESSAGES'))return message.reply(LANG.data.permissionsMessagesMe);
+        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.reply(LANG.data.permissionsMessages);
+
+        if(!args[0])return message.reply(await dataRequired(LANG.commands.mod.clear.message1 + '\n\n' + _guild.configuration.prefix + 'clear <messagesAmount>'));
+        if(isNaN(parseInt(args[0])))return message.reply(LANG.commands.mod.clear.message2);
         if(parseInt(args[0]) < 0) args[0] = parseInt(args[0]) - parseInt(args[0]) - parseInt(args[0]);
 
         try{
             if(parseInt(args[0]) > 100) {
-                message.reply({ content: `Borrando \`${args[0]}\` mensajes.` });
-                if(clear.has(message.guild.id))return message.reply({ content: `Aún estoy borrando \`${await clear.get(message.guild.id)}\` mensajes.` });
+                message.reply(LANG.commands.mod.clear.message3.replace('<amopunt>', args[0]));
+                if(clear.has(message.guild.id))return message.reply(LANG.commands.mod.clear.message4.replace('<amount>', await clear.get(message.guild.id)));
                 clear.set(message.guild.id, parseInt(args[0]));
                 function c(amount) {
                     setTimeout(() => {
@@ -36,7 +39,7 @@ module.exports = {
                 c(parseInt(args[0]));
             }else{
                 message.channel.bulkDelete(parseInt(args[0]));
-                message.reply({ content: `\`${args[0]}\` mensajes borrados.` });
+                message.reply(LANG.commands.mod.clear.message5.replace('amount', args[0]));
             }
         }catch(err) {}
     },
