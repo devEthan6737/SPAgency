@@ -9,9 +9,11 @@ module.exports = {
 	description: 'Haz que el bot envíe un mensaje totalmente personalizado.',
 	usage: ['<prefix>message {content: hola} {title: Un título en un embed} {author: Un autor en un embed} {color: Un color en un embed} {image: Una imagen en un embed} {description: Una descripción en un embed} {footer: Un footer en un embed} {thumbnail: Un thumbnail en un embed} {addField: hola, soy un bot hermoso} {reply: true}'],
 	run: async (client, message, args, _guild) => {
+        let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+
         client = {};
-		if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send('Necesitas permisos de __Gestionar Mensajes__.');
-        if(!args[0])return message.reply(await dataRequired('No has escrito el contenido del mensaje.\n\n' + _guild.configuration.prefix + 'message {content: hola} {title: Un título en un embed} {author: Un autor en un embed} {color: Un color en un embed} {image: Una imagen en un embed} {description: Una descripción en un embed} {footer: Un footer en un embed} {thumbnail: Un thumbnail en un embed} {addField: hola, soy un bot hermoso} {reply: false}'));
+        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send(`${LANG.data.permissionsMessages}.`);
+        if(!args[0])return message.reply(await dataRequired(LANG.commands.mod.message.message1 + '\n\n' + _guild.configuration.prefix + 'message {content: hola} {title: Un título en un embed} {author: Un autor en un embed} {color: Un color en un embed} {image: Una imagen en un embed} {description: Una descripción en un embed} {footer: Un footer en un embed} {thumbnail: Un thumbnail en un embed} {addField: hola, soy un bot hermoso} {reply: false}'));
 		try{
 			let _message = args.join(' ').split('{').join('').split('}');
 
