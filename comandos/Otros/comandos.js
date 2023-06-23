@@ -39,6 +39,7 @@ module.exports = {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
         let user = await fecthUsersDataBase(client, message.author, false);
         if(!user)return message.reply('Err: Your document on database is not defined.');
+        user = { isActive: false }
 
         let embed1 = new Discord.MessageEmbed().setColor(user.premium.isActive? 0xffe76c : 0x0056ff).setDescription('' + LANG.commands.others.comandos.message1 +' `' + _guild.configuration.prefix + 'biblioteca`, ' + LANG.commands.others.comandos.message2 +' `' + _guild.configuration.prefix + 'invite`.\n' + LANG.commands.others.comandos.message3 +' (`[2]`) ' + LANG.commands.others.comandos.message4 +'.')
         .addField(`${user.premium.isActive? '<:proteccion_premium:880843689369423912>' : '<:proteccion:780163156902543370>'} | Protección:`, '`antiraid`, `antibots`, `antitokens`, `antijoins`, `mark-malicious`, `warn-entry`, `kick-malicious`, `ownsystem`, `verification`, `cannot-enter-twice`, `intelligentsos`, `purge-webhooks-attacks`, `intelligentAntiflood`, `antiflood`, `2fa [2]`, `raidmode`, `bloqEntritiesByName`, `bloqNewCreatedUsers`, `status`, `autoconfig`')
