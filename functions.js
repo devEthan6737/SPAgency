@@ -304,7 +304,7 @@ async function fecthUsersDataBase(client, user, save = true) {
     Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
     */
 
-    return {};
+    return { premium: {} };
 }
 
 async function updateUsersDataBase(client, user, database, important = false) {
