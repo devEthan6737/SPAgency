@@ -8,17 +8,19 @@ module.exports = {
 	description: 'Verifica a un usuario nuevo en tu servidor.',
 	usage: ['<prefix>verify <userMention>'],
 	run: async (client, message, args, _guild) => {
+        let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+
         try{
-            if(!message.guild.me.permissions.has('ADMINISTRATOR')) return message.reply({ content: 'Necesito permiso de __Administrador__.', ephemeral: true });
-            if(!message.member.permissions.has('MANAGE_ROLES'))return message.reply({ content: 'Necesitas permisos de __Gestionar Roles__.', ephemeral: true });
+            if(!message.guild.me.permissions.has('ADMINISTRATOR')) return message.reply({ content: LANG.data.permissionsADMINme });
+            if(!message.member.permissions.has('MANAGE_ROLES'))return message.reply({ content: LANG.data.permissionsManageRoles });
 
             let member = message.mentions.members.first();
-            if(!member)return message.reply(await dataRequired('No has mencionado al miembro para verificar.\n\n' + _guild.configuration.prefix + 'verify <userMention>'));
+            if(!member)return message.reply(await dataRequired(LANG.commands.config.verify.message1 + '\n\n' + _guild.configuration.prefix + 'verify <userMention>'));
 
-            if(_guild.protection.verification.enable == false)return message.reply({ content: 'El sistema de verificación no está activado.' });
-            if(member.roles.cache.has(_guild.protection.verification.role))return message.reply({ content: 'El usuario ya está verificado.' });
+            if(_guild.protection.verification.enable == false)return message.reply(LANG.commands.config.verify.message2);
+            if(member.roles.cache.has(_guild.protection.verification.role))return message.reply(LANG.commands.config.verify.message3);
             member.roles.add(_guild.protection.verification.role);
-            message.reply({ content: 'Usuario verificado manualmente.' });
+            message.reply(LANG.commands.config.verify.message4);
         }catch(err) {}
 	},
 };
