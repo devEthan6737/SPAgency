@@ -2,15 +2,12 @@ const Discord = require('discord.js-light');
 const { pulk, fecthDataBase, updateDataBase } = require('../functions');
 
 module.exports = async (client, message) => {
-    if (!message.guild)return;
-    if (!message.guild.available)return;
-    if (message.channel.type === 'dm') return;
-    if (message.webhookID)return;
-    try{
-        if (!message.author) message.author.fetch(true).catch(err => {});
-    }catch(err) {}
-
-    if (!message.author || !message.author.id)return;
+    if(!message.guild)return;
+    if(!message.guild.available)return;
+    if(message.channel.type === 'dm') return;
+    if(message.webhookID)return;
+    if(!message.author || !message.author.id)return;
+    if(message.partial) await message.fetch();
 
     let _guild = await fecthDataBase(client, message.guild, false);
     if(!_guild)return;
