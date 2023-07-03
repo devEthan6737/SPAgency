@@ -13,7 +13,7 @@ const ads = require('../ads.json');
 const antiIpLogger = require("anti-ip-logger");
 
 module.exports = async (client, message) => {
-    if (message.channel.type === 'DM') {
+    if(message.channel.type === 'DM') {
         let _support = await Support.findOne({ fetchAutor: message.author.id });
         if(_support) {
             if(message.author.id == _support.author.id) {
@@ -69,12 +69,10 @@ module.exports = async (client, message) => {
         return;
     }
 
-    if (!message.guild)return;
-    if (!message.guild.available)return;
-
-    try{
-        if (!message.author) message.author.fetch(true).catch(err => {});
-    }catch(err) {}
+    if(!message.guild)return;
+    if(!message.guild.available)return;
+    if(!message.author || !message.author.id)return;
+    if(message.partial) await message.fetch();
 
     let _guild = await fecthDataBase(client, message.guild, false); // <- The object of the server's database.
     if(!_guild)return message.reply('Hubo un error en la base de datos.');
@@ -125,7 +123,7 @@ module.exports = async (client, message) => {
         return;
     };
 
-    if (message.author.bot)return;
+    if(message.author.bot)return;
 
     // Ping al bot:
 	async function ping() {
@@ -140,7 +138,7 @@ module.exports = async (client, message) => {
                 totalSeconds %= 3600;
                 let minutes = Math.floor(totalSeconds / 60);
                 let seconds = Math.floor(totalSeconds % 60);
-                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor de Discord.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://discord.com/oauth2/authorize?client_id=' + (process.env.TURN_ON_CANARY === 'true'? '1101973023952740364' : '1038614901394002020') + '&permissions=8&scope=bot).\n\n¿Conoces a mis creadores?\n\`↳\` **[Ether#6267](https://youtu.be/fDWm3hND7q8)** - __Fundador y contribuidor.__\n\`↳\` **[Dirquel](https://github.com/dirquel)** - __Contribuidor.__\n\`↳\` **[Danielmoraless](https://github.com/danielmoraless)** - __Contribuidor.__\n\`↳\` **[VirtualOx-sys](https://github.com/VirtualOx-sys)** - __Contribuidor.__').addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SP Agency by TIB - Proppelled by HN') ], components: [
+                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor.\nDesarrollado con cariño, Att. <:5978671:1125421837178916946> **The Indie Brand (TIB)**.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://discord.com/oauth2/authorize?client_id=' + (process.env.TURN_ON_CANARY === 'true'? '1101973023952740364' : '1038614901394002020') + '&permissions=8&scope=bot).\n\n¿Conoces a mis creadores?\n\`↳\` **[Ether#6267](https://youtu.be/fDWm3hND7q8)** - __Fundador y contribuidor.__\n\`↳\` **[Dirquel](https://github.com/dirquel)** - __Contribuidor.__\n\`↳\` **[Danielmoraless](https://github.com/danielmoraless)** - __Contribuidor.__\n\`↳\` **[VirtualOx-sys](https://github.com/VirtualOx-sys)** - __Contribuidor.__').addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SP Agency by TIB - Proppelled by HN') ], components: [
                     new Discord.MessageActionRow()
                     .addComponents(new Discord.MessageButton()
                         .setLabel('Tutorial')
