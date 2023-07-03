@@ -25,10 +25,11 @@ module.exports = {
                     let nowcache = Date.now();
                     await client.database.guilds.get(message.guild.id, true);
                     nowcache = nowcache - Date.now();
-                    m.edit(LANG.commands.config.ping.message2.replace('<emoji1>', ':globe_with_meridians:').replace('<msgping>', ping).replace('<emoji2>', '<a:sp_loading:805810562349006918>)').replace('<emoji3>', ':robot:').replace('<apiping>', client.ws.ping).replace('<emoji4>', '📚').replace('<dbping>', ms(timestamp)).replace('<emoji5>', '📁').replace('<cacheping>', ms(nowcache)));
+                    m.edit(LANG.commands.config.ping.message3.replace('<emoji1>', ':globe_with_meridians:').replace('<msgping>', ping).replace('<emoji2>', '<a:sp_loading:805810562349006918>)').replace('<emoji3>', ':robot:').replace('<apiping>', client.ws.ping).replace('<emoji4>', '📚').replace('<dbping>', ms(timestamp)).replace('<emoji5>', '📁').replace('<cacheping>', ms(nowcache)));
                 });
             });
         }catch(err) {
+            console.log(err)
             message.reply(err);
         }
 	},
