@@ -196,7 +196,7 @@
             "ping": {
                 "message1": "Pingeando...",
                 "message2": "<emoji1> Mensajes/ms: <msgping> (<emoji2>)\n<emoji3> Websocket/Discord Api: <apiping>",
-                "message3": "<emoji1> Mensajes/ms: <msgping> (<emoji2>)\n<emoji3> Websocket/Discord Api: <apiping>\n<emoji4> Database: <dbping>\n<emoji5> Caché: <cacheping>`"
+                "message3": "<emoji1> Mensajes/ms: <msgping>\n<emoji3> Websocket/Discord Api: <apiping>\n<emoji4> Database: <dbping>\n<emoji5> Caché: <cacheping>"
             },
             "setprefix": {
                 "message1": "No has especificado el nuevo prefijo.\n\n",
@@ -208,6 +208,12 @@
                 "message1": "Debes esperar 15 minutos para usar de nuevo el comando.",
                 "message2": "El servidor está siendo analizado y corregido (Puede demorarse esta acción), si falta algo podrá hacerlo de forma manual.",
                 "message3": "No se ha escrito la función del comando."
+            },
+            "verify": {
+                "message1": "No has mencionado al miembro para verificar.",
+                "message2": "El sistema de verificación no está activado.",
+                "message3": "El usuario ya está verificado.",
+                "message4": "Usuario verificado manualmente."
             }
         },
         "mod": {
