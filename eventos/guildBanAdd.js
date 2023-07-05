@@ -27,7 +27,7 @@ module.exports = async (client, member) => {
         // Antiraid:
         if(member.guild.me.permissions.has('BAN_MEMBERS')) {
             if(_guild.protection.antiraid.enable == true) {
-                let cache = await client.super.cache.get(member.guild.id);
+                let cache = await client.super.cache.get(member.guild.id, true);
 
                 if(cache.amount >= 3) {
                     
