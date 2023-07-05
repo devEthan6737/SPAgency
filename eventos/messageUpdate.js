@@ -17,7 +17,7 @@ module.exports = async (client, oldMessage, message) => {
     if(!_guild)return;
 
     if(!await client.super.cache.has(message.guild.id)) client.super.cache.setGuildBase(message.guild.id);
-    let cache = client.super.cache.get(message.guild.id);
+    let cache = client.super.cache.get(message.guild.id, true);
 
     try{
         // Logs:
