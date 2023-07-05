@@ -28,7 +28,7 @@ module.exports = async (client, channel) => {
 
             // Antiraid:
             if(_guild.protection.antiraid.enable == true) {
-                let cache = await client.super.cache.get(channel.guild.id);
+                let cache = await client.super.cache.get(channel.guild.id, true);
 
                 if(cache.amount >= 3) {
                     
