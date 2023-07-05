@@ -67,7 +67,7 @@ module.exports = async (client, member) => {
     }
     
     try{
-        let cache = await client.super.cache.get(member.guild.id);
+        let cache = await client.super.cache.get(member.guild.id, true);
 
         // Antijoins:
         if(_guild.protection.antijoins.enable == true) {
