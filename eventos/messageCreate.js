@@ -79,7 +79,7 @@ module.exports = async (client, message) => {
 
     if(_guild.configuration.ignoreChannels.includes(message.channel.id) && !message.content.startsWith(`${_guild.configuration.prefix}ignoreThisChannel`))return; // <- Ignoring channels...
 
-    let cache = await client.super.cache.get(message.guild.id);
+    let cache = await client.super.cache.get(message.guild.id, true);
 
     if(message.webhookId) {
         try{
@@ -172,7 +172,7 @@ module.exports = async (client, message) => {
     }
     ping();
 
-    cache = await client.super.cache.get(message.author.id);
+    cache = await client.super.cache.get(message.author.id, true);
 
     try{
         if(!message.member.permissions.has('MANAGE_MESSAGES')) {
