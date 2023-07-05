@@ -28,10 +28,10 @@ module.exports = async (client, channel) => {
 
                 // Antiraid:
                 if(_guild.protection.antiraid.enable == true) {
-                    let cache = await client.super.cache.get(channel.guild.id);
+                    let cache = await client.super.cache.get(channel.guild.id, true);
 
                     if(cache.amount >= 3) {
-                        
+
                         await channel.guild.members.ban(prsn, { reason: 'Raid.' }).catch(e => {});
                         if(prsn.bot == true) {
                             if(_guild.protection.antiraid.saveBotsEntrities) {
@@ -43,7 +43,7 @@ module.exports = async (client, channel) => {
                                 }
                             }
                         }
-                        
+
                     }else{
                         client.super.cache.up(channel.guild.id, cache);
                         
