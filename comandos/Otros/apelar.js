@@ -12,7 +12,7 @@ module.exports = {
     run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        let malicious = await Malicious.findOne({ userId: message.author.id });
+        let malicious = await client.ubfb.getUser(message.author.id);
         if(malicious && malicious.isMalicious) {
             if(malicious.isMalicious == false && malicious.record)return message.reply({ content: '<a:sp_si:805810572599099413> | `' + LANG.commands.others.apelar.message1 + ':' + malicious.record + '.`' });
             if(malicious.punishment >= Date.now())return message.reply({ content: `${LANG.commands.others.apelar.message2} ${new Date(malicious.punishment)}.` });
