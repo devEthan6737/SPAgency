@@ -1,7 +1,6 @@
 const Guild = require('../schemas/guildsSchema');
 const antiRF = require('../schemas/antiRF_Schema');
 const Discord = require('discord.js-light');
-const Malicious = require('../schemas/maliciousSchema');
 const { pulk, ratelimitFilter, automoderator, fecthDataBase, updateDataBase, fecthUsersDataBase } = require('../functions');
 const antiIpLogger = require("anti-ip-logger");
 
@@ -184,7 +183,7 @@ module.exports = async (client, oldMessage, message) => {
     if(!cmd)return;
 
     if(user.isBloqued == true)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios prohibidos no pueden usar comandos.`', ephemeral: true });
-    let usersData = await Malicious.findOne({ userId: message.author.id });
+    let usersData = await client.ubfb.getUser(message.author.id);
     if(command != 'me' && command != 'apelar') {
         if(usersData && usersData.isMalicious)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios maliciosos no pueden usar comandos.`', ephemeral: true });
     }
