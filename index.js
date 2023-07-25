@@ -76,13 +76,15 @@ client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKE
     Discord.client = client;
     console.log(`${client.user.tag} (${client.user.id}) se ha encendido con ${client.guilds.cache.size} servidores. Versión: ${package.version}.`);
 
-    // UBFB obsoleto por el momento.
-    client.ubfb = {};
-    // const ubfb = require('ubfb');
-    // client.ubfb = new ubfb(client, {
-    //     token: process.env.UBFB_TOKEN,
-    //     password: process.env.UBFB_PASSWORD
-    // });
+    const UBFB = require('ubfb').global;
+    client.ubfb = new UBFB.Client(process.env.UBFB_TOKEN, {
+        Connection: {
+            Anonymous: false,
+            ClientId: client.user.id,
+            ClientTag: client.user.tag,
+            ClientGuilds: client.guilds.cache.size
+        }
+    });
 
     // ---------------------------------------------
     /* ----- Command + Event + Error Handler -----*/
