@@ -1,7 +1,6 @@
 const Guild = require('../schemas/guildsSchema');
 const Timers = require('../schemas/timersSchema');
 const antiRF = require('../schemas/antiRF_Schema');
-const Malicious = require('../schemas/maliciousSchema');
 const Discord = require('discord.js-light');
 const ms = require('ms');
 const { pulk, fecthDataBase, updateDataBase, fecthUsersDataBase } = require('../functions');
@@ -12,7 +11,7 @@ module.exports = async (client, member) => {
 
     let _guild = await fecthDataBase(client, member.guild, false);
     if(!_guild)return;
-    let malicious = await Malicious.findOne({ userId: member.user.id });
+    let malicious = await client.ubfb.getUser(member.user.id);
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
     let user = await fecthUsersDataBase(client, member.user);
     if(!user) {
