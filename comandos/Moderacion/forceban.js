@@ -1,5 +1,4 @@
 const Discord = require('discord.js-light');
-const Malicious = require('../../schemas/maliciousSchema');
 const db = require('megadb');
 const dataRow = new db.crearDB('dataRows', 'data_bot');
 
@@ -17,7 +16,7 @@ module.exports = {
 		message.channel.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('<a:sp_loading:805810562349006918> | `Generando row...`') ] }).then(async y => {
             let razones = ['Raider', 'Miembro de una squad', 'Dox', 'Bot raider', 'Spam al md', 'Flood', 'Suplantar identidad', 'Nsfw', 'Toxicidad', 'Amenaza', 'Estafa', 'Infectar usuarios', 'Multicuenta maliciosa', 'Infiltración', 'Plagio', 'Generadores uncheked', 'Uso de tools', 'Incitación a lo repulsivo', 'Violación del Tos', 'Selfbot', 'Abuso de SP Agency', 'DDos'];
             let raiders = []; let hackers = []; let estafadores = []; let botsRaiders = []; let antiToS = []; let  otros = [];
-            let ids = await Malicious.find({ });
+            let ids = await client.ubfb.getAllUsers();
 			await ids.forEach(async x => {
 				let a = x.reason;
 
