@@ -366,7 +366,21 @@
                 "message3": "Colector detenido."
             },
             "message": {
-                "message1": "No has escrito el contenido del mensaje."
+                "message1": "No has escrito el contenido del mensaje.",
+                "message2": "Estás a punto de enviar ese mensaje a los agentes de SP Agency (Quiere decir que el personal de la agencia lo leerá).\n\nPara continuar escribe `enviar`",
+                "message3": "Sugerencia enviada al soporte de SPA.",
+                "message4": "Sugerencia.",
+                "message5": "Entendido, he detenido el comando."
+            },
+            "mute": {
+                "message1": "Se debe especificar el rol de muteo con `<prefix>setmuterole <roleMention>`",
+                "message2": "Debes mencionar al usuario que deseas mutear.",
+                "message3": "No.",
+                "message4": "La persona tiene un rol más alto que tú o tiene el mismo rol.",
+                "message5": "Ese usuario ya estaba muteado.",
+                "message6": "No se ha especificado el tiempo.",
+                "message7": "He muteado a `<username>` hasta que alguien elimine su rol de forma manual o con `<prefix>unmute <userMention>`.",
+                "message8": "He muteado a `<username>` durante `<time>`"
             },
             "clear": {
                 "message1": "Debes escribir la cantidad de mensajes que deseas borrar.",
@@ -426,7 +440,9 @@
                 "message11": "Tu castigo obligatorio expiró hace",
                 "message12": "Tu castigo obligatorio expirará en",
                 "message13": "Y tienes antecedentes",
-                "message14": "Usted no está marcado como un usuario malicioso"
+                "message14": "Usted no está marcado como un usuario malicioso",
+                "message15": "El usuario está en la lista negra, pero ya no es considerado usuario malicioso.",
+                "message16": "Estás en la lista negra, pero ya no eres considerado usuario malicioso."
             },
             "perfil": {
                 "message1": "Logros",
@@ -451,6 +467,9 @@
                 "message2": "Estás a punto de enviar ese mensaje a los agentes de SP Agency (Quiere decir que el personal de la agencia lo leerá).\n\nPara continuar escribe",
                 "message3": "Queja enviada al soporte de SPA",
                 "message4": "Entendido, he detenido el comando"
+            },
+            "sugerencia": {
+                "message1": "No has especificado el mensaje de la sugerencia."
             }
         },
         "protect": {
