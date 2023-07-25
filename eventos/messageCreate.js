@@ -3,7 +3,6 @@ const { version } = require('../package.json');
 const Guild = require('../schemas/guildsSchema');
 const Support = require('../schemas/supportSchema');
 const antiRF = require('../schemas/antiRF_Schema');
-const Malicious = require('../schemas/maliciousSchema');
 const db = require('megadb');
 const dev = new db.crearDB('devsActivos', 'data_users');
 const { automoderator, intelligentSOS, ratelimitFilter, fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase, getResponseAndDelete } = require('../functions');
@@ -459,7 +458,7 @@ module.exports = async (client, message) => {
 
     if(user.isBloqued == true)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios prohibidos no pueden usar comandos.`', ephemeral: true });
     if(!cmd) return message.channel.send({ content: '<a:sp_no:805810577448239154> | `¡Lástima! Ese comando no existe.`' });
-    let usersData = await Malicious.findOne({ userId: message.author.id });
+    let usersData = await client.ubfb.getUser(message.author.id);
     if(command != 'me' && command != 'apelar') {
         if(usersData && usersData.isMalicious)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios maliciosos no pueden usar comandos.`', ephemeral: true });
     }
