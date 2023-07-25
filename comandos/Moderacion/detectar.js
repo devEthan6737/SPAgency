@@ -1,5 +1,4 @@
 const Discord = require('discord.js-light');
-const Malicious = require('../../schemas/maliciousSchema');
 
 module.exports = {
 	nombre: 'detectar',
@@ -14,17 +13,18 @@ module.exports = {
 		await message.guild.fetch();
 
 		let embed = new Discord.MessageEmbed().setColor(0x5c4fff);
+		let a = 0;
 		try{
 			message.channel.send({ embeds: [ embed.setDescription('<a:sp_loading:805810562349006918> | `Obteniendo usuarios...`') ] }).then(async y => {
-				setTimeout(() => {
+				setTimeout(async () => {
 					y.edit({ embeds: [ embed.setDescription('<a:sp_loading:805810562349006918> | `Comparando datos...`') ] });
+					let maliciousUsers = await client.ubfb.getAllUsers();
 					let detectados = [];
 					let ifAdminLikeBanThese = [];
 					message.guild.members.cache.forEach(async x => {
-						let userIsMalicious = await Malicious.findOne({ userId: x.id });
-						if(userIsMalicious) {
-							if(userIsMalicious.reason) reason = 'Error, debe usar sp!me';
-							detectados.push(`<@${x.id}> \`|\` Razón: ${userIsMalicious.reason}`);
+						let filterMalicious = maliciousUsers.filter(User => User.userId == x.id);
+						if(filterMalicious[0]) {
+							detectados.push(`<@${x.id}> \`|\` Razón: ${filterMalicious[0].reason}`);
 							ifAdminLikeBanThese.push(x.id);
 						}
 					});
