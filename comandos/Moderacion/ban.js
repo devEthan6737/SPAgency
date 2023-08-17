@@ -9,27 +9,29 @@ module.exports = {
 	description: 'Banea a un usuario de tu servidor.',
 	usage: ['<prefix>ban <userMention> [reason]'],
 	run: async (client, message, args, _guild) => {
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Necesito permiso de __Banear Miembros__.');
-		if(!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send('Necesitas permiso de __Banear Miembros__.');
+		let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+
+		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBanMe });
+		if(!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBan });
 
 		let userMention = message.mentions.members.first();
-        if(!userMention)return message.reply(await dataRequired('Debes mencionar al usuario que deseas banear.\n\n' + _guild.configuration.prefix + 'ban <userMention> [reason]'));
+        if(!userMention)return message.reply(await dataRequired(LANG.commands.mod.ban.message1 + '\n\n' + _guild.configuration.prefix + 'ban <userMention> [reason]'));
         if(userMention.id == client.user.id)return;
-		if(userMention.id == message.author.id)return message.reply('No.');
-		if(message.member.roles.highest.comparePositionTo(userMention.roles.highest) <= 0)return message.reply('La persona tiene un rol más alto que tú o tiene el mismo rol.');
+		if(userMention.id == message.author.id)return message.reply(LANG.commands.mod.ban.message2);
+		if(message.member.roles.highest.comparePositionTo(userMention.roles.highest) <= 0)return message.reply(LANG.commands.mod.ban.message3);
 
         if(_guild.moderation.dataModeration.forceReasons.length > 0) {
-            if(!args[1])return message.reply(await dataRequired('El servidor tiene razones forzadas activas, es necesario adjuntar una razón en la sanción.\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\nRazones forzadas: ' + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
-            if(!_guild.moderation.dataModeration.forceReasons.includes(args[1]))return message.reply(await dataRequired('Esa razón no es válida, el servidor tiene razones forzadas activas.\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\nRazones forzadas: ' + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
+            if(!args[1])return message.reply(await dataRequired(LANG.commands.mod.ban.message4 + '\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\n' + LANG.commands.mod.ban.message5 + ' ' + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
+            if(!_guild.moderation.dataModeration.forceReasons.includes(args[1]))return message.reply(await dataRequired(LANG.commands.mod.ban.message6 + '\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\n' + LANG.commands.mod.ban.message5 + ' ' + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
         }
-        if(!args[1]) args[1] = 'Sin especificar.';
+        if(!args[1]) args[1] = LANG.commands.mod.ban.message7;
 
-        if(!userMention.bannable) return message.reply('No puedo banear al usuario mencionado.');
+        if(!userMention.bannable) return message.reply(LANG.commands.mod.ban.message8);
 		let userID = client.users.cache.get(userMention.id);
-		userID.send('Has sido baneado de `' + message.guild.name + '`.\n\n**Moderador:** `' + message.author.tag + '`\n**__Razón:__** `' + args.join(' ').split(`${userMention.id}> `)[1] + '`').catch(err => {});
+		userID.send(LANG.commands.mod.ban.message9.replace('<guild>', message.guild.name).replace('<moderator>', message.author.tag).replace('<reason>', args.join(' ').split(`${userMention.id}> `)[1])).catch(err => {});
 		userMention.ban({ reason: args.join(' ').split(`${userMention.id}> `)[1] });
 		let banEmbed = new Discord.MessageEmbed()
-			.setDescription(`**__Miembro baneado:__** <@${userMention.id}> (${userMention.id})\n**__Moderador:__** <@${message.author.id}> (${message.author.id})\n**__Razón:__** \`${args.join(' ').split(`${userMention.id}> `)[1]}\``)
+			.setDescription(LANG.commands.mod.ban.message10.replace('<userMention>', '<@' + userMention.id + '>').replace('<userMentionId>', userMention.id).replace('<authorMention>', '<@' + message.author.id + '>').replace('<authorId>', message.author.id).replace('<reason>', args.join(' ').split(`${userMention.id}> `)[1]))
 			.setTimestamp().setColor(0x5c4fff);
 		message.channel.send({ embeds: [ banEmbed ] });
 	},

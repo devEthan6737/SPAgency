@@ -121,7 +121,6 @@ client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKE
     // ---------------------------------------------
     /* ----- Command + Event + Error Handler -----*/
     // ---------------------------------------------
-
 });
 
 process.on('unhandledRejection', (err) => {
@@ -135,52 +134,17 @@ ARCHIVOS QUE NO USAN SISTEMA DE LENGUAJES:
 3 messageCreate
 4 messageUpdate
 5 functions
-
-6 reporte
-7 rz
-8 staff
-9 sugerencia
-10 comandos, el embed
-
-11 channel
-12 editpingreply
-13 guild
-14 ignorethischannel
-15 language
-16 logs
-17 member
-18 ping
-19 setmuterole
-20 setprefix
-21 unnuke
-22 verify
-23 whitelist
-
-24 badword
-25 ban
-26 baninfo
-27 capital-letters
-28 clear
-39 detectar
-30 forceban
-31 forcereason
-32 globalban
-33 globalkick
-34 hackban
-35 kick
-36 linkdetect
-37 manyemojis
-38 manypings
-39 manywords
-40 message
-41 mute
-42 muteinfo
-43 nuke
-44 snipe
-45 support
-46 tempban
-47 predict
-
+6 comandos, el embed
+7 whitelist
+8 badword
+9 capital-letters
+10 detectar
+11 forceban
+12 forcereason
+13 globalban
+14 globalkick
+15 hackban
+16 linkdetect
 - Comandos como autoconfig, verificación, raidmode, backup, automoderador... tampoco están traducidos
 ni actualizados, se planeaba un cambio grande para estos.
 */

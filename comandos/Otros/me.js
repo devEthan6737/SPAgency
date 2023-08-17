@@ -37,7 +37,7 @@ module.exports = {
                 }
             }
         }else{
-            malicious = await client.ubfb.getUser(args[0]);
+            malicious = await client.ubfb.getUser(message.author.id);
             if(malicious && malicious.isMalicious) {
                 if(malicious.record)return message.reply({ content: '<a:sp_si:805810572599099413> | `' + LANG.commands.others.me.message10 + ': ' + malicious.record + '.`' });
                 let embed = new Discord.MessageEmbed()

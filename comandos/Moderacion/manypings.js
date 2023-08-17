@@ -9,23 +9,25 @@ module.exports = {
 	description: 'Evita mensajes que incluyan muchas menciones.',
 	usage: ['<prefix>manyPings [maxAmountDetect]'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
+        let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+
+        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send(`${LANG.data.permissionsADMINme}.`);
+        if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send(`${LANG.data.permissionsADMIN}.`);
 
         if(args[0]) {
-            if(isNaN(parseInt(args[0])))return message.reply({ content: 'El argumento no es un número.' });
+            if(isNaN(parseInt(args[0])))return message.reply(LANG.commands.mod.manyping.message1);
             _guild.moderation.automoderator.actions.manyPings = parseInt(args[0]);
             updateDataBase(client, message.guild, _guild, true);
-            message.reply({ content: 'Dato actualizado con éxito, para recordar: recomendamos mantener este valor en __4__.' });
+            message.reply(LANG.commands.mod.manyping.message2);
         }else{
             if(_guild.moderation.dataModeration.events.manyPings == false) {
                 _guild.moderation.dataModeration.events.manyPings = true;
                 updateDataBase(client, message.guild, _guild, true);
-                message.reply({ content: 'Detector de muchas menciones activado, vuelve a escribir el comando para desactivarlo.\n\nAl escribir de nuevo el comando, puedes adjuntar el número de mensajes que debo recopilar para considerar un evento de muchas menciones.' });
+                message.reply(LANG.commands.mod.manyping.message3);
             }else{
                 _guild.moderation.dataModeration.events.manyPings = false;
                 updateDataBase(client, message.guild, _guild, true);
-                message.reply({ content: 'Detector de muchas menciones desactivado.' });
+                message.reply(LANG.commands.mod.manyping.message4);
             }
         }
 

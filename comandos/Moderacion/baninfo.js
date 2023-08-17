@@ -9,18 +9,20 @@ module.exports = {
 	description: 'Obtén la información de un baneo en tu servidor.',
 	usage: ['<prefix>baninfo <userId>'],
 	run: async (client, message, args, _guild) => {
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Necesito permiso de __Banear Miembros__.');
-		if(!message.member.permissions.has('MANAGE_MESSAGES')) return message.channel.send('Necesitas permiso de __Gestionar Mensajes__.');
+		let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+	
+		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBanMe });
+		if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send(`${LANG.data.permissionsMessages}.`);
 
-        if(!args[0] || isNaN(parseInt(args[0])))return message.channel.send(await dataRequired('Es necesario escribir la id del usuario baneado.\n\n' + _guild.configuration.prefix + 'bainfo <userId>'));
+        if(!args[0] || isNaN(parseInt(args[0])))return message.channel.send(await dataRequired(LANG.commands.baninfo.message1 + '\n\n' + _guild.configuration.prefix + 'bainfo <userId>'));
 
 		try{
 			let x = await message.guild.bans.fetch(args[0]);
-			if(!x)return message.channel.send({ content: 'Ese usuario no está baneado o hubo un error.' });
+			if(!x)return message.channel.send(LANG.commands.baninfo.message2);
 
-			message.channel.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`Tag: \`${x.user.username}#${x.user.discriminator}\`\nBot: \`${x.user.bot? 'Es un bot.' : 'No es un bot.'}\`\nRazón del baneo: \`${x.reason ?? 'Sin razón.'}\``) ] });
+			message.channel.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(LANG.commands.baninfo.message3[0].replace('<username>', x.user.username).replace('<userBot>', x.user.bot? LANG.commands.baninfo.message3[1] : LANG.commands.baninfo.message3[2]).replace('<reason>', x.reason ?? LANG.commands.baninfo.message3[3])) ] });
 		}catch(err) {
-			return message.channel.send({ content: 'Ese usuario no está baneado.' });
+			return message.channel.send(LANG.commands.baninfo.message4);
 		}
 	},
 };

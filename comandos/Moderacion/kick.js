@@ -9,33 +9,29 @@ module.exports = {
 	description: 'Expulsa a un usuario de tu servidor.',
 	usage: ['<prefix>kick <userMention> [reason]'],
 	run: async (client, message, args, _guild) => {
-		if(!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Necesito permiso de __Expulsar Miembros__.');
-		if(!message.member.permissions.has('KICK_MEMBERS'))return message.channel.send('Necesitas permisos de __Expulsar Miembros__.');
+		let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
+
+		if(!message.guild.me.permissions.has('KICK_MEMBERS'))return message.channel.send(`${LANG.data.permissionsKickMe}.`);
+		if(!message.member.permissions.has('KICK_MEMBERS'))return message.channel.send(`${LANG.data.permissionsKick}.`);
+
 		let userMention = message.mentions.members.first();
-        if(!userMention)return message.reply(await dataRequired('Debes mencionar al usuario que deseas expulsar.\n\n' + _guild.configuration.prefix + 'kick <userMention> [reason]'));
+        if(!userMention)return message.reply(await dataRequired(LANG.commands.mod.kick.message1 + '\n\n' + _guild.configuration.prefix + 'kick <userMention> [reason]'));
 		if(userMention.id == client.user.id)return;
-		if(userMention.id == message.author.id)return message.reply('No.');
-		if(message.member.roles.highest.comparePositionTo(userMention.roles.highest) <= 0)return message.reply('La persona tiene un rol más alto que tú o tiene el mismo rol.');
+		if(userMention.id == message.author.id)return message.reply(LANG.commands.mod.kick.message2);
+		if(message.member.roles.highest.comparePositionTo(userMention.roles.highest) <= 0)return message.reply(LANG.commands.mod.kick.message3);
 
         if(_guild.moderation.dataModeration.forceReasons.length > 0) {
-            if(!args[1])return message.reply(await dataRequired('El servidor tiene razones forzadas activas, es necesario adjuntar una razón en la sanción.\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\nRazones forzadas: ' + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
-            if(!_guild.moderation.dataModeration.forceReasons.includes(args[1]))return message.reply(await dataRequired('Esa razón no es válida, el servidor tiene razones forzadas activas.\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\nRazones forzadas: ' + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
+            if(!args[1])return message.reply(await dataRequired(LANG.commands.mod.kick.message4 + '\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\n' + LANG.commands.mod.kick.message5 + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
+            if(!_guild.moderation.dataModeration.forceReasons.includes(args[1]))return message.reply(await dataRequired(LANG.commands.mod.kick.message6 + '\n\n' + _guild.configuration.prefix + 'kick <userMention> <reason>\n\n' + LANG.commands.mod.kick.message5 + _guild.moderation.dataModeration.forceReasons.map(x => `${x}`).join(', ')));
         }
-        if(!args[1]) args[1] = 'Sin especificar.';
+        if(!args[1]) args[1] = LANG.commands.mod.kick.message7;
 
         let userID = client.users.cache.get(userMention.id);
-		userID.send('Has sido expulsado de `' + message.guild.name + '`.\n\n**Moderador:** `' + message.author.tag + '`\n**Razón:** `' + args.join(' ').split(`${userMention.id}> `)[1] + '`').then(() => {
-			message.channel.send(`<a:sp_loading:805810562349006918> | \`Estoy recorriendo mis datos antes de expulsar a ${userMention.tag}.\``).then(b => {
-				let kickEmbed = new Discord.MessageEmbed()
-					.setDescription(`**__Miembro expulsado:__** <@${userMention.id}> (${userMention.id})\n**__Moderador:__** <@${message.author.id}> (${message.author.id})\n**__Razón:__** \`${args.join(' ').split(`${userMention.id}> `)[1]}\``)
-					.setColor(0x5c4fff).setTimestamp();
-				b.delete();
-                message.guild.members.kick(userMention, args.join(' ').split(`${userMention.id}> `)[1]).then(() => {
-                    message.channel.send({ embeds: [ kickEmbed ] });
-                }).catch(err => {
-                    message.channel.send('No he podido expulsar al miembro mencionado.');
-                });
-			});
-		});
+		userID.send(LANG.commands.mod.kick.message8.replace('<guildName>', message.guild.name).replace('<moderatorTag>', message.author.tag).replace('<reason>', args.join(' ').split(`${userMention.id}> `)[1])).catch(err => {});
+		message.guild.members.kick(userMention, args.join(' ').split(`${userMention.id}> `)[1]).catch(err => {});
+		let kickEmbed = new Discord.MessageEmbed()
+			.setDescription(LANG.commands.mod.kick.message9.replace('<userMention>', `<@${userMention.id}>`).replace('<userMentionId>', userMention.id).replace('<authorMention>', `<@${message.author.id}>`).replace('<authorId>', message.author.id).replace('<reason>', `${args.join(' ').split(`${userMention.id}> `)[1]}`))
+			.setColor(0x5c4fff).setTimestamp();
+		message.channel.send({ embeds: [ kickEmbed ] });
 	},
 };

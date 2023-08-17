@@ -217,6 +217,29 @@
             }
         },
         "mod": {
+            "ban": {
+                "message1": "Debes mencionar al usuario que deseas banear.",
+                "message2": "No.",
+                "message3": "La persona tiene un rol más alto que tú o tiene el mismo rol.",
+                "message4": "El servidor tiene razones forzadas activas, es necesario adjuntar una razón en la sanción.",
+                "message5": "Razones forzadas:",
+                "message6": "Esa razón no es válida, el servidor tiene razones forzadas activas.",
+                "message7": "Sin especificar.",
+                "message8": "No puedo banear al usuario mencionado.",
+                "message9": "Has sido baneado de `<guild>`.\n\n**Moderador:** `<moderator>`\n**__Razón:__** `<reason>`",
+                "message10": "**__Miembro baneado:__** <userMention> (<userMentionId>)\n**__Moderador:__** <authorMention> (<authorId>)\n**__Razón:__** `<reason>`"
+            },
+            "baninfo": {
+                "message1": "Es necesario escribir la id del usuario baneado.",
+                "message2": "Ese usuario no está baneado o hubo un error.",
+                "message3": [
+                    "Tag: `<username>`\nBot: `<userBot>`\nRazón del baneo: `<reason>`",
+                    "Es un bot.",
+                    "No es un bot.",
+                    "Sin razón."
+                ],
+                "message4": "Ese usuario no está baneado."
+            },
             "ghostping": {
                 "message1": "Detector de pings fantasmas activado, vuelve a escribir el comando para desactivarlo",
                 "message2": "Detector de pings fantasmas desactivado"
@@ -228,6 +251,17 @@
             "iploggerFilter": {
                 "message1": "Detector de iploggers activado, vuelve a escribir el comando para desactivarlo",
                 "message2": "Detector de iploggers desactivado"
+            },
+            "kick": {
+                "message1": "Debes mencionar al usuario que deseas expulsar.",
+                "message2": "No.",
+                "message3": "La persona tiene un rol más alto que tú o tiene el mismo rol.",
+                "message4": "El servidor tiene razones forzadas activas, es necesario adjuntar una razón en la sanción.",
+                "message5": "Razones forzadas: ",
+                "message6": "Esa razón no es válida, el servidor tiene razones forzadas activas.",
+                "message7": "Sin especificar.",
+                "message8": "Has sido expulsado de `<guildName>`.\n\n**Moderador:** `<moderatorTag>`\n**Razón:** `<reason>`",
+                "message9": "**__Miembro expulsado:__** <userMention> (<userMentionId>)\n**__Moderador:__** <authorMention> (<authorId>)\n**__Razón:__** `<reason>`"
             },
             "muteinfo": {
                 "message1": "Se debe especificar el rol de muteo con ` ",
@@ -360,10 +394,23 @@
                 "message8": "durante",
                 "message9": "Ha sucedido un error al aislar a"
             },
-            "nuke": {
-                "message1": "Estoy a punto de clonar este canal, ¡La acción es irreversible!\n\n¿Sabes lo que haces? Si estás seguro escribe `Seguro`",
-                "message2": "`Canal nukeado con éxito.`",
-                "message3": "Colector detenido."
+            "manyemojis": {
+                "message1": "El argumento no es un número.",
+                "message2": "Dato actualizado con éxito, para recordar: recomendamos mantener este valor en __4__.",
+                "message3": "Detector de muchos emojis activado, vuelve a escribir el comando para desactivarlo.\n\nAl escribir de nuevo el comando, puedes adjuntar el número de mensajes que debo recopilar para considerar un evento de muchos emojis.",
+                "message4": "Detector de muchos emojis desactivado."
+            },
+            "manypings": {
+                "message1": "El argumento no es un número.",
+                "message2": "Dato actualizado con éxito, para recordar: recomendamos mantener este valor en __4__.",
+                "message3": "Detector de muchas menciones activado, vuelve a escribir el comando para desactivarlo.\n\nAl escribir de nuevo el comando, puedes adjuntar el número de mensajes que debo recopilar para considerar un evento de muchas menciones.",
+                "message4": "Detector de muchas menciones desactivado."
+            },
+            "manywords": {
+                "message1": "El argumento no es un número.",
+                "message2": "Dato actualizado con éxito, para recordar: recomendamos mantener este valor en __250__.",
+                "message3": "Detector de mensajes con muchos caracteres activado, vuelve a escribir el comando para desactivarlo.\n\nAl escribir de nuevo el comando, puedes adjuntar el número de mensajes que debo recopilar para considerar un evento de un mensaje con muchos caracteres.",
+                "message4": "Detector de mensajes con muchos caracteres desactivado."
             },
             "message": {
                 "message1": "No has escrito el contenido del mensaje.",
@@ -381,6 +428,11 @@
                 "message6": "No se ha especificado el tiempo.",
                 "message7": "He muteado a `<username>` hasta que alguien elimine su rol de forma manual o con `<prefix>unmute <userMention>`.",
                 "message8": "He muteado a `<username>` durante `<time>`"
+            },
+            "nuke": {
+                "message1": "Estoy a punto de clonar este canal, ¡La acción es irreversible!\n\n¿Sabes lo que haces? Si estás seguro escribe `Seguro`",
+                "message2": "`Canal nukeado con éxito.`",
+                "message3": "Colector detenido."
             },
             "clear": {
                 "message1": "Debes escribir la cantidad de mensajes que deseas borrar.",
@@ -582,6 +634,7 @@
         "permissionsMessagesMe": "Necesito permisos de __Gestionar Mensajes__",
         "permissionsBanMe": "Necesito permisos de __Banear Miembros__",
         "permissionsChannelsMe": "Necesito permiso de __Gestionar Canales__.",
+        "permissionsKickMe": "Necesito permisos de __Expulsar Miembros__",
 
         "permissionsChannelsU": "Necesitas permisos de __Gestionar Canales__",
         "permissionsOwner": "Necesitas ser __El propietario De Este Servidor__",
