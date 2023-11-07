@@ -1,9 +1,8 @@
 const Guild = require('../schemas/guildsSchema');
 const Timers = require('../schemas/timersSchema');
-const antiRF = require('../schemas/antiRF_Schema');
 const Discord = require('discord.js-light');
 const ms = require('ms');
-const { pulk, fecthDataBase, updateDataBase, fecthUsersDataBase } = require('../functions');
+const { pulk, fecthDataBase, updateDataBase } = require('../functions');
 const characters = 'qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM1234567890';
 
 module.exports = async (client, member) => {
@@ -13,36 +12,6 @@ module.exports = async (client, member) => {
     if(!_guild)return;
     let malicious = await client.ubfb.getUser(member.user.id);
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
-    let user = await fecthUsersDataBase(client, member.user);
-    if(!user) {
-        let newUser = new antiRF({
-            user: member.user.id,
-            isBloqued: false,
-            isToken: false,
-            achievements: {
-                array: [ 'Humano.' ],
-                data: {
-                    bugs: 0,
-                    serversCreatedTotally: 0,
-                    serversPartner: [],
-                    reports: 0,
-                    totalVotes: 0,
-                    initialMember: 0
-                }
-            },
-            serversCreated: {
-                servers: 0,
-                date: 'hello?',
-            },
-            premium: {
-                isActive: false,
-                endAt: 0
-            },
-            servers: []
-        });
-        newUser.save();
-        user = await antiRF.findOne({ user: member.user.id });
-    }
     
     // Logs:
     try{
