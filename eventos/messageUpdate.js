@@ -1,7 +1,6 @@
 const Guild = require('../schemas/guildsSchema');
-const antiRF = require('../schemas/antiRF_Schema');
 const Discord = require('discord.js-light');
-const { pulk, ratelimitFilter, automoderator, fecthDataBase, updateDataBase, fecthUsersDataBase } = require('../functions');
+const { pulk, ratelimitFilter, automoderator, fecthDataBase, updateDataBase } = require('../functions');
 const antiIpLogger = require("anti-ip-logger");
 
 module.exports = async (client, oldMessage, message) => {
@@ -171,24 +170,18 @@ module.exports = async (client, oldMessage, message) => {
 
     }catch(err) {}
 
-    let user = await fecthUsersDataBase(client, message.author, false);
-    if(!user)return;
+    if(!message.content.startsWith(_guild.configuration.prefix) || message.author.bot || message.content.length === _guild.configuration.prefix.length)return;
 
-    if(!message.content.startsWith(_guild.configuration.prefix) || message.author.bot)return;
     let args = message.content.slice(_guild.configuration.prefix.length).trim().split(/ +/);
     let command = args.shift().toLowerCase();
-    
     let cmd = client.comandos.get(command) || client.comandos.find(x => x.alias.includes(command));
-    if(message.content.length == _guild.configuration.prefix.length)return;
-    if(!cmd)return;
 
-    if(user.isBloqued == true)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios prohibidos no pueden usar comandos.`', ephemeral: true });
+    if(!cmd)return;
+    if(cmd.premium)message.reply({ content: '<a:sp_no:805810577448239154> | `¡Ese comando es para usuarios premium!`' });
+
     let usersData = await client.ubfb.getUser(message.author.id);
     if(command != 'me' && command != 'apelar') {
         if(usersData && usersData.isMalicious)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios maliciosos no pueden usar comandos.`', ephemeral: true });
-    }
-    if(cmd.premium == true) {
-        if(!user.premium.isActive)return message.reply({ content: '<a:sp_no:805810577448239154> | `¡Ese comando es para usuarios premium!`' });
     }
 
     if(_guild.configuration.password.enable && !_guild.configuration.password.usersWithAcces.includes(message.author.id)) {
