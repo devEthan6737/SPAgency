@@ -5,7 +5,6 @@ const package = require('./package.json');
 const os = require('os');
 const process = require('process');
 const cpuStat = require('cpu-stat');
-const antiRF = require('./schemas/antiRF_Schema');
 const Guild = require('./schemas/guildsSchema');
 const Timers = require('./schemas/timersSchema');
 const Warns = require('./schemas/warnsSchema');
@@ -107,8 +106,7 @@ async function selectMenu(interaction, value, client) {
         interaction.reply({ content: '¡Ahora solo mostraré el servidor de soporte de mi personal cuando alguien me mencione!', ephemeral: true });
     }else if(value === 'ignore') {
         if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
-        let user = await antiRF.findOne({ user: interaction.user.id });
-        if(!user.premium.isActive)return interaction.reply({ content: '`Esa opción es para usuarios premium.`', ephemeral: true });
+        return interaction.reply({ content: '`PREMIUM ERROR:` SPA Code is not ready to use TIBAJS API.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'ignore';
         updateDataBase(client, interaction.guild, _guild);
         interaction.reply({ content: '¡Ahora ignoraré cuando alguien me mencione!', ephemeral: true });
