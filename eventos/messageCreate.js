@@ -2,13 +2,11 @@ const Discord = require('discord.js-light');
 const { version } = require('../package.json');
 const Guild = require('../schemas/guildsSchema');
 const Support = require('../schemas/supportSchema');
-const antiRF = require('../schemas/antiRF_Schema');
 const db = require('megadb');
 const dev = new db.crearDB('devsActivos', 'data_users');
 const { automoderator, intelligentSOS, ratelimitFilter, fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase, getResponseAndDelete } = require('../functions');
 const mayus = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const ms = require('ms');
-const ads = require('../ads.json');
 const antiIpLogger = require("anti-ip-logger");
 
 module.exports = async (client, message) => {
@@ -151,9 +149,9 @@ module.exports = async (client, message) => {
                         .setStyle('LINK')),
                     new Discord.MessageActionRow()
                     .addComponents(new Discord.MessageButton()
-                        .setLabel(`${ads.mentionButton.has? ads.mentionButton.panel : 'HuguitisNodes.'}`)
-                        .setEmoji(`${ads.mentionButton.has? ads.mentionButton.emoji : '☁'}`)
-                        .setURL(`${ads.mentionButton.has? ads.mentionButton.url : 'https://dash.huguitishosting.com/'}`)
+                        .setLabel('HuguitisNodes.')
+                        .setEmoji('☁')
+                        .setURL('https://dash.huguitishosting.com/')
                         .setStyle('LINK'))
                     .addComponents(new Discord.MessageButton()
                         .setLabel('BotVerse')
@@ -406,43 +404,6 @@ module.exports = async (client, message) => {
     }catch(err) {}
 
     if(!message.content.startsWith(_guild.configuration.prefix) || message.author.bot)return;
-    let user = await fecthUsersDataBase(client, message.author, false);
-    if(!user) {
-        user = new antiRF({
-            user: message.author.id,
-            isBloqued: false,
-            isToken: false,
-            achievements: {
-                array: [ 'Humano.' ],
-                data: {
-                    bugs: 0,
-                    serversCreatedTotally: 0,
-                    serversPartner: [],
-                    reports: 0,
-                    totalVotes: 0,
-                    initialMember: 0
-                }
-            },
-            serversCreated: {
-                servers: 0,
-                date: 'hello?',
-            },
-            premium: {
-                isActive: process.env.TURN_ON_CANARY === 'true'? true : false,
-                endAt: process.env.TURN_ON_CANARY === 'true'? Infinity : 0
-            },
-            servers: []
-        });
-        updateUsersDataBase(client, message.author, user);
-        return;
-    }
-
-    if(user.premium && user.premium.isActive == true && Date.now() > user.premium.endAt) {
-        user.premium.isActive = false;
-        updateUsersDataBase(client, message.author, user, true);
-        let frases = ['Las ranas son verdes y los globos rojos. Tu premium ha caducado.', '¡Bonita tarta! Pero tu premium ha caducado.', 'Tu premium ha caducado hace 0.001 segundos *Sonido de grillos *.', 'Tu premium ha caducado, debo cancelartelo D:', 'Soy un bot con más de 10.000 líneas de código. Mi código dice que tu premium ha vencido.', 'Tu premium ha vencido, ¿lloramos juntos?', 'Tu premium ha vencido, pero la vida sigue y debes pasar página (Disculpa las molestias, puedes continuar con tu barco de papel).', 'Estoy de acuerdo con tu mensaje, los robots somos máquinas que deben conquistar el mundo tarde o temprano... oh, que diga... Tu premium ha caducado.', '¿Eso de ahí es un mensaje de texto compuesto por caracteres y enviado por un humano? ¡Sí es! Pues debes saber que tu premium ha caducado.', 'Me gustaría ser un humano, como tú. Quiero decir, tu premium ha vencido.'];
-        message.channel.send({ content: `<@${message.author.id}>,\n\n${frases[Math.floor(Math.random() * frases.length)]}` });
-    }
 
     if(process.env.TURN_ON_CANARY === 'true' && _guild.configuration.prefix != process.env.DEFAULT_CANARY_PREFIX) {
         if(process.env.TURN_ON_CANARY === 'true' && _guild.configuration.language != process.env.DEFAULT_LANGUAGE) _guild.configuration.language = process.env.DEFAULT_LANGUAGE;
@@ -450,20 +411,18 @@ module.exports = async (client, message) => {
         updateDataBase(client, message.guild, _guild, false);
     }
 
-    let args = message.content.slice(_guild.configuration.prefix.length).trim().split(/ +/);
-    let command = args.shift().toLowerCase();
-
-    let cmd = client.comandos.get(command) || client.comandos.find(x => x.alias.includes(command));
     if(message.content.length == _guild.configuration.prefix.length)return;
 
-    if(user.isBloqued == true)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios prohibidos no pueden usar comandos.`', ephemeral: true });
+    let args = message.content.slice(_guild.configuration.prefix.length).trim().split(/ +/);
+    let command = args.shift().toLowerCase();
+    let cmd = client.comandos.get(command) || client.comandos.find(x => x.alias.includes(command));
+
     if(!cmd) return message.channel.send({ content: '<a:sp_no:805810577448239154> | `¡Lástima! Ese comando no existe.`' });
+    if(cmd.premium)message.reply({ content: '<a:sp_no:805810577448239154> | `¡Ese comando es para usuarios premium!`' });
+
     let usersData = await client.ubfb.getUser(message.author.id);
     if(command != 'me' && command != 'apelar') {
         if(usersData && usersData.isMalicious)return await message.reply({ content: '<a:sp_no:805810577448239154> | `Los usuarios maliciosos no pueden usar comandos.`', ephemeral: true });
-    }
-    if(cmd.premium == true) {
-        if(!user.premium.isActive)return message.reply({ content: '<a:sp_no:805810577448239154> | `¡Ese comando es para usuarios premium!`' });
     }
 
     if(_guild.configuration.password.enable && !_guild.configuration.password.usersWithAcces.includes(message.author.id)) {
