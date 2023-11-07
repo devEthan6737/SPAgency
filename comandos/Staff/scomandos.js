@@ -13,12 +13,12 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         if(!dev.has(message.author.id))return message.channel.send('<a:sp_no:805810577448239154> | `¡Lástima! Ese comando no existe.`');
 		message.channel.send({ embeds: [
-            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Reclutas').setDescription('`mi`, `password`, `queue`'),
-            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Agente Oficial').setDescription('`sguild`, `send`, `dbsearch`'),
-            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Supervisor').setDescription('`skick`, `vsubmit`'),
+            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Reclutas').setDescription('`mi`, `password`'),
+            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Agente Oficial').setDescription('`sguild`, `send`'),
+            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Supervisor').setDescription('`skick`'),
             new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Alto mando').setDescription('`generate`, `sban`'),
-            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Co-Director').setDescription('`malicious`, `bloquser`, `bloqguild`'),
-            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Director').setDescription('`rmalicious`, `unbloquser`, `unbloquser`, `eval`, `giveadmin`, `ubfbcode`'),
+            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Co-Director').setDescription('`bloqguild`'),
+            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Director').setDescription(`unbloquser`, `eval`, `giveadmin`, `ubfbcode`'),
         ] });
 	},
 };
