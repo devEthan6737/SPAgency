@@ -496,23 +496,9 @@
                 "message15": "El usuario está en la lista negra, pero ya no es considerado usuario malicioso.",
                 "message16": "Estás en la lista negra, pero ya no eres considerado usuario malicioso."
             },
-            "perfil": {
-                "message1": "Logros",
-                "message2": "Premium",
-                "message3": "Premium acaba en"
-            },
             "premium": {
-                "message1": "¡Has obtenido premium infinito!",
-                "message2": "Acabas de obtener un logro, mira tu perfil",
-                "message3": "¡Has obtenido/acumulado premium durante",
-                "message4": "Ese código no existe o ya fue canjeado",
-                "message5": "Tu premium acabó hace",
-                "message6": "Si quieres canjear o acumular tiempo en premium, escribe",
-                "message7": "Tu premium acaba en",
-                "message8": "Tienes premium infinito, eso quiere decir que te envidio",
-                "message9": "`> 🛡  >` Sistema CET.\n`> ⏰ >` Sistema de SOS inteligente.\n`> 📂 >` Backups.\n`> 💻 >` Sistema personalizado.\n`> 📣 >` Sin respuesta al ser mencionado.\n`> ⚔  >` Sistema centinela.\n`> 🔨 >` Comando forceban desbloqueado al completo.",
-                "message10": "Obtener ahora",
-                "message11": "`>` **0.20€** dos meses.\n`> Más vendido:` **0.51€** cinco meses.\n`>` **1.02€** un año.\n`>` **1.95€** dos años.\n`> Segundo más vendido:` **3.09€** premium sin caducidad __(INFINITO)__.\n\n> **Pago por [paypal](https://paypal.me/0spagency) <:spaypal:909576968209588294>**\n> Considera habilitar mensajes privados al comprar nuestro premium, __y agregar tu id o tag COMPLETO en la nota de paypal para identificarte__"
+                "_": "`> 🛡  >` Sistema CET.\n`> ⏰ >` Sistema de SOS inteligente.\n`> 📂 >` Backups.\n`> 💻 >` Sistema personalizado.\n`> 📣 >` Sin respuesta al ser mencionado.\n`> ⚔  >` Sistema centinela.\n`> 🔨 >` Comando forceban desbloqueado al completo.",
+                "__": "`>` **0.20€** dos meses.\n`> Más vendido:` **0.51€** cinco meses.\n`>` **1.02€** un año.\n`>` **1.95€** dos años.\n`> Segundo más vendido:` **3.09€** premium sin caducidad __(INFINITO)__.\n\n> **Pago por [paypal](https://paypal.me/0spagency) <:spaypal:909576968209588294>**\n> Considera habilitar mensajes privados al comprar nuestro premium, __y agregar tu id o tag COMPLETO en la nota de paypal para identificarte__"
             },
             "queja": {
                 "message1": "No has especificado el mensaje de la queja",
