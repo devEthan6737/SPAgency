@@ -18,7 +18,7 @@ module.exports = {
             new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Supervisor').setDescription('`skick`'),
             new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Alto mando').setDescription('`generate`, `sban`'),
             new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Co-Director').setDescription('`bloqguild`'),
-            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Director').setDescription(`unbloquser`, `eval`, `giveadmin`, `ubfbcode`'),
+            new Discord.MessageEmbed().setColor(0x0056ff).setTitle('Director').setDescription('`unbloquser`, `eval`, `giveadmin`, `ubfbcode`')
         ] });
 	},
 };
