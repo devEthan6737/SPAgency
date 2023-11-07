@@ -27,7 +27,7 @@ const client = new Discord.Client({
     shards: 'auto',
     makeCache: Discord.Options.cacheWithLimits({
         ApplicationCommandManager: 0, // guild.commands
-        BaseGuildEmojiManager: Infinity, // guild.emojis
+        BaseGuildEmojiManager: 0, // guild.emojis
         ChannelManager: Infinity, // client.channels
         GuildChannelManager: Infinity, // guild.channels
         GuildBanManager: Infinity, // guild.bans
@@ -100,11 +100,11 @@ client.login(process.env.TURN_ON_CANARY === 'true' ? process.env.CANARY_BOT_TOKE
         }
     }
 
-    for(const subcarpeta of fs.readdirSync('./comandos/')) { 
-        for(const file of fs.readdirSync('./comandos/' + subcarpeta)) { 
+    for(const subcarpeta of fs.readdirSync('./comandos/')) {
+        for(const file of fs.readdirSync('./comandos/' + subcarpeta)) {
             if(file.endsWith(".js")) {
-                let fileName = file.substring(0, file.length - 3); 
-                let fileContents = require(`./comandos/${subcarpeta}/${file}`); 
+                let fileName = file.substring(0, file.length - 3);
+                let fileContents = require(`./comandos/${subcarpeta}/${file}`);
                 client.comandos.set(fileName, fileContents);
             }
         }
@@ -141,10 +141,8 @@ ARCHIVOS QUE NO USAN SISTEMA DE LENGUAJES:
 10 detectar
 11 forceban
 12 forcereason
-13 globalban
-14 globalkick
-15 hackban
-16 linkdetect
+13 hackban
+14 linkdetect
 - Comandos como autoconfig, verificación, raidmode, backup, automoderador... tampoco están traducidos
 ni actualizados, se planeaba un cambio grande para estos.
 */
