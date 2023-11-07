@@ -1,6 +1,5 @@
 require('dotenv').config();
 const Discord = require('discord.js-light');
-const antiRF = require('../schemas/antiRF_Schema');
 const Timers = require('../schemas/timersSchema');
 const { setGuildBase } = require('../Utils/DataBase/base');
 
@@ -55,12 +54,6 @@ module.exports = async (client, guild) => {
                         .setStyle('LINK'),
                     )
                 ] }).catch(err => {});
-            }
-
-            // Achievements:
-            if(user && user.achievements.data.serversCreatedTotally >= 10 && !user.achievements.array.includes('Rey de gremios.')) {
-                user.achievements.array.push('Rey de gremios.');
-                user.save();
             }
 
             // Activar el config por defecto al añadir al bot:
