@@ -9,7 +9,7 @@ module.exports = async (client, role) => {
         if(!_guild)return;
         let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
-        role.guild.fetchAuditLogs({ type: 'DELETE_ROLE' }).then(async logs => {
+        role.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.RoleDelete }).then(async logs => {
             let prsn = logs.entries.first().executor;
 
             // Logs:
