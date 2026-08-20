@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Timers = require('../../schemas/timersSchema');
 const Malicious = require('../../schemas/maliciousSchema');
 const _reporte = new Discord.MessageEmbed().setColor(0x0056ff);

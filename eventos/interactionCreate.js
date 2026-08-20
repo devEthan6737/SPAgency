@@ -1,6 +1,6 @@
 const Guild = require('../schemas/guildsSchema');
 const { selectMenu, pulk, fecthDataBase, updateDataBase } = require('../functions');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 
 module.exports = async (client, interaction) => {
     let _guild = await fecthDataBase(client, interaction.guild, false);

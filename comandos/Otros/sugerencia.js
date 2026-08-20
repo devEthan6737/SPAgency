@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired } = require('../../functions');
 const _sugerencia = new Discord.MessageEmbed().setColor(0x0056ff);
 

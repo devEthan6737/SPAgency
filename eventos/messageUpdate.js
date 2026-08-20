@@ -1,5 +1,5 @@
 const Guild = require('../schemas/guildsSchema');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { pulk, ratelimitFilter, automoderator, fecthDataBase, updateDataBase } = require('../functions');
 const antiIpLogger = require("anti-ip-logger");
 

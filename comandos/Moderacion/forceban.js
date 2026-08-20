@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const db = require('megadb');
 const dataRow = new db.crearDB('dataRows', 'data_bot');
 

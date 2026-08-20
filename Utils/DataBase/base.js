@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Guild = require('../../schemas/guildsSchema');
 const package = require('../../package.json');
 

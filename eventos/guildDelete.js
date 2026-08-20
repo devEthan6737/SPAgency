@@ -1,5 +1,5 @@
 require('dotenv').config();
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { pulk } = require('../functions');
 const Guild = require('../schemas/guildsSchema');
 const Backup = require('../schemas/backupsSchema');

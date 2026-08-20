@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { fecthUsersDataBase } = require('../../functions');
 const moreDetails = new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId('moreDetails').setLabel('Más detalles').setStyle('PRIMARY'));
 const lessDetails = new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId('lessDetails').setLabel('Menos detalles').setStyle('PRIMARY'));

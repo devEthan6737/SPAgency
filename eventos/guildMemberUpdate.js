@@ -1,5 +1,5 @@
 const Guild = require('../schemas/guildsSchema');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { fecthDataBase } = require('../functions');
 
 module.exports = async (client, member) => {

@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Malicious = require('../../schemas/maliciousSchema');
 const ms = require('ms');
 

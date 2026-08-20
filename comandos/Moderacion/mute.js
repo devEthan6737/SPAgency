@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Timers = require('../../schemas/timersSchema');
 const { dataRequired, updateDataBase } = require('../../functions');
 const ms = require('ms');

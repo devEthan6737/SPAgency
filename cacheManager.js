@@ -1,5 +1,5 @@
 const Cacheger = require('cacheger');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 
 class cacheManager extends Cacheger {
     

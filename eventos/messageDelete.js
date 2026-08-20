@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { pulk, fecthDataBase, updateDataBase } = require('../functions');
 
 module.exports = async (client, message) => {

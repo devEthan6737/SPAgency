@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Support = require('../../schemas/supportSchema');
 const { dataRequired } = require("../../functions");
 const db = require('megadb');

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Timers = require('../schemas/timersSchema');
 const { setGuildBase } = require('../Utils/DataBase/base');
 

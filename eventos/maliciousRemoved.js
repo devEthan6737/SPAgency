@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 
 module.exports = async (client, malicious) => {
     await client.users.fetch(malicious.userId);

@@ -1,5 +1,5 @@
 // Deberías cambiar todo de aquí, en el caso de que no sepas no lo toques y escribe return en la linea 14.
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Timers = require('../../schemas/timersSchema');
 const db = require('megadb');
 const dev = new db.crearDB('devsActivos', 'data_users');

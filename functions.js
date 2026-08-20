@@ -1,6 +1,6 @@
 // No es recomendable tocar algo de aquí si no sabes lo que haces.
 
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const package = require('./package.json');
 const os = require('os');
 const process = require('process');

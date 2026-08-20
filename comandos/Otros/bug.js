@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired, fecthUsersDataBase } = require('../../functions');
 const _bug = new Discord.MessageEmbed().setColor(0x0056ff);
 

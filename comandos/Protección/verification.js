@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired, updateDataBase } = require('../../functions');
 
 module.exports = {

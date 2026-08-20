@@ -1,6 +1,6 @@
 const Guild = require('../schemas/guildsSchema');
 const Timers = require('../schemas/timersSchema');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const ms = require('ms');
 const { pulk, fecthDataBase, updateDataBase } = require('../functions');
 const characters = 'qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM1234567890';

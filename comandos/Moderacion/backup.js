@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Backup = require('../../schemas/backupsSchema');
 const byteSize = require('byte-size');
 const { dataRequired } = require('../../functions');

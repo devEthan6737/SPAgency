@@ -22,7 +22,7 @@ Vaya al archivo .env para editar la configuración.
 
 const fs = require('fs');
 const package = require('./package.json');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const client = new Discord.Client({
     shards: 'auto',
     makeCache: Discord.Options.cacheWithLimits({

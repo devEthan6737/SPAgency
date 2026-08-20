@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const helpOptions = new Discord.MessageActionRow().addComponents(new Discord.MessageSelectMenu().setCustomId('helpOptions').setPlaceholder('Nada seleccionado.').addOptions([
     {
         emoji: '❓',
