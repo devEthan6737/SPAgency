@@ -19,8 +19,8 @@ module.exports = {
 		let userMention = message.mentions.members.first();
         if(!userMention) {
             if(_guild.moderation.dataModeration.timers.length > 20)return message.reply({ content: LANG.commands.mod.muteinfo.message3 + _guild.moderation.dataModeration.timers.length + LANG.commands.mod.muteinfo.message4, components: [
-                new Discord.MessageActionRow()
-                .addComponents(new Discord.MessageButton()
+                new Discord.ActionRowBuilder()
+                .addComponents(new Discord.ButtonBuilder()
                     .setLabel(LANG.commands.mod.muteinfo.message5)
                     .setEmoji('🛑')
                     .setCustomId('unmuteAll')
@@ -28,11 +28,11 @@ module.exports = {
                 )
             ] });
             let cc = 1;
-            message.reply({ content: LANG.commands.mod.muteinfo.message3 + _guild.moderation.dataModeration.timers.length + LANG.commands.mod.muteinfo.message4, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff)
-                .setAuthor(LANG.commands.mod.muteinfo.message6).setDescription(`${_guild.moderation.dataModeration.timers.map(x => `\`${cc++}.\` ${x.user.username}`).join('\n')}`)
+            message.reply({ content: LANG.commands.mod.muteinfo.message3 + _guild.moderation.dataModeration.timers.length + LANG.commands.mod.muteinfo.message4, embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff)
+                .setAuthor({ name: LANG.commands.mod.muteinfo.message6 }).setDescription(`${_guild.moderation.dataModeration.timers.map(x => `\`${cc++}.\` ${x.user.username}`).join('\n')}`)
             ], components: [
-                new Discord.MessageActionRow()
-                    .addComponents(new Discord.MessageButton()
+                new Discord.ActionRowBuilder()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel(LANG.commands.mod.muteinfo.message5)
                         .setEmoji('🛑')
                         .setCustomId('unmuteAll')
@@ -49,7 +49,7 @@ module.exports = {
                 if(x.user.id == userMention.id) {
                     has = true;
                     message.reply({ embeds: [
-                        new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`${userMention.user.tag}`, `${userMention.user.displayAvatarURL()}`)
+                        new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: `${userMention.user.tag}`, iconURL: `${userMention.user.displayAvatarURL()}` })
                         .setDescription(LANG.commands.mod.muteinfo.message9 + x.user.roles.length + LANG.commands.mod.muteinfo.message10 + new Date(x.endAt) + LANG.commands.mod.muteinfo.message11 + ms(x.endAt - Date.now()) + LANG.commands.mod.muteinfo.message12 + x.channel + '`')
                     ] });
                 }

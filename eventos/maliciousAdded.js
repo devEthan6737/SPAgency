@@ -6,7 +6,7 @@ module.exports = async (client, malicious) => {
     
     client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({
         embeds: [
-            new Discord.MessageEmbed().setColor(0x5c4fff).setDescription(`Se ha agregado un nuevo usuario malicioso.\n**${client.users.cache.get(malicious.userId).tag}** con la razón **${malicious.reason}**.\nSu castigo terminará en **${ms(malicious.punishment - Date.now())}**.\nLa prueba solo se puede mostrar cuando el usuario escribe \`sp!me\`.\n\n**__Propulsado por UBFB.__**`)
+            new Discord.EmbedBuilder().setColor(0x5c4fff).setDescription(`Se ha agregado un nuevo usuario malicioso.\n**${client.users.cache.get(malicious.userId).tag}** con la razón **${malicious.reason}**.\nSu castigo terminará en **${ms(malicious.punishment - Date.now())}**.\nLa prueba solo se puede mostrar cuando el usuario escribe \`sp!me\`.\n\n**__Propulsado por UBFB.__**`)
         ]
     });
 

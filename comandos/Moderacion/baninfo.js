@@ -20,7 +20,7 @@ module.exports = {
 			let x = await message.guild.bans.fetch(args[0]);
 			if(!x)return message.channel.send(LANG.commands.baninfo.message2);
 
-			message.channel.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(LANG.commands.baninfo.message3[0].replace('<username>', x.user.username).replace('<userBot>', x.user.bot? LANG.commands.baninfo.message3[1] : LANG.commands.baninfo.message3[2]).replace('<reason>', x.reason ?? LANG.commands.baninfo.message3[3])) ] });
+			message.channel.send({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(LANG.commands.baninfo.message3[0].replace('<username>', x.user.username).replace('<userBot>', x.user.bot? LANG.commands.baninfo.message3[1] : LANG.commands.baninfo.message3[2]).replace('<reason>', x.reason ?? LANG.commands.baninfo.message3[3])) ] });
 		}catch(err) {
 			return message.channel.send(LANG.commands.baninfo.message4);
 		}

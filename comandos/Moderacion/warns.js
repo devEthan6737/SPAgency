@@ -23,6 +23,6 @@ module.exports = {
         if(!userWarns)return message.reply({ content: `${LANG.commands.mod.warns.message2}.` });
 
         let cc = 1;
-        message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${LANG.commands.mod.warns.message3} ${userWarns.warns.length} ${LANG.commands.mod.warns.message4} <@${userMention.id}>.\n\n${userWarns.warns.map(x => `\`${cc++}-\` __${x.reason}__, ${LANG.commands.mod.warns.message5}: <@${x.moderator}>`).join('\n')}`) ] });
+        message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${LANG.commands.mod.warns.message3} ${userWarns.warns.length} ${LANG.commands.mod.warns.message4} <@${userMention.id}>.\n\n${userWarns.warns.map(x => `\`${cc++}-\` __${x.reason}__, ${LANG.commands.mod.warns.message5}: <@${x.moderator}>`).join('\n')}`) ] });
     },
 };

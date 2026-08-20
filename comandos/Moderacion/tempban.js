@@ -40,7 +40,7 @@ module.exports = {
 		let userID = client.users.cache.get(userMention.id);
 		userID.send(LANG.commands.mod.tempban.message12 + message.guild.name + LANG.commands.mod.tempban.message13 + args[1] + '\n' + LANG.commands.mod.tempban.message14 + message.author.tag + LANG.commands.mod.tempban.message15 + args.join(' ').split(`${args[1]} `)[1] + '`').then(x => {
             userMention.ban({ reason: args.join(' ').split(`${args[1]} `)[1] });
-            let banEmbed = new Discord.MessageEmbed()
+            let banEmbed = new Discord.EmbedBuilder()
 			.setDescription(`${LANG.commands.mod.tempban.message16} <@${userMention.id}> (${userMention.id})${LANG.commands.mod.tempban.message14} <@${message.author.id}> (${message.author.id})${LANG.commands.mod.tempban.message15} \`${args.join(' ').split(`${args[1]} `)[1]}\`\n${LANG.commands.mod.tempban.message17} \`${args[1]}\``)
 			.setTimestamp().setColor(0x5c4fff);
             message.channel.send({ embeds: [ banEmbed ] });

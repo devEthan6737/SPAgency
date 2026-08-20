@@ -9,7 +9,7 @@ module.exports = async (client, guild) => {
             await setGuildBase(guild);
 
             // Notificación de nuevo gremio.
-            client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ new Discord.MessageEmbed().setThumbnail(`${guild.iconURL()}`).setTitle('Nuevo Servidor.').addField('Servidor', `${guild.name} (${guild.id})`).addField('Idioma', `${guild.preferredLocale}`).addField('Roles', `${guild.roles.cache.size}`).addField('Miembros', `${guild.memberCount}`).setTimestamp().setColor(0x0056ff).setFooter(`${guild.name}`, `${guild.iconURL()}`) ] });
+            client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ new Discord.EmbedBuilder().setThumbnail(`${guild.iconURL()}`).setTitle('Nuevo Servidor.').addFields({ name: 'Servidor', value: `${guild.name} (${guild.id})` }).addFields({ name: 'Idioma', value: `${guild.preferredLocale}` }).addFields({ name: 'Roles', value: `${guild.roles.cache.size}` }).addFields({ name: 'Miembros', value: `${guild.memberCount}` }).setTimestamp().setColor(0x0056ff).setFooter({ text: `${guild.name}`, iconURL: `${guild.iconURL()}` }) ] });
 
             // Requiriendo usuario de mongoose:
             let user = await antiRF.findOne({ user: guild.ownerId });
@@ -25,29 +25,29 @@ module.exports = async (client, guild) => {
                 founder.send('Tu servidor está bloqueado, eso significa que debo salir de este.').catch(err => {});
                 guild.leave();
             }else{
-                founder.send({ embeds: [ new Discord.MessageEmbed()
-                    .setAuthor(`${guild.name}`, `${guild.iconURL()}`)
+                founder.send({ embeds: [ new Discord.EmbedBuilder()
+                    .setAuthor({ name: `${guild.name}`, iconURL: `${guild.iconURL()}` })
                     .setDescription('SP Agency, versión 6:\n\n```[+] Autosuficiente.\n[+] Avanzado.\n[+] Innovador.\n[+] Sencillo.\n[+] Característico.\n[+] Seguro.\n[+] Cumple lo que promete.\n[+] Desarrollado con cariño.```')
-                    .addField('<:proteccion:780163156902543370> | La mejor seguridad hispanohablante:', 'Comienza con el bot antiraider más eficaz, inteligente y avanzado.')
-                    .addField('<:mod:780163163421278228> | Deja el martillo morado, usa el nuestro:', 'Hemos creado una moderación enfocada a tus gustos.')
-                    .addField('<:config:780163162993328138> | Configuración extensa y adaptada:', 'Nuestro bot es como una tarta, ¡puedes cambiar todos sus ingredientes!')
-                    .addField('<:otros:780163159553605653> | Soporte ampliado:', '¿Preguntas o problemas? ¡Estamos ansiosos por mimarte!')
+                    .addFields({ name: '<:proteccion:780163156902543370> | La mejor seguridad hispanohablante:', value: 'Comienza con el bot antiraider más eficaz, inteligente y avanzado.' })
+                    .addFields({ name: '<:mod:780163163421278228> | Deja el martillo morado, usa el nuestro:', value: 'Hemos creado una moderación enfocada a tus gustos.' })
+                    .addFields({ name: '<:config:780163162993328138> | Configuración extensa y adaptada:', value: 'Nuestro bot es como una tarta, ¡puedes cambiar todos sus ingredientes!' })
+                    .addFields({ name: '<:otros:780163159553605653> | Soporte ampliado:', value: '¿Preguntas o problemas? ¡Estamos ansiosos por mimarte!' })
                     .setColor(0x0056ff),
                 ], components: [
-                    new Discord.MessageActionRow()
-                    .addComponents(new Discord.MessageButton()
+                    new Discord.ActionRowBuilder()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel('Discord de Soporte')
                         .setEmoji('⛑')
                         .setURL('https://discord.gg/RuBvM5r9eM')
                         .setStyle('LINK'),
                     )
-                    .addComponents(new Discord.MessageButton()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel('Empezar')
                         .setEmoji('🛑')
                         .setURL(`https://discord.com/channels/${guild.id}/`)
                         .setStyle('LINK'),
                     )
-                    .addComponents(new Discord.MessageButton()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel('Tutorial de configuración')
                         .setEmoji('🦮')
                         .setURL(`https://youtu.be/74h55oEyy4U`)

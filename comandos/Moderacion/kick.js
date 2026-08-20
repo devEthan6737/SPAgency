@@ -29,7 +29,7 @@ module.exports = {
         let userID = client.users.cache.get(userMention.id);
 		userID.send(LANG.commands.mod.kick.message8.replace('<guildName>', message.guild.name).replace('<moderatorTag>', message.author.tag).replace('<reason>', args.join(' ').split(`${userMention.id}> `)[1])).catch(err => {});
 		message.guild.members.kick(userMention, args.join(' ').split(`${userMention.id}> `)[1]).catch(err => {});
-		let kickEmbed = new Discord.MessageEmbed()
+		let kickEmbed = new Discord.EmbedBuilder()
 			.setDescription(LANG.commands.mod.kick.message9.replace('<userMention>', `<@${userMention.id}>`).replace('<userMentionId>', userMention.id).replace('<authorMention>', `<@${message.author.id}>`).replace('<authorId>', message.author.id).replace('<reason>', `${args.join(' ').split(`${userMention.id}> `)[1]}`))
 			.setColor(0x5c4fff).setTimestamp();
 		message.channel.send({ embeds: [ kickEmbed ] });

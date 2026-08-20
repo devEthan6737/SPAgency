@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { dataRequired } = require('../../functions');
-const _queja = new Discord.MessageEmbed().setColor(0x0056ff);
+const _queja = new Discord.EmbedBuilder().setColor(0x0056ff);
 
 module.exports = {
     nombre: "queja",
@@ -21,7 +21,7 @@ module.exports = {
                 if(`${m.content}`.toLowerCase() == 'enviar') {
                     _queja.setDescription(args.join(' ')).setTitle('' + LANG.commands.others.queja.message3 + '.');
                     message.reply({ embeds: [ _queja ], ephemeral: true });
-                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _queja.setTitle('Queja.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _queja.setTitle('Queja.').setAuthor({ name: `${message.author.tag}, ${message.author.id}`, iconURL: message.author.displayAvatarURL() }).setFooter({ text: `${message.guild.name}, ${message.guild.id}`, iconURL: message.guild.iconURL }) ] });
                     collector.stop();
                 }else {
                     message.channel.send({ content: '' + LANG.commands.others.queja.message4 +'.' });

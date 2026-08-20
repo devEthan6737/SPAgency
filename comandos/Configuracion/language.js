@@ -19,7 +19,7 @@ module.exports = {
             if(!message.member.permissions.has('MANAGE_CHANNELS'))return message.reply({ content: `${LANG.data.permissionsChannelsU}.`, ephemeral: true });
             if(!args[0]) {
                 message.reply(await dataRequired('' + LANG.commands.config.language.message1 + '.\n\n' + _guild.configuration.prefix + 'lang <language>'));
-                message.channel.send({ embeds: [ new Discord.MessageEmbed().setColor('5c4fff').setDescription(':flag_es: - `es`\n:flag_us: - `en`') ] });
+                message.channel.send({ embeds: [ new Discord.EmbedBuilder().setColor('5c4fff').setDescription(':flag_es: - `es`\n:flag_us: - `en`') ] });
                 return;
             }
 

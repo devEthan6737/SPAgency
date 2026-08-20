@@ -24,7 +24,7 @@ module.exports = {
 
             if(_guild.moderation.dataModeration.badwords.length == 0)return message.reply({ content: 'No hay malas palabras en la lista.' });
             let cc = 1;
-            message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`Estás viendo las malas palabras del servidor, después de este mensaje escribe el numero adjunto a la mala palabra para eliminarla.\n\n${_guild.moderation.dataModeration.badwords.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] }).catch(err => {});
+            message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`Estás viendo las malas palabras del servidor, después de este mensaje escribe el numero adjunto a la mala palabra para eliminarla.\n\n${_guild.moderation.dataModeration.badwords.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] }).catch(err => {});
             let collector = message.channel.createMessageCollector({ time: 15000 });
             collector.on('collect', async m => {
                 if(m.content == '')return;

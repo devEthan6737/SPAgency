@@ -52,7 +52,7 @@ module.exports = {
     
                 message.reply({
                     embeds: [
-                        new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(member.user.tag, member.user.displayAvatarURL())
+                        new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: member.user.tag, iconURL: member.user.displayAvatarURL() })
                         .setDescription(`ID & NICKNAME: \`${ member.nickname ?? 'Sin apodo.' } (${ member.user.id })\`\nEntrada en el servidor: \`${ new Date(member.joinedTimestamp) }\`\nBanderas: \`${ member.user.flags.bitfield }\`\nBot: \`${ member.user.bot ? 'Es un bot.' : 'No es un bot' }\`\nRol más alto: \`${ member.roles.highest.name }\`\nAdmin: \`${ member.permissions.has('ADMINISTRATOR') ? 'Sí.' : 'No.' }\`\nRoles: \`${ herRoles.map(x => `\`${x}\``).join(', ') }\``)
                     ]
                 });

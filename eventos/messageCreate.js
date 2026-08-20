@@ -16,9 +16,9 @@ module.exports = async (client, message) => {
             if(message.author.id == _support.author.id) {
                 if(message.content.startsWith('sp!close')) {
                     message.channel.send({ content: 'Has cerrado el chat.' });
-                    message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${_support.staff.tag}\` **se ha desconectado de la conversación**.`) ] }).catch(err => {});
+                    message.author.send({ embeds: [ new Discord.EmbedBuilder().setColor('RED').setDescription(`[←] \`${_support.staff.tag}\` **se ha desconectado de la conversación**.`) ] }).catch(err => {});
                     await client.users.fetch(_support.staff.id);
-                    await client.users.cache.get(_support.staff.id).send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${_support.author.tag}\` **ha cerrado el chat, se ha desconectado de la conversación**.`) ] }).catch(err => {});
+                    await client.users.cache.get(_support.staff.id).send({ embeds: [ new Discord.EmbedBuilder().setColor('RED').setDescription(`[←] \`${_support.author.tag}\` **ha cerrado el chat, se ha desconectado de la conversación**.`) ] }).catch(err => {});
                     let dataStaffArray = await dev.get('array');
                     if(!dataStaffArray.includes(_support.staff.id)) {
                         dev.push('array', _support.staff.id);
@@ -28,7 +28,7 @@ module.exports = async (client, message) => {
                 }
                 message.channel.send({ content: 'Enviando mensaje...' }).then(async x => {
                     await client.users.fetch(_support.staff.id);
-                    await client.users.cache.get(_support.staff.id).send({ embeds: [ new Discord.MessageEmbed().setColor('GREEN').setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription(message.content) ] }).catch(async err => {
+                    await client.users.cache.get(_support.staff.id).send({ embeds: [ new Discord.EmbedBuilder().setColor('GREEN').setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() }).setDescription(message.content) ] }).catch(async err => {
                         message.channel.send({ content: 'Error al enviar mensaje, he cerrado la conversación.' });
                         await Support.findOneAndDelete({ fetchAutor: message.author.id });
                     });
@@ -41,9 +41,9 @@ module.exports = async (client, message) => {
             if(message.author.id == __support.staff.id) {
                 if(message.content.startsWith('sp!close')) {
                     message.channel.send({ content: 'Has cerrado el chat.' });
-                    message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${__support.author.tag}\` **se ha desconectado de la conversación**.`) ] }).catch(err => {});
+                    message.author.send({ embeds: [ new Discord.EmbedBuilder().setColor('RED').setDescription(`[←] \`${__support.author.tag}\` **se ha desconectado de la conversación**.`) ] }).catch(err => {});
                     await client.users.fetch(__support.author.id);
-                    await client.users.cache.get(__support.author.id).send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${__support.staff.tag}\` **ha cerrado el chat, se ha desconectado de la conversación**.`) ] }).catch(err => {});
+                    await client.users.cache.get(__support.author.id).send({ embeds: [ new Discord.EmbedBuilder().setColor('RED').setDescription(`[←] \`${__support.staff.tag}\` **ha cerrado el chat, se ha desconectado de la conversación**.`) ] }).catch(err => {});
                     let dataStaffArray = await dev.get('array');
                     if(!dataStaffArray.includes(__support.staff.id)) {
                         dev.push('array', __support.staff.id);
@@ -54,7 +54,7 @@ module.exports = async (client, message) => {
                 message.channel.send({ content: 'Enviando mensaje...' }).then(async x => {
                     if(message.author.id == __support.staff.id) {
                         await client.users.fetch(__support.author.id);
-                        await client.users.cache.get(__support.author.id).send({ embeds: [ new Discord.MessageEmbed().setColor('GREEN').setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription(message.content) ] }).catch(async err => {
+                        await client.users.cache.get(__support.author.id).send({ embeds: [ new Discord.EmbedBuilder().setColor('GREEN').setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() }).setDescription(message.content) ] }).catch(async err => {
                             message.channel.send({ content: 'Error al enviar mensaje, he cerrado la conversación.' });
                             await Support.findOneAndDelete({ fetchAutor: __support.author.id });
                         });
@@ -135,32 +135,32 @@ module.exports = async (client, message) => {
                 totalSeconds %= 3600;
                 let minutes = Math.floor(totalSeconds / 60);
                 let seconds = Math.floor(totalSeconds % 60);
-                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor.\nDesarrollado con cariño, Att. <:5978671:1125421837178916946> **The Indie Brand (TIB)**.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://discord.com/oauth2/authorize?client_id=' + (process.env.TURN_ON_CANARY === 'true'? '1101973023952740364' : '1038614901394002020') + '&permissions=8&scope=bot).\n\n¿Conoces a mis creadores?\n\`↳\` **[Ether#6267](https://youtu.be/fDWm3hND7q8)** - __Fundador y contribuidor.__\n\`↳\` **[Dirquel](https://github.com/dirquel)** - __Contribuidor.__\n\`↳\` **[Danielmoraless](https://github.com/danielmoraless)** - __Contribuidor.__\n\`↳\` **[VirtualOx-sys](https://github.com/VirtualOx-sys)** - __Contribuidor.__').addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SP Agency by TIB - Proppelled by HN') ], components: [
-                    new Discord.MessageActionRow()
-                    .addComponents(new Discord.MessageButton()
+                message.channel.send({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('`SP Agency ' + version + '`, un bot de seguridad gratis e inteligente para tu servidor.\nDesarrollado con cariño, Att. <:5978671:1125421837178916946> **The Indie Brand (TIB)**.\n\nEstoy en ' + client.guilds.cache.size + ' servidores, llevo encendido `' + days + '` días, `' + hours + '` horas, `' + minutes + '` minutos y `' + seconds + '` segundos.\nPuedes invitarme [haciendo click aquí](https://discord.com/oauth2/authorize?client_id=' + (process.env.TURN_ON_CANARY === 'true'? '1101973023952740364' : '1038614901394002020') + '&permissions=8&scope=bot).\n\n¿Conoces a mis creadores?\n\`↳\` **[Ether#6267](https://youtu.be/fDWm3hND7q8)** - __Fundador y contribuidor.__\n\`↳\` **[Dirquel](https://github.com/dirquel)** - __Contribuidor.__\n\`↳\` **[Danielmoraless](https://github.com/danielmoraless)** - __Contribuidor.__\n\`↳\` **[VirtualOx-sys](https://github.com/VirtualOx-sys)** - __Contribuidor.__').addFields({ name: 'Comandos que pueden interesarte:', value: '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`' }).setFooter({ text: 'SP Agency by TIB - Proppelled by HN' }) ], components: [
+                    new Discord.ActionRowBuilder()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel('Tutorial')
                         .setEmoji('⚙').
                         setURL('https://youtu.be/74h55oEyy4U')
                         .setStyle('LINK'))
-                    .addComponents(new Discord.MessageButton()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel('SP Agency vs Bots Raiders')
                         .setEmoji('⚔')
                         .setURL('https://youtu.be/_lMxlMeFsvY')
                         .setStyle('LINK')),
-                    new Discord.MessageActionRow()
-                    .addComponents(new Discord.MessageButton()
+                    new Discord.ActionRowBuilder()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel('HuguitisNodes.')
                         .setEmoji('☁')
                         .setURL('https://dash.huguitishosting.com/')
                         .setStyle('LINK'))
-                    .addComponents(new Discord.MessageButton()
+                    .addComponents(new Discord.ButtonBuilder()
                         .setLabel('BotVerse')
                         .setEmoji('👨‍💻')
                         .setURL('https://disverse.space/bot/1038614901394002020')
                         .setStyle('LINK'))
                 ] });
             }else if(_guild.configuration.subData.pingMessage == 'pingLessDetails') {
-                message.reply({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).addField('Comandos que pueden interesarte:', '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`').setFooter('SPA 24/7 - Propelled by DBH') ] });
+                message.reply({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk', embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).addFields({ name: 'Comandos que pueden interesarte:', value: '`'+ _guild.configuration.prefix + 'comandos`, `'+ _guild.configuration.prefix + 'invite`, `' + _guild.configuration.prefix + 'ayuda`' }).setFooter({ text: 'SPA 24/7 - Propelled by DBH' }) ] });
             }else if(_guild.configuration.subData.pingMessage == 'onlySupportServer') {
                 message.reply({ content: '`Soporte 24/7:` https://discord.gg/mG5CaDvKsk' });
             }
@@ -448,7 +448,7 @@ module.exports = async (client, message) => {
 
     if(await ratelimitFilter(message)) {
         if(_guild.protection.intelligentSOS.cooldown) _guild.protection.intelligentSOS.cooldown = false;
-        if((message.guild.roles.highest.id != message.guild.me.roles.highest.id || !_guild.protection.antiraid.enable) && Math.floor(Math.random() * 100) >= 50) message.channel.send({ content: '**Recordatorio:**', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription((message.guild.roles.highest.id != message.guild.me.roles.highest.id? '`> Alerta de seguridad:` El bot no tiene el rol más alto en el servidor.\n' : '') + (!_guild.protection.antiraid.enable? '`> Alerta de seguridad:` El sistema antiraid está desactivado en este servidor (Activar con `' + _guild.configuration.prefix + 'antiraid`).' : '')) ] });
+        if((message.guild.roles.highest.id != message.guild.me.roles.highest.id || !_guild.protection.antiraid.enable) && Math.floor(Math.random() * 100) >= 50) message.channel.send({ content: '**Recordatorio:**', embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription((message.guild.roles.highest.id != message.guild.me.roles.highest.id? '`> Alerta de seguridad:` El bot no tiene el rol más alto en el servidor.\n' : '') + (!_guild.protection.antiraid.enable? '`> Alerta de seguridad:` El sistema antiraid está desactivado en este servidor (Activar con `' + _guild.configuration.prefix + 'antiraid`).' : '')) ] });
 
         await cmd.run(client, message, args, _guild, user);
     }

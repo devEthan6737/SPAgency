@@ -43,7 +43,7 @@ module.exports = {
                         });
                         setTimeout(async () => {
                             dataRow.set(message.author.id, row);
-                            await x.edit({ content: 'Seleccione el bot que desea eliminar de la lista blanca.', components: [ new Discord.MessageActionRow().addComponents(new Discord.MessageSelectMenu().setCustomId('whitelist_row').setPlaceholder('Nada seleccionado.').addOptions([row])) ], ephemeral: true });
+                            await x.edit({ content: 'Seleccione el bot que desea eliminar de la lista blanca.', components: [ new Discord.ActionRowBuilder().addComponents(new Discord.StringSelectMenuBuilder().setCustomId('whitelist_row').setPlaceholder('Nada seleccionado.').addOptions([row])) ], ephemeral: true });
                         }, 2000);
                     }, 2000);
                 });

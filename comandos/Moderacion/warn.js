@@ -45,10 +45,10 @@ module.exports = {
             newUser.save();
         }
 
-        message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`<@${userMention.id}>, ${LANG.commands.mod.warn.message5} ${userWarns.warns.length} ${LANG.commands.mod.warn.message6}: \`${args.join(' ').split(`${userMention.id}> `)[1]}\`\n${LANG.commands.mod.warn.message7}: \`${message.author.tag}\``) ] });
+        message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`<@${userMention.id}>, ${LANG.commands.mod.warn.message5} ${userWarns.warns.length} ${LANG.commands.mod.warn.message6}: \`${args.join(' ').split(`${userMention.id}> `)[1]}\`\n${LANG.commands.mod.warn.message7}: \`${message.author.tag}\``) ] });
         if((userWarns.warns.length == _guild.moderation.automoderator.actions.warns[0] || userWarns.warns.length == _guild.moderation.automoderator.actions.warns[1]) && _guild.configuration.subData.dontRepeatTheAutomoderatorAction == true) {
             message.reply({ content: `${LANG.commands.mod.warn.message8} \`${userMention.user.username}\` ${LANG.commands.mod.warn.message9}.`, components: [
-                new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId('dontRepeatTheAutomoderatorAction').setLabel(`${LANG.commands.mod.warn.message10}.`).setStyle('DANGER'))
+                new Discord.ActionRowBuilder().addComponents(new Discord.ButtonBuilder().setCustomId('dontRepeatTheAutomoderatorAction').setLabel(`${LANG.commands.mod.warn.message10}.`).setStyle('DANGER'))
             ] });
         }
 
@@ -88,13 +88,13 @@ module.exports = {
                 }
 
                 message.reply({ content: `${LANG.commands.mod.warn.message11} \`${userMention.user.username}\` ${LANG.commands.mod.warn.message12} \`${_guild.moderation.automoderator.actions.muteTime[1]}\`\n\n> ${LANG.commands.mod.warn.message13}.`, components: [
-                    new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId('dontRepeatTheAutomoderatorAction').setLabel(`${LANG.commands.mod.warn.message14}.`).setStyle('DANGER'))
+                    new Discord.ActionRowBuilder().addComponents(new Discord.ButtonBuilder().setCustomId('dontRepeatTheAutomoderatorAction').setLabel(`${LANG.commands.mod.warn.message14}.`).setStyle('DANGER'))
                 ] });
             }else if(userWarns.warns.length == _guild.moderation.automoderator.actions.warns[1] && _guild.configuration.subData.dontRepeatTheAutomoderatorAction == false) {
                 userMention.ban({ reason: args.join(' ').split(`${userMention.id}> `)[1] });
 
                 message.reply({ content: `${LANG.commands.mod.warn.message15} \`${userMention.user.username}\`\n\n> ${LANG.commands.mod.warn.message16}.`, components: [
-                    new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId('dontRepeatTheAutomoderatorAction').setLabel(`${LANG.commands.mod.warn.message14}.`).setStyle('DANGER'))
+                    new Discord.ActionRowBuilder().addComponents(new Discord.ButtonBuilder().setCustomId('dontRepeatTheAutomoderatorAction').setLabel(`${LANG.commands.mod.warn.message14}.`).setStyle('DANGER'))
                 ] });
             }
         }

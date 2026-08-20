@@ -17,7 +17,7 @@ module.exports = {
         if(_guild.protection.antibots.enable == false) {
             _guild.protection.antibots.enable = true;
 
-            message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${LANG.commands.protect.antibots.message1}.`) ] });
+            message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${LANG.commands.protect.antibots.message1}.`) ] });
             let collector = message.channel.createMessageCollector({ time: 30000 });
             collector.on('collect', m => {
                 if(m.content == '')return;

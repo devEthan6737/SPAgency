@@ -44,17 +44,17 @@ module.exports = {
 
             let embed;
             if(title || author || image || description || footer || thumbnail) {
-                embed = new Discord.MessageEmbed();
+                embed = new Discord.EmbedBuilder();
                 embed.setColor(`${color ?? 0x0056ff}`)
                 if(title) embed.setTitle(`${title}`)
-                if(author) embed.setAuthor(`${author}`)
+                if(author) embed.setAuthor({ name: `${author}` })
                 if(image) embed.setImage(`${image}`)
                 if(description) embed.setDescription(`${description}`)
-                if(footer) embed.setFooter(`${footer}`)
+                if(footer) embed.setFooter({ text: `${footer}` })
                 if(thumbnail) embed.setThumbnail(`${thumbnail}`)
                 
                 for(x of fields) {
-                    embed.addField(`${x.split(',')[0]}`, `${x.split(', ')[1]}`);
+                    embed.addFields({ name: `${x.split(',')[0]}`, value: `${x.split(', ')[1]}` });
                 }
             }
             

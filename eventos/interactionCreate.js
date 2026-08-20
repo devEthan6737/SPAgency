@@ -12,12 +12,12 @@ module.exports = async (client, interaction) => {
             let type;
             if(interaction.isCommand()) {
                 type = 'Command.';
-            }else if(interaction.isSelectMenu()) {
+            }else if(interaction.isStringSelectMenu()) {
                 type = 'SelectMenu.';
             }else{
                 type = 'Button.';
             }
-            client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Interacción creada.', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(interaction.user.tag, interaction.user.displayAvatarURL()).setDescription(`\`Tipo de interacción:\` __${type}__`) ] }).catch(err => {});
+            client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Interacción creada.', embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL() }).setDescription(`\`Tipo de interacción:\` __${type}__`) ] }).catch(err => {});
         }
     }catch(err) {
         client.channels.cache.get(_guild.configuration.logs[1]).send({ content: `Logs error (interactionCreate): \`${err}\`` }).catch(() => {});
@@ -27,7 +27,7 @@ module.exports = async (client, interaction) => {
     if(interaction.customId == 'newPage' || interaction.customId == 'returnPage')return // Return buttons of rz's pages.
 
     try{
-        if(interaction.isSelectMenu()) {
+        if(interaction.isStringSelectMenu()) {
             await selectMenu(interaction, interaction.values[0], client);
         }else if(interaction.isButton()) {
             if(interaction.customId == 'verifyButton') {

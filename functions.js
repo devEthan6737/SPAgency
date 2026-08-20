@@ -24,7 +24,7 @@ function pulk(array, object) { // Sustituye <var>.splice();
     return newArray;
 }
 
-const dataRequiredEmbed = new Discord.MessageEmbed().setColor('RED').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
+const dataRequiredEmbed = new Discord.EmbedBuilder().setColor('RED').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
 function dataRequired(message) {
     dataRequiredEmbed.setDescription('`' + message + '`');
     return { content: '`[]` = Opcional.\n`<>` = Requerido.\n`{}` = Función.', embeds: [ dataRequiredEmbed ] };
@@ -35,9 +35,9 @@ async function selectMenu(interaction, value, client) {
 
     // Help command:
     if(value === 'ho_qespa') {
-        interaction.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('La información ha sido transladada a la página web oficial:\n\nEl dominio es privado pero como eres especial para nosotros te otorgaré acceso, [click aquí.](https://youtu.be/dQw4w9WgXcQ)') ], ephemeral: true });
+        interaction.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('La información ha sido transladada a la página web oficial:\n\nEl dominio es privado pero como eres especial para nosotros te otorgaré acceso, [click aquí.](https://youtu.be/dQw4w9WgXcQ)') ], ephemeral: true });
     }else if(value === 'ho_spaeubba') {
-        interaction.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('A nosotros, el personal del bot, nos encanta poner a prueba a SP Agency para ver su capacidad, puedes visitar nuestro canal de youtube [haciendo click aquí.](https://www.youtube.com/channel/UChSb1NskNXQ0nKG4kbNCRaQ)') ], ephemeral: true });
+        interaction.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('A nosotros, el personal del bot, nos encanta poner a prueba a SP Agency para ver su capacidad, puedes visitar nuestro canal de youtube [haciendo click aquí.](https://www.youtube.com/channel/UChSb1NskNXQ0nKG4kbNCRaQ)') ], ephemeral: true });
     }else if(value === 'ho_ddb') {
         cpuStat.usagePercent(function (error, percent) {
             if(error)return;
@@ -51,7 +51,7 @@ async function selectMenu(interaction, value, client) {
             let minutes = Math.floor(totalSeconds / 60);
             let seconds = Math.floor(totalSeconds % 60);
 
-            interaction.reply({ embeds: [ new Discord.MessageEmbed().setTitle(client.user.username + ' - Host Debug:').addField('Bot Data:', `**Nombre del Bot**: \`${client.user.tag}\`\n**ID**: \`${client.user.id}\`\n**Versión**: \`${package.version}\`\n**Dependencias**: \`['discord.js-light', 'fs', 'mongoose', 'zlib-sync', 'bufferutil', 'utf-8-validate', 'eslint', 'manage-maliciousdb', 'discordjs/builders', 'discordjs/rest', 'byte-size', 'cpu-stat', 'discord-api-types', 'erlpack', 'ms', 'os', 'process', 'topgg-autoposter', '@top-gg/sdk', 'danbot-hosting', '@tensorflow/tfjs-node', 'request', 'axios', ]\`\n**CopyRight**: \`CC BY-NC-SA\`\n**Confianza**: \`Verificado por Discord\`\n**Servidores actuales**: \`${client.guilds.cache.size}\`\n**Usuarios en el caché**: \`${client.users.cache.size}\``).addField('Host Data:', `**Nombre de la CPU**: \`${cpuDataArray[0].model} - ${cpuDataArray.length} Cores.\`\n**Uso de memoria**: \`${usage}\`\n\n**Tiempo encendido**: \`${days}d, ${hours}h, ${minutes}m, ${seconds}s.\``).setColor(0x5c4fff) ], ephemeral: true });
+            interaction.reply({ embeds: [ new Discord.EmbedBuilder().setTitle(client.user.username + ' - Host Debug:').addFields({ name: 'Bot Data:', value: `**Nombre del Bot**: \`${client.user.tag}\`\n**ID**: \`${client.user.id}\`\n**Versión**: \`${package.version}\`\n**Dependencias**: \`['discord.js-light', 'fs', 'mongoose', 'zlib-sync', 'bufferutil', 'utf-8-validate', 'eslint', 'manage-maliciousdb', 'discordjs/builders', 'discordjs/rest', 'byte-size', 'cpu-stat', 'discord-api-types', 'erlpack', 'ms', 'os', 'process', 'topgg-autoposter', '@top-gg/sdk', 'danbot-hosting', '@tensorflow/tfjs-node', 'request', 'axios', ]\`\n**CopyRight**: \`CC BY-NC-SA\`\n**Confianza**: \`Verificado por Discord\`\n**Servidores actuales**: \`${client.guilds.cache.size}\`\n**Usuarios en el caché**: \`${client.users.cache.size}\`` }).addFields({ name: 'Host Data:', value: `**Nombre de la CPU**: \`${cpuDataArray[0].model} - ${cpuDataArray.length} Cores.\`\n**Uso de memoria**: \`${usage}\`\n\n**Tiempo encendido**: \`${days}d, ${hours}h, ${minutes}m, ${seconds}s.\`` }).setColor(0x5c4fff) ], ephemeral: true });
             
             function formatBytes(a, b) {
                 let c = 1024;
@@ -152,7 +152,7 @@ async function automoderator(client, mongoose, message, sanctionReason) {
         });
         userWarns.save();
 
-        message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`<@${message.author.id}>, has sido advertido.\n\nRazón: \`${sanctionReason}\`\nModerador: \`${client.user.tag}\``) ] });
+        message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`<@${message.author.id}>, has sido advertido.\n\nRazón: \`${sanctionReason}\`\nModerador: \`${client.user.tag}\``) ] });
 
         if(userWarns.warns.length == mongoose.moderation.automoderator.actions.warns[0]) {
             if(message.member.roles.cache.has(mongoose.moderation.dataModeration.muterole))return;

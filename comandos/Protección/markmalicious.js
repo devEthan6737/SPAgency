@@ -17,7 +17,7 @@ module.exports = {
         if(_guild.protection.markMalicious.enable == false) {
             _guild.protection.markMalicious.enable = true;
 
-            message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${LANG.commands.protect.markmalicious.message1} \`${_guild.configuration.prefix}logs\`).\n\`4.\` ${LANG.commands.protect.markmalicious.message2}.`) ] });
+            message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${LANG.commands.protect.markmalicious.message1} \`${_guild.configuration.prefix}logs\`).\n\`4.\` ${LANG.commands.protect.markmalicious.message2}.`) ] });
             let collector = message.channel.createMessageCollector({ time: 30000 });
             collector.on('collect', m => {
                 if(m.content == '')return;

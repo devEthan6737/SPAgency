@@ -22,13 +22,13 @@ module.exports = async (client, message) => {
             if(!message.member.permissions.has('MANAGE_MESSAGES') && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
                 // Ghostping
                 client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Ghostping detectado (Mensaje borrado).', embeds: [
-                    new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`${message.author.username}`, `${message.author.displayAvatarURL({ })}`).setDescription(`${message.content ?? '> `Sin contenido en el mensaje.`'}`).setImage(message.attachments.size > 0? (message.attachments.first()).proxyURL : 'https://asd.com/')
+                    new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: `${message.author.username}`, iconURL: `${message.author.displayAvatarURL({ })}` }).setDescription(`${message.content ?? '> `Sin contenido en el mensaje.`'}`).setImage(message.attachments.size > 0? (message.attachments.first()).proxyURL : 'https://asd.com/')
                 ] });
 
                 if(_guild.moderation.automoderator.enable == true && _guild.moderation.automoderator.events.ghostping == true) {
                     await automoderator(client, _guild, message, 'Menciones fantasmas.');
                 }
-            }else client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.messageDelete.logMessage1}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription(message.content).addField(`${LANG.events.messageDelete.logMessage2}:`, `<#${message.channel.id}>`, true).addField('Bot:', `\`${message.author.bot}\``, true) ] }).catch(err => {});
+            }else client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.messageDelete.logMessage1}.`, embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() }).setDescription(message.content).addFields({ name: `${LANG.events.messageDelete.logMessage2}:`, value: `<#${message.channel.id}>`, inline: true }).addFields({ name: 'Bot:', value: `\`${message.author.bot}\``, inline: true }) ] }).catch(err => {});
         }
 
         updateDataBase(client, message.guild, _guild, true);

@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { dataRequired, fecthUsersDataBase } = require('../../functions');
-const _bug = new Discord.MessageEmbed().setColor(0x0056ff);
+const _bug = new Discord.EmbedBuilder().setColor(0x0056ff);
 
 module.exports = {
     nombre: "bug",
@@ -22,7 +22,7 @@ module.exports = {
                 if(`${m.content}`.toLowerCase() == 'enviar') { // esto hay que ver con los lenguajes para que si está en inglés tengas que poner send en vez de enviar, etc.
                     _bug.setDescription(args.join(' ')).setTitle(`${LANG.commands.others.bug.message3}.`);
                     message.reply({ embeds: [ _bug ], ephemeral: true });
-                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _bug.setTitle('Bug.').setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _bug.setTitle('Bug.').setAuthor({ name: `${message.author.tag}, ${message.author.id}`, iconURL: message.author.displayAvatarURL() }).setFooter({ text: `${message.guild.name}, ${message.guild.id}`, iconURL: message.guild.iconURL }) ] });
                     collector.stop();
                 }else {
                     message.channel.send({ content: `${LANG.commands.others.bug.message4}.` });

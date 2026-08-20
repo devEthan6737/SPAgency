@@ -37,7 +37,7 @@ module.exports = {
                         message.reply({ content: LANG.commands.mod.support.message5 + '(`<@' + chooseDev + '>`)`' });
                         let invite = await message.guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
                         if(invite == undefined)return message.channel.send({ content: LANG.commands.mod.support.message7 });
-                        developer.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`🆘 | \`S.O.S EN ${message.guild.name} (${message.guild.id})\`\n\n[ÚNETE](${invite})`) ] }).catch(err => {});
+                        developer.send({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`🆘 | \`S.O.S EN ${message.guild.name} (${message.guild.id})\`\n\n[ÚNETE](${invite})`) ] }).catch(err => {});
                         collector.stop();
                     }else{
                         collector.stop();
@@ -57,18 +57,18 @@ module.exports = {
             let _support = await Support.findOne({ fetchAutor: message.author.id });
             if(_support)return message.reply({ content: LANG.commands.mod.support.message8});
 
-            message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('YELLOW').setDescription(LANG.commands.mod.support.message9 + '`' + developer.tag + '`.') ] }).catch(err => {
+            message.author.send({ embeds: [ new Discord.EmbedBuilder().setColor('YELLOW').setDescription(LANG.commands.mod.support.message9 + '`' + developer.tag + '`.') ] }).catch(err => {
                 message.channel.send({ content: LANG.commands.mod.support.message10 });
             });
 
-            developer.send({ embeds: [ new Discord.MessageEmbed().setColor('YELLOW').setDescription(`[<a:sp_loading:805810562349006918>] **Conectando conversación con** \`${message.author.tag}\`.`) ] }).catch(err => {
-                message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(LANG.commands.mod.support.message11 + '`' + developer.tag + '`.') ] }).catch(() => {});
+            developer.send({ embeds: [ new Discord.EmbedBuilder().setColor('YELLOW').setDescription(`[<a:sp_loading:805810562349006918>] **Conectando conversación con** \`${message.author.tag}\`.`) ] }).catch(err => {
+                message.author.send({ embeds: [ new Discord.EmbedBuilder().setColor('RED').setDescription(LANG.commands.mod.support.message11 + '`' + developer.tag + '`.') ] }).catch(() => {});
             });
 
-            message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('GREEN').setDescription('[→] `' + developer.tag + '`' + LANG.commands.mod.support.message12) ] }).catch(() => {});
-            message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('BLUE').setDescription(LANG.commands.mod.support.message13 + '`' + developer.tag + '`' + LANG.commands.mod.support.message14) ] }).catch(() => {});
-            developer.send({ embeds: [ new Discord.MessageEmbed().setColor('GREEN').setDescription(`[→] \`${message.author.tag} (${message.author.id})\` **se ha conectado a la conversación**.`) ] }).catch(err => {});
-            developer.send({ embeds: [ new Discord.MessageEmbed().setColor('BLUE').setDescription(`[👁 Solo tú puedes verlo] **\`${message.author.tag}\` ha iniciado una conversación privada-internacional contigo, un personal de la agencia**. **El usuario consultará todo lo que deba y usted como staff de SP Agency deberá tratarlo con respeto en todo momento**.\n\n**Para cerrar el chat escribe** \`sp!close\` **aquí, el usuario también puede cerrar el chat**.`) ] }).catch(() => {});
+            message.author.send({ embeds: [ new Discord.EmbedBuilder().setColor('GREEN').setDescription('[→] `' + developer.tag + '`' + LANG.commands.mod.support.message12) ] }).catch(() => {});
+            message.author.send({ embeds: [ new Discord.EmbedBuilder().setColor('BLUE').setDescription(LANG.commands.mod.support.message13 + '`' + developer.tag + '`' + LANG.commands.mod.support.message14) ] }).catch(() => {});
+            developer.send({ embeds: [ new Discord.EmbedBuilder().setColor('GREEN').setDescription(`[→] \`${message.author.tag} (${message.author.id})\` **se ha conectado a la conversación**.`) ] }).catch(err => {});
+            developer.send({ embeds: [ new Discord.EmbedBuilder().setColor('BLUE').setDescription(`[👁 Solo tú puedes verlo] **\`${message.author.tag}\` ha iniciado una conversación privada-internacional contigo, un personal de la agencia**. **El usuario consultará todo lo que deba y usted como staff de SP Agency deberá tratarlo con respeto en todo momento**.\n\n**Para cerrar el chat escribe** \`sp!close\` **aquí, el usuario también puede cerrar el chat**.`) ] }).catch(() => {});
             message.reply({ content: LANG.commands.mod.support.message15 });
 
             let newChat = new Support({

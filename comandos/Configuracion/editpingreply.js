@@ -13,10 +13,10 @@ module.exports = {
         if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply({ content: LANG.data.permissionsADMIN });
         message.channel.send({
             embeds: [
-                new Discord.MessageEmbed().setColor(0x0056ff).setDescription(LANG.commands.config.editpingreply.message1)
+                new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(LANG.commands.config.editpingreply.message1)
             ],
             components: [
-                new Discord.MessageActionRow().addComponents(new Discord.MessageSelectMenu().setCustomId('chooseOption').setPlaceholder(LANG.commands.config.editpingreply.message2).addOptions([
+                new Discord.ActionRowBuilder().addComponents(new Discord.StringSelectMenuBuilder().setCustomId('chooseOption').setPlaceholder(LANG.commands.config.editpingreply.message2).addOptions([
                     {
                         label: LANG.commands.config.editpingreply.message3[0][0],
                         description: LANG.commands.config.editpingreply.message3[0][1],

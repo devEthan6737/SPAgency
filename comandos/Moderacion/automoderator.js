@@ -31,7 +31,7 @@ module.exports = {
 
         }else if(args[0] == 'label') {
 
-            message.reply({ content: 'Todos los sistemas del automoderador son "complementos" a los sistemas externos, la moderación de estos sistemas se pueden activar o desactivar en todo momento. Si el sistema está desactivado el bot solo borrará mensajes.', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`Moderador activo: \`${_guild.moderation.automoderator.enable ? 'Sí' : 'No'}\``).addField('Acciones:', `Cuando un usuario tenga \`${_guild.moderation.automoderator.actions.warns[0]}\` warns lo mutearé durante \`${_guild.moderation.automoderator.actions.muteTime[1]} (${_guild.moderation.automoderator.actions.muteTime[0]}ms)\`.\nCuando un usuario tenga \`${_guild.moderation.automoderator.actions.warns[1]}\` warns le sancionaré con un \`${_guild.moderation.automoderator.actions.action}\``).addField('Sistemas:', `badwordDetect: \`${_guild.moderation.automoderator.events.badwordDetect ? 'Activado' : 'Desactivado'}\`\nfloodDetect: \`${_guild.moderation.automoderator.events.floodDetect ? 'Activado' : 'Desactivado'}\`\nmanyPings: \`${_guild.moderation.automoderator.events.manyPings ? 'Activado' : 'Desactivado'}\`\ncapitalLetters: \`${_guild.moderation.automoderator.events.capitalLetters ? 'Activado' : 'Desactivado'}\`\nmanyEmojis: \`${_guild.moderation.automoderator.events.manyEmojis ? 'Activado' : 'Desactivado'}\`\nmanyWords: \`${_guild.moderation.automoderator.events.manyWords ? 'Activado' : 'Desactivado'}\`\nlinkDetect: \`${_guild.moderation.automoderator.events.linkDetect ? 'Activado' : 'Desactivado'}\`\nghostPing: \`${_guild.moderation.automoderator.events.ghostping ? 'Activado' : 'Desactivado'}\`\nnsfwFilter: \`${_guild.moderation.automoderator.events.nsfwFilter ? 'Activado' : 'Desactivado'}\`\niploggerFilter: \`${_guild.moderation.automoderator.events.iploggerFilter ? 'Activado' : 'Desactivado'}\``) ] });
+            message.reply({ content: 'Todos los sistemas del automoderador son "complementos" a los sistemas externos, la moderación de estos sistemas se pueden activar o desactivar en todo momento. Si el sistema está desactivado el bot solo borrará mensajes.', embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`Moderador activo: \`${_guild.moderation.automoderator.enable ? 'Sí' : 'No'}\``).addFields({ name: 'Acciones:', value: `Cuando un usuario tenga \`${_guild.moderation.automoderator.actions.warns[0]}\` warns lo mutearé durante \`${_guild.moderation.automoderator.actions.muteTime[1]} (${_guild.moderation.automoderator.actions.muteTime[0]}ms)\`.\nCuando un usuario tenga \`${_guild.moderation.automoderator.actions.warns[1]}\` warns le sancionaré con un \`${_guild.moderation.automoderator.actions.action}\`` }).addFields({ name: 'Sistemas:', value: `badwordDetect: \`${_guild.moderation.automoderator.events.badwordDetect ? 'Activado' : 'Desactivado'}\`\nfloodDetect: \`${_guild.moderation.automoderator.events.floodDetect ? 'Activado' : 'Desactivado'}\`\nmanyPings: \`${_guild.moderation.automoderator.events.manyPings ? 'Activado' : 'Desactivado'}\`\ncapitalLetters: \`${_guild.moderation.automoderator.events.capitalLetters ? 'Activado' : 'Desactivado'}\`\nmanyEmojis: \`${_guild.moderation.automoderator.events.manyEmojis ? 'Activado' : 'Desactivado'}\`\nmanyWords: \`${_guild.moderation.automoderator.events.manyWords ? 'Activado' : 'Desactivado'}\`\nlinkDetect: \`${_guild.moderation.automoderator.events.linkDetect ? 'Activado' : 'Desactivado'}\`\nghostPing: \`${_guild.moderation.automoderator.events.ghostping ? 'Activado' : 'Desactivado'}\`\nnsfwFilter: \`${_guild.moderation.automoderator.events.nsfwFilter ? 'Activado' : 'Desactivado'}\`\niploggerFilter: \`${_guild.moderation.automoderator.events.iploggerFilter ? 'Activado' : 'Desactivado'}\`` }) ] });
 
         }else if(args[0] == 'setEvent') {
 
@@ -207,7 +207,7 @@ module.exports = {
 
             if(args[1] == 'warns') {
 
-                message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`Después de este mensaje, escribe la cantidad de warns que debo agregarle a un usuario para mutearlo.`) ] });
+                message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`Después de este mensaje, escribe la cantidad de warns que debo agregarle a un usuario para mutearlo.`) ] });
                 let collector = message.channel.createMessageCollector({ time: 30000 });
                 let returnDetector;
                 collector.on('collect', m => {
@@ -220,7 +220,7 @@ module.exports = {
                         }
                         
                         message.channel.send({ content: `Entendido, a partir de ahora sancionaré \`${m.content}\` veces antes de mutear a un usuario.` });
-                        message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`Ahora escribe la cantidad de warns que debo agregarle a un usuario para banearlo/expulsarlo del servidor.`) ] });
+                        message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`Ahora escribe la cantidad de warns que debo agregarle a un usuario para banearlo/expulsarlo del servidor.`) ] });
                         returnDetector = true;
 
                         let _collector = message.channel.createMessageCollector({ time: 30000 });
@@ -295,7 +295,7 @@ module.exports = {
                 }else if(args[2] == 'remove') {
 
                     let cc = 1;
-                    message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`Estás viendo los ${_guild.moderation.automoderator.actions.linksToIgnore.length} links que estoy ignorando actualmente, después de este mensaje escribe el número adjunto al link para eliminarlo.\n\n${_guild.moderation.automoderator.actions.linksToIgnore.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] });
+                    message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`Estás viendo los ${_guild.moderation.automoderator.actions.linksToIgnore.length} links que estoy ignorando actualmente, después de este mensaje escribe el número adjunto al link para eliminarlo.\n\n${_guild.moderation.automoderator.actions.linksToIgnore.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] });
                     let collector = message.channel.createMessageCollector({ time: 15000 });
                     collector.on('collect', async m => {
                         if(m.content == '')return;

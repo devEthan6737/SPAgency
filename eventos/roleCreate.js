@@ -15,7 +15,7 @@ module.exports = async (client, role) => {
             // Logs:
             try{
                 if(_guild.configuration.logs[0]) {
-                    client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.roleCreate.logMessage1}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(prsn.tag, prsn.displayAvatarURL()).addField(`${LANG.events.roleCreate.logMessage1}:`, `\`${role.name} (${role.id})\``, true) ] }).catch(err => {});
+                    client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.roleCreate.logMessage1}.`, embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: prsn.tag, iconURL: prsn.displayAvatarURL() }).addFields({ name: `${LANG.events.roleCreate.logMessage1}:`, value: `\`${role.name} (${role.id})\``, inline: true }) ] }).catch(err => {});
                 }
             }catch(err) {
                 client.channels.cache.get(_guild.configuration.logs[1]).send({ content: `Logs error (roleCreate): \`${err}\`` }).catch(() => {});

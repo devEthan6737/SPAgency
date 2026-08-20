@@ -15,7 +15,7 @@ module.exports = {
         if(message.author.id != message.guild.ownerId)return message.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.' });
         if(!_guild.moderation.dataModeration.muterole)return message.channel.send(`Se debe especificar el rol de muteo con \`${_guild.configuration.prefix}setmuterole <roleMention>\``)
 
-        message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('¿Tienes prisa? Vamos a configurarme rápido, ¿vale?\n\nPara comenzar dime lo que buscas:\n__Una buena moderación:__ Escribe `m`\n__Más seguridad que el banco nacional de España:__ Escribe `s`\n__Simplemente, haz algo:__ Escribe `no sé`') ] });
+        message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('¿Tienes prisa? Vamos a configurarme rápido, ¿vale?\n\nPara comenzar dime lo que buscas:\n__Una buena moderación:__ Escribe `m`\n__Más seguridad que el banco nacional de España:__ Escribe `s`\n__Simplemente, haz algo:__ Escribe `no sé`') ] });
         let collector = message.channel.createMessageCollector({ time: 30000 });
         collector.on('collect', m => {
             if(m.content == '')return;

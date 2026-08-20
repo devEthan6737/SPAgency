@@ -14,7 +14,7 @@ module.exports = async (client, channel) => {
         // Logs:
         try{
             if(_guild.configuration.logs[0]) {
-                client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.channelDelete.log_channelDelete}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(prsn.tag, prsn.displayAvatarURL()).addField(`${LANG.events.channelDelete.log_channelDelete}:`, `\`${channel.name} (${channel.id})\``, true) ] }).catch(err => {});
+                client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.channelDelete.log_channelDelete}.`, embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: prsn.tag, iconURL: prsn.displayAvatarURL() }).addFields({ name: `${LANG.events.channelDelete.log_channelDelete}:`, value: `\`${channel.name} (${channel.id})\``, inline: true }) ] }).catch(err => {});
             }
         }catch(err) {
             client.channels.cache.get(_guild.configuration.logs[1]).send({ content: `Logs error (channelDelete): \`${err}\`` }).catch(() => {});

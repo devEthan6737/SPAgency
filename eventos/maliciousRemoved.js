@@ -5,7 +5,7 @@ module.exports = async (client, malicious) => {
 
     client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({
         embeds: [
-            new Discord.MessageEmbed().setColor(0x5c4fff).setDescription(`Se ha eliminado un usuario malicioso (**${client.users.cache.get(malicious.userId).tag}**).\nLa prueba de su razón sigue en la base de datos, y se le han agregado antecedentes para mantener el control.\n\n**__Propulsado por UBFB.__**`)
+            new Discord.EmbedBuilder().setColor(0x5c4fff).setDescription(`Se ha eliminado un usuario malicioso (**${client.users.cache.get(malicious.userId).tag}**).\nLa prueba de su razón sigue en la base de datos, y se le han agregado antecedentes para mantener el control.\n\n**__Propulsado por UBFB.__**`)
         ]
     });
 

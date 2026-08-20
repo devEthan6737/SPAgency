@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const helpOptions = new Discord.MessageActionRow().addComponents(new Discord.MessageSelectMenu().setCustomId('helpOptions').setPlaceholder('Nada seleccionado.').addOptions([
+const helpOptions = new Discord.ActionRowBuilder().addComponents(new Discord.StringSelectMenuBuilder().setCustomId('helpOptions').setPlaceholder('Nada seleccionado.').addOptions([
     {
         emoji: '❓',
         label: '¿Qué es SP Agency?',

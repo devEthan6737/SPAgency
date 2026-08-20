@@ -12,7 +12,7 @@ module.exports = {
 
 		await message.guild.fetch();
 
-		let embed = new Discord.MessageEmbed().setColor(0x5c4fff);
+		let embed = new Discord.EmbedBuilder().setColor(0x5c4fff);
 		let a = 0;
 		try{
 			message.channel.send({ embeds: [ embed.setDescription('<a:sp_loading:805810562349006918> | `Obteniendo usuarios...`') ] }).then(async y => {
@@ -40,7 +40,7 @@ module.exports = {
 						if(message.guild.mfaLevel > 1) moreData.push('[Punto a favor]: El nivel de MFA es alto.');
 						if(message.guild.nsfwLevel != undefined) moreData.push('[Punto a favor]: Nivel de Nsfw apto.');
 						if(message.guild.roles.highest.id === message.guild.me.roles.highest.id) moreData.push('[Punto a favor]: Tengo el rol más alto en este gremio.');
-						message.channel.send({ embeds: [ new Discord.MessageEmbed().setAuthor('+ Más datos de seguridad (' + moreData.length + '/4 puntos de seguridad):').setDescription(moreData.map(x => '`' + x + '`').join('\n')).setColor(0x0056ff) ] });
+						message.channel.send({ embeds: [ new Discord.EmbedBuilder().setAuthor({ name: '+ Más datos de seguridad (' + moreData.length + '/4 puntos de seguridad):' }).setDescription(moreData.map(x => '`' + x + '`').join('\n')).setColor(0x0056ff) ] });
 					}, 3000);
 				}, 2000);
 			});

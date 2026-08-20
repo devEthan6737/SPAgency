@@ -19,8 +19,8 @@ module.exports = {
                 if(!user)return message.channel.send({ content: 'No he encontrado ese usuario.' });
                 let _content = message.content.split(`${args[0] }`);
                 if(!_content[1])return message.channel.send({ content: 'No has escrito el contenido del mensaje.' });
-                message.channel.send({ embeds: [ 'Mensaje enviado:', new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`Mensaje de un Staff Oficial de SP Agency.`, message.author.displayAvatarURL()).setDescription(_content[1]) ] });
-                user.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`Mensaje de un Staff Oficial de SP Agency.`, message.author.displayAvatarURL()).setDescription(_content[1]) ] });
+                message.channel.send({ embeds: [ 'Mensaje enviado:', new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: `Mensaje de un Staff Oficial de SP Agency.`, iconURL: message.author.displayAvatarURL() }).setDescription(_content[1]) ] });
+                user.send({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: `Mensaje de un Staff Oficial de SP Agency.`, iconURL: message.author.displayAvatarURL() }).setDescription(_content[1]) ] });
             }
             catch(e) {
                 message.channel.send({ content: '`' + e + '`' });

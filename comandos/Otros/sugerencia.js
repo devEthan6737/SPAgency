@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { dataRequired } = require('../../functions');
-const _sugerencia = new Discord.MessageEmbed().setColor(0x0056ff);
+const _sugerencia = new Discord.EmbedBuilder().setColor(0x0056ff);
 
 module.exports = {
     nombre: "sugerencia",
@@ -22,7 +22,7 @@ module.exports = {
                 if(`${m.content}`.toLowerCase() == 'enviar') {
                     _sugerencia.setDescription(args.join(' ')).setTitle(LANG.commands.others.sugerencia.message3);
                     message.reply({ embeds: [ _sugerencia ], ephemeral: true });
-                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _sugerencia.setTitle(LANG.commands.others.sugerencia.message4).setAuthor(`${message.author.tag}, ${message.author.id}`, message.author.displayAvatarURL()).setFooter(`${message.guild.name}, ${message.guild.id}`, message.guild.iconURL) ] });
+                    client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ _sugerencia.setTitle(LANG.commands.others.sugerencia.message4).setAuthor({ name: `${message.author.tag}, ${message.author.id}`, iconURL: message.author.displayAvatarURL() }).setFooter({ text: `${message.guild.name}, ${message.guild.id}`, iconURL: message.guild.iconURL }) ] });
                     collector.stop();
                 }else {
                     message.channel.send(LANG.commands.others.sugerencia.message5);
