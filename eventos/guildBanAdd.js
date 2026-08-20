@@ -8,7 +8,7 @@ module.exports = async (client, member) => {
 
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
-    member.guild.fetchAuditLogs({ type: 'BAN' }).then(async logs => {
+    member.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.MemberBanAdd }).then(async logs => {
         let prsn = logs.entries.first();
 
         // Logs:
