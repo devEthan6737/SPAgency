@@ -133,7 +133,7 @@ module.exports = async (client, member) => {
             }
             
             // Save bots entrities:
-            member.guild.fetchAuditLogs({ type: 'ADD_BOT' }).then(async logs => {
+            member.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.BotAdd }).then(async logs => {
                 let persona = logs.entries.first().executor;
                 
                 if(malicious && malicious.isMalicious == member.user.id) {
