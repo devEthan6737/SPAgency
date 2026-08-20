@@ -8,7 +8,7 @@ module.exports = {
 	description: 'Detecta los miembros maliciosos de tu gremio',
 	usage: ['<prefix>detectar'],
 	run: async (client, message) => {
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Necesito permiso de __Banear Miembros__.');
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send('Necesito permiso de __Banear Miembros__.');
 
 		await message.guild.fetch();
 

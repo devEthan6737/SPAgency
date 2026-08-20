@@ -25,7 +25,7 @@ module.exports = async (client, member) => {
         if(_guild.configuration.whitelist.includes(prsn.id))return; // Whitelist.
 
         // Antiraid:
-        if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+        if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
             if(_guild.protection.antiraid.enable == true) {
                 let cache = await client.super.cache.get(member.guild.id, true);
 
@@ -55,7 +55,7 @@ module.exports = async (client, member) => {
 
         // Raidmode:
         if(_guild.protection.raidmode.enable == true) {
-            if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+            if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                 await member.guild.members.ban(prsn, { reason: 'Raidmode.' }).catch(e => {});
             }
         }

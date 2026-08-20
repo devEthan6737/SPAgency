@@ -21,7 +21,7 @@ module.exports = async (client, oldMessage, message) => {
         // Logs:
         if(_guild.configuration.logs[0]) {
             // Ghostping
-            if(!message.member.permissions.has('MANAGE_MESSAGES') && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
+            if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages) && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
                 client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Ghostping detectado (Mensaje editado).', embeds: [
                     new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: `${message.author.username}`, iconURL: `${message.author.displayAvatarURL({ })}` }).setDescription(`${oldMessage.content ?? '> `Sin contenido en el mensaje.`'}`).setImage(oldMessage.attachments.size > 0? (oldMessage.attachments.first()).proxyURL : 'https://asd.com/')
                 ] });
@@ -40,7 +40,7 @@ module.exports = async (client, oldMessage, message) => {
         
         if(_guild.configuration.ignoreChannels.includes(message.channel.id) && !message.content.startsWith(`${_guild.configuration.prefix}ignoreThisChannel`))return; // <- Ignoring channels...
 
-        if(!message.member.permissions.has('MANAGE_MESSAGES')) {
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages)) {
             // Badwords:
             for(x of _guild.moderation.dataModeration.badwords) {
                 if(message.content.toLowerCase().includes(x)) {

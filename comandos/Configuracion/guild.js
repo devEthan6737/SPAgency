@@ -13,7 +13,7 @@ module.exports = {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
         try{
-            if(!message.guild.me.permissions.has('ADMINISTRATOR')) return message.reply({ content: LANG.data.permissionsADMINme });
+            if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator)) return message.reply({ content: LANG.data.permissionsADMINme });
             if(!args[0])return message.reply(await dataRequired(LANG.commands.config.guild.message1 + _guild.configuration.prefix + LANG.commands.config.guild.message2));
             
             if(args[0] == 'createInvite') {
@@ -21,12 +21,12 @@ module.exports = {
                 let invite = await message.guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
                 message.reply({ content: `${invite}` });
             }else if(args[0] == 'setName') {
-                if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply({ content: LANG.data.permissionsADMIN });
+                if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.reply({ content: LANG.data.permissionsADMIN });
                 if(!args[1])return message.reply(await dataRequired(LANG.commands.config.guild.message3 + _guild.configuration.prefix + LANG.commands.config.guild.message4));
                 message.guild.setName(args[1]).catch(err => {});
                 message.reply({ content: 'Nombre del gremio editado.' });
             }else if(args[0] == 'setIcon') {
-                if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply({ content: LANG.data.permissionsADMIN });
+                if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.reply({ content: LANG.data.permissionsADMIN });
                 if(!args[1])return message.reply(await dataRequired(LANG.commands.config.guild.message5 + _guild.configuration.prefix + LANG.commands.config.guild.message6));
                 message.guild.setIcon(args[1]).catch(err => {});
                 message.reply({ content: LANG.commands.config.guild.message7 });

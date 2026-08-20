@@ -39,7 +39,7 @@ module.exports = async (client, interaction) => {
                 }
 
             }else if(interaction.customId == 'unmuteAll') {
-                if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+                if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
                 let count = 0;
                 _guild.moderation.dataModeration.timers.forEach(async x => {
                     try{
@@ -55,7 +55,7 @@ module.exports = async (client, interaction) => {
 
                 interaction.reply({ content: 'Todos los usuarios serán desmuteados a lo largo del día.' });
             }else if(interaction.customId == 'dontRepeatTheAutomoderatorAction') {
-                if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+                if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
                 if(_guild.configuration.subData.dontRepeatTheAutomoderatorAction == false) {
                     _guild.configuration.subData.dontRepeatTheAutomoderatorAction = true;
                     interaction.reply({ content: 'No volveré a mutear/banear/expulsar a alguien cuando tenga demasiadas infracciónes.', ephemeral: true });

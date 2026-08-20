@@ -90,22 +90,22 @@ async function selectMenu(interaction, value, client) {
 
     // Command of editPingReply
     }else if(value === 'allDetails') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'allDetails';
         updateDataBase(client, interaction.guild, _guild);
         interaction.reply({ content: '¡Ahora mostraré la mayor información posible cuando alguien me mencione!', ephemeral: true });
     }else if(value === 'pingLessDetails') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'pingLessDetails';
         updateDataBase(client, interaction.guild, _guild);
         interaction.reply({ content: '¡Ahora mostraré la menor información posible cuando alguien me mencione!', ephemeral: true });
     }else if(value === 'onlySupportServer') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'onlySupportServer';
         updateDataBase(client, interaction.guild, _guild);
         interaction.reply({ content: '¡Ahora solo mostraré el servidor de soporte de mi personal cuando alguien me mencione!', ephemeral: true });
     }else if(value === 'ignore') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         return interaction.reply({ content: '`PREMIUM ERROR:` SPA Code is not ready to use TIBAJS API.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'ignore';
         updateDataBase(client, interaction.guild, _guild);
@@ -156,7 +156,7 @@ async function automoderator(client, mongoose, message, sanctionReason) {
 
         if(userWarns.warns.length == mongoose.moderation.automoderator.actions.warns[0]) {
             if(message.member.roles.cache.has(mongoose.moderation.dataModeration.muterole))return;
-            if(!message.guild.me.permissions.has('MANAGE_ROLES')) {
+            if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageRoles)) {
                 client.users.cache.get(message.guild.ownerId).send('No tengo permisos para mutear a un usuario, he desactivado el automoderador.').catch(err => {
                     message.channel.send('<@' + message.guild.ownerId + '>, no tengo permisos para mutear al usuario, he desactivado el automoderador.');
                 });
@@ -198,7 +198,7 @@ async function automoderator(client, mongoose, message, sanctionReason) {
             message.reply({ content: `He muteado a \`${message.author.username}\` durante \`${mongoose.moderation.automoderator.actions.muteTime[1]}\` por tener demasiadas infracciónes.` });
         }else if(userWarns.warns.length > mongoose.moderation.automoderator.actions.warns[1]) {
             if(mongoose.moderation.automoderator.actions.action == 'BAN') {
-                if(!message.guild.me.permissions.has('BAN_MEMBERS')) {
+                if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                     client.users.cache.get(message.guild.ownerId).send('No tengo permisos para banear a un usuario, he desactivado el automoderador.').catch(err => {
                         message.channel.send('<@' + message.guild.ownerId + '>, no tengo permisos para banear al usuario, he desactivado el automoderador.');
                     });
@@ -211,7 +211,7 @@ async function automoderator(client, mongoose, message, sanctionReason) {
                 }).catch(err => {});
                 return;
             }else{
-                if(!message.guild.me.permissions.has('KICK_MEMBERS')) {
+                if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                     client.users.cache.get(message.guild.ownerId).send('No tengo permisos para expulsar a un usuario, he desactivado el automoderador.').catch(err => {
                         message.channel.send('<@' + message.guild.ownerId + '>, no tengo permisos para expulsar al usuario, he desactivado el automoderador.');
                     });

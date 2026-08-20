@@ -11,7 +11,7 @@ module.exports = {
 	description: 'Haz que SP Agency ignore algún bot verificado en el servidor.',
 	usage: ['<prefix>whitelist {add <verifiedBotMention>, remove, clearAll}'],
     run: async (client, message, args, _guild) => {
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
 
         let row = []; // Row del comando "remove", se declara aquí para evitar errores.
         if(args[0] == 'add') {

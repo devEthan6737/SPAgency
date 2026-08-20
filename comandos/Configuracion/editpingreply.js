@@ -10,7 +10,7 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply({ content: LANG.data.permissionsADMIN });
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.reply({ content: LANG.data.permissionsADMIN });
         message.channel.send({
             embeds: [
                 new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(LANG.commands.config.editpingreply.message1)

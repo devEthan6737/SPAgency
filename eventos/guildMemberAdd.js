@@ -25,7 +25,7 @@ module.exports = async (client, member) => {
 
     // User is bloqued:
     if(user && user.isBloqued) {
-        if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+        if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
             member.send({ embeds: [ new Discord.EmbedBuilder().setDescription(`<:sp_flecha:875788005766492181> \`${member.user.tag}\`, ${`${LANG.events.guildMemberAdd.kickBloqUser}`.replace('<var1>', member.guild.name)}.`).setFooter({ text: member.guild.name, iconURL: member.guild.iconURL }).setColor(0x5c4fff) ] }).then(() => {
                 member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.kickBloqUserReason}.` }).catch(err => {});
             }).catch(() => {
@@ -41,7 +41,7 @@ module.exports = async (client, member) => {
         if(_guild.protection.antijoins.enable == true) {
 
             if(cache.remember.length > 0 && cache.remember.includes(member.user.id)) {
-                if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+                if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                     member.send({ embeds: [ new Discord.EmbedBuilder().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${`${LANG.events.guildMemberAdd.antijoinsMessage}`.replace('<var1>', member.guild.name)}.`).setFooter({ text: member.guild.name, iconURL: member.guild.iconURL }).setColor(0x5c4fff) ] }).then(() => {
                         member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.antijoinsReason}.` }).catch(err => {});
                     }).catch(() => {
@@ -50,7 +50,7 @@ module.exports = async (client, member) => {
                     return;
                 }
             }else{
-                if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                     member.send({ embeds: [ new Discord.EmbedBuilder().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${LANG.events.guildMemberAdd.antijoinsMessage1}.`.replace('<var1>', member.guild.name)).setFooter({ text: member.guild.name, iconURL: member.guild.iconURL }).setColor(0x5c4fff) ] }).then(() => {
                         member.guild.members.kick(member, `${LANG.events.guildMemberAdd.antijoinsReason1}.`).catch(err => {});
                     }).catch(() => {
@@ -77,7 +77,7 @@ module.exports = async (client, member) => {
         // kickMalicious:
         if(_guild.protection.kickMalicious.enable == true && malicious && malicious.isMalicious) {
             if(cache.remember.length > 0 && cache.remember.includes(member.user.id)) {
-                if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+                if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                     member.send({ embeds: [ new Discord.EmbedBuilder().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${LANG.events.guildMemberAdd.kickMaliciousBanMessage1} \`${member.guild.name}\`.\n\`${LANG.events.guildMemberAdd.kickMaliciousBanMessage2}(https://discord.gg/RuBvM5r9eM)**.`).setFooter({ text: member.guild.name, iconURL: member.guild.iconURL }).setColor(0x5c4fff) ] }).then(() => {
                         member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.kickMaliciousBanReason}.` }).catch(err => {});
                     }).catch(() => {
@@ -85,7 +85,7 @@ module.exports = async (client, member) => {
                     });
                 }
             }else{
-                if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                     member.send({ embeds: [ new Discord.EmbedBuilder().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${LANG.events.guildMemberAdd.kickMaliciousKickMessage1} \`${member.guild.name}\`.\n\`${LANG.events.guildMemberAdd.kickMaliciousKickMessage1}(https://discord.gg/RuBvM5r9eM)**.`).setFooter({ text: member.guild.name, iconURL: member.guild.iconURL }).setColor(0x5c4fff) ] }).then(() => {
                         member.guild.members.kick(member, `${LANG.events.guildMemberAdd.kickMaliciousKickReason}.`).catch(err => {});
                     }).catch(() => {
@@ -106,7 +106,7 @@ module.exports = async (client, member) => {
             // Antibots
             if(_guild.protection.antibots.enable == true) {
                 if(_guild.protection.antibots._type == 'all') {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                    if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                         await member.guild.members.kick(member.user.id, `${LANG.events.guildMemberAdd.antibotsKickReason}.`).catch(err => {});
                         let embed = new Discord.EmbedBuilder()
                         .setDescription(`${LANG.events.guildMemberAdd.antibotsMessage1} \`${member.user.tag}\` ${LANG.events.guildMemberAdd.antibotsMessage2}.`)
@@ -114,7 +114,7 @@ module.exports = async (client, member) => {
                         client.users.cache.get(member.guild.ownerId).send({ embeds: [ embed ] }).catch(err => {});
                     }
                 }else if(_guild.protection.antibots._type == 'only_nv' && !member.user.flags.has(65536)) {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                    if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                         await member.guild.members.kick(member.user.id, `${LANG.events.guildMemberAdd.antibotsKickReason}.`).catch(err => {});
                         let embed = new Discord.EmbedBuilder()
                         .setDescription(`${LANG.events.guildMemberAdd.antibotsMessage1} \`${member.user.tag}\` ${LANG.events.guildMemberAdd.antibotsMessage3}.`)
@@ -122,7 +122,7 @@ module.exports = async (client, member) => {
                         client.users.cache.get(member.guild.ownerId).send({ embeds: [ embed ] }).catch(err => {});
                     }
                 }else if(_guild.protection.antibots._type == 'only_v' && member.user.flags.has(65536)) {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                    if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                         await member.guild.members.kick(member.user.id, `${LANG.events.guildMemberAdd.antibotsKickReason}.`).catch(err => {});
                         let embed = new Discord.EmbedBuilder()
                         .setDescription(`${LANG.events.guildMemberAdd.antibotsMessage1} \`${member.user.tag}\` ${LANG.events.guildMemberAdd.antibotsMessage4}.`)
@@ -138,7 +138,7 @@ module.exports = async (client, member) => {
                 
                 if(malicious && malicious.isMalicious == member.user.id) {
 
-                    if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+                    if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                         await member.guild.members.ban(persona, { reason: `${LANG.events.guildMemberAdd.saveBotsEntrities}.` }).catch(err => {});
                     }
                     
@@ -158,13 +158,13 @@ module.exports = async (client, member) => {
             if(_guild.protection.antitokens.enable == true) {
 
                 if(cache.amount > 3) {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS') && user.isToken == false) {
+                    if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers) && user.isToken == false) {
                         member.guild.members.kick(member, `${LANG.events.guildMemberAdd.antitokensKickReason}.`).catch(err => {});
                     }
                 }
                 for(x of `${member.user.username}`.split(' ')) {
                     if(cache.remember.length > 0 && cache.remember.includes(x) && x != '') {
-                        if(member.guild.me.permissions.has('BAN_MEMBERS') && user.isToken == false) {
+                        if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers) && user.isToken == false) {
                             client.users.cache.get(member.user.id).send(`${LANG.events.guildMemberAdd.antitokensMessage}.\``).then(() => {
                                 member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.antitokensKickReason}.` }).catch(err => {});
                             }).catch(err => {});
@@ -183,7 +183,7 @@ module.exports = async (client, member) => {
             if(_guild.protection.markMalicious.enable == true) {
                 if(malicious && malicious.isMalicious) {
                     if(_guild.protection.markMalicious._type == 'changeNickname') {
-                        if(member.guild.me.permissions.has('MANAGE_NICKNAMES')) {
+                        if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageNicknames)) {
                             member.setNickname(`${malicious.reason}`).catch(err => {});
                         }
                     }else if(_guild.protection.markMalicious._type == 'sendLog') {
@@ -212,7 +212,7 @@ module.exports = async (client, member) => {
                             if(m.content == '')return;
                             if(m.author.id == member.user.id) {
                                 if(m.content == code) {
-                                    if(member.guild.me.permissions.has('MANAGE_ROLES')) {
+                                    if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageRoles)) {
                                         member.roles.add(_guild.protection.verification.role).catch(err => guildChannel.send({ content: 'Ha sucedido un error inesperado.' }));
                                         guildChannel.bulkDelete(100);
                                         collector.stop();
@@ -221,7 +221,7 @@ module.exports = async (client, member) => {
                                     }
                                 }else{
                                     if(intentos == 1) {
-                                        if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                                        if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                                             member.guild.members.kick(member, 'Falló en la verificación.').catch(err => {});
                                             guildChannel.bulkDelete(100);
                                         }else{
@@ -256,7 +256,7 @@ module.exports = async (client, member) => {
             if(_guild.protection.bloqEntritiesByName.names.length > 0) {
                 for(let x of _guild.protection.bloqEntritiesByName.names) {
                     if(`${member.user.username}`.includes(x)) {
-                        if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                        if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                             client.users.cache.get(member.user.id).send({ content: 'Tu nombre incluye caracteres que fueron prohibidos en el servidor.' }).then(() => {
                                 member.guild.members.kick(member, 'Nombre prohibido.').catch(err => {});
                             }).catch(() => {
@@ -269,7 +269,7 @@ module.exports = async (client, member) => {
 
             // bloqNewCreatedUsers
             if(_guild.protection.bloqNewCreatedUsers && member.user.createdTimestamp > Date.now() - ms(_guild.protection.bloqNewCreatedUsers.time)) {
-                if(member.guild.me.permissions.has('KICK_MEMBERS')) {
+                if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                     client.users.cache.get(member.user.id).send({ content: `Tu cuenta debe llevar activa ${_guild.protection.bloqNewCreatedUsers.time} para entrar al servidor.` }).then(() => {
                         member.guild.members.kick(member, 'Cuenta nueva.').catch(err => {});
                     }).catch(() => {

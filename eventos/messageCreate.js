@@ -80,7 +80,7 @@ module.exports = async (client, message) => {
 
     if(message.webhookId) {
         try{
-            if(message.guild.me.permissions.has('MANAGE_WEBHOOKS')) {
+            if(message.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageWebhooks)) {
                 if(_guild.protection.purgeWebhooksAttacks.enable == true) {
                     client.super.cache.up(message.guild.id, cache);
 
@@ -92,7 +92,7 @@ module.exports = async (client, message) => {
                                     webhook.delete().then(async () => {
                                         message.channel.send(`He eliminado el webhook \`${webhook.name}\`, creado por \`${webhook.owner.username}#${webhook.owner.discriminator}\`. Envió muchos mensajes a la vez.`);
                                         if(_guild.protection.purgeWebhooksAttacks.rememberOwners == webhook.owner.id) {
-                                            if(message.guild.me.permissions.has('BAN_MEMBERS')) {
+                                            if(message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                                                 message.guild.members.ban(webhook.owner, { reason: 'Raid con webhooks.' }).catch(err => {});
                                                 message.channel.send({ content: 'También lo he baneado por crear dos veces un webhook raider.' });
                                                 if(_guild.protection.intelligentSOS.enable == true) {
@@ -172,7 +172,7 @@ module.exports = async (client, message) => {
     cache = await client.super.cache.get(message.author.id, true);
 
     try{
-        if(!message.member.permissions.has('MANAGE_MESSAGES')) {
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages)) {
 
             // Badwords:
             for(x of _guild.moderation.dataModeration.badwords) {
@@ -354,7 +354,7 @@ module.exports = async (client, message) => {
 
         // IntelligentAntiflood:
         if(_guild.protection.intelligentAntiflood == true) {
-            if(message.guild.me.permissions.has('KICK_MEMBERS')) {
+            if(message.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                 if(`${message.channel.name}`.includes('flood') || (`${message.channel.topic}`.includes('permite') && `${message.channel.topic}`.includes('flood') && !`${message.channel.topic}`.includes('no')))return;
                 if(message.content == cache.lastContent) {
                     cache.lastContent = message.content;

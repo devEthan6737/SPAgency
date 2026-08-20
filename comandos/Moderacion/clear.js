@@ -1,3 +1,4 @@
+const { PermissionFlagsBits } = require('discord.js');
 const { dataRequired } = require("../../functions");
 const clear = new Map();
 
@@ -11,8 +12,8 @@ module.exports = {
     run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.guild.me.permissions.has('MANAGE_MESSAGES'))return message.reply(LANG.data.permissionsMessagesMe);
-        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.reply(LANG.data.permissionsMessages);
+        if(!message.guild.me.permissions.has(PermissionFlagsBits.ManageMessages))return message.reply(LANG.data.permissionsMessagesMe);
+        if(!message.member.permissions.has(PermissionFlagsBits.ManageMessages))return message.reply(LANG.data.permissionsMessages);
 
         if(!args[0])return message.reply(await dataRequired(LANG.commands.mod.clear.message1 + '\n\n' + _guild.configuration.prefix + 'clear <messagesAmount>'));
         if(isNaN(parseInt(args[0])))return message.reply(LANG.commands.mod.clear.message2);

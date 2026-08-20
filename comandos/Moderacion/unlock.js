@@ -1,3 +1,4 @@
+const { PermissionFlagsBits } = require('discord.js');
 module.exports = {
 	nombre: 'unlock',
 	category: 'Moderación',
@@ -7,7 +8,7 @@ module.exports = {
 	usage: ['<prefix>lock [@roleMention]'],
     run: async (client, message, args, _guild) => {
         if(!message.guild.me.permissions.has('MANAGE_CHANNLES'))return message.reply('Necesito permisos de __Gestionar canales__.');
-        if(!message.member.permissions.has('MANAGE_CHANNELS'))return message.reply('Necesitas permisos de __Gestionar canales__.');
+        if(!message.member.permissions.has(PermissionFlagsBits.ManageChannels))return message.reply('Necesitas permisos de __Gestionar canales__.');
 
         try{
             await message.guild.channels.fetch();

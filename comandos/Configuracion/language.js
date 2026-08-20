@@ -15,8 +15,8 @@ module.exports = {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
         try{
-            if(!message.guild.me.permissions.has('ADMINISTRATOR')) return message.reply({ content: `${LANG.data.permissionsADMINme}.`, ephemeral: true });
-            if(!message.member.permissions.has('MANAGE_CHANNELS'))return message.reply({ content: `${LANG.data.permissionsChannelsU}.`, ephemeral: true });
+            if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator)) return message.reply({ content: `${LANG.data.permissionsADMINme}.`, ephemeral: true });
+            if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageChannels))return message.reply({ content: `${LANG.data.permissionsChannelsU}.`, ephemeral: true });
             if(!args[0]) {
                 message.reply(await dataRequired('' + LANG.commands.config.language.message1 + '.\n\n' + _guild.configuration.prefix + 'lang <language>'));
                 message.channel.send({ embeds: [ new Discord.EmbedBuilder().setColor('5c4fff').setDescription(':flag_es: - `es`\n:flag_us: - `en`') ] });

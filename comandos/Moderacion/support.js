@@ -20,8 +20,8 @@ module.exports = {
 
         if(args[0] == 'sos') {
 
-            if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send({ content: LANG.data.permissionsADMINme });
-            if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send({ content: LANG.data.permissionsADMIN });
+            if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send({ content: LANG.data.permissionsADMINme });
+            if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send({ content: LANG.data.permissionsADMIN });
             if(d.array.length <= 0)return message.reply({ content: LANG.commands.mod.support.message3 });
 
             let chooseDev = d.array[Math.floor(Math.random() * d.array.length)];

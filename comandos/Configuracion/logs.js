@@ -1,3 +1,4 @@
+const { PermissionFlagsBits } = require('discord.js');
 const { dataRequired, updateDataBase } = require("../../functions");
 
 module.exports = {
@@ -10,7 +11,7 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.member.permissions.has('ADMINISTRATOR'))return interaction.reply(LANG.data.permissionsADMINme);
+        if(!message.member.permissions.has(PermissionFlagsBits.Administrator))return interaction.reply(LANG.data.permissionsADMINme);
         if(!args[0])return message.reply(await dataRequired(LANG.commands.config.logs.message1 + '\n\n' + _guild.configuration.prefix + LANG.commands.config.logs.message2));
         
         if(args[0] == 'enable') {

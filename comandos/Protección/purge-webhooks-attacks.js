@@ -11,7 +11,7 @@ module.exports = {
     run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send(`${LANG.data.permissionsADMINme}.`);
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send(`${LANG.data.permissionsADMINme}.`);
         if(message.author.id != message.guild.ownerId)return message.reply({ content: `${LANG.data.permissionsOwner}.` });
 
         if(_guild.protection.purgeWebhooksAttacks.enable == false) {

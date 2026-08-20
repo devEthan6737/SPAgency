@@ -14,7 +14,7 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send(`${LANG.data.permissionsMessages}.`);
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages))return message.channel.send(`${LANG.data.permissionsMessages}.`);
 
         let userMention = message.mentions.members.first();
         if(!userMention)return message.reply(await dataRequired('' + LANG.commands.mod.warns.message1 + '.\n\n' + _guild.configuration.prefix + 'warn-list <userMention>'));

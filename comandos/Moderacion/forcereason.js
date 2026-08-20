@@ -9,7 +9,7 @@ module.exports = {
 	description: 'Gestiona razones forzadas para acciones de moderación.',
 	usage: ['<prefix>forcereason {add <newReason>, remove, clearAll}'],
 	run: async (client, message, args, _guild) => {
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply('Necesitas permisos de __Administrador__.');
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.reply('Necesitas permisos de __Administrador__.');
         if(!args[0])return message.reply(await dataRequired('No has escrito el tipo de función.\n\n' + _guild.configuration.prefix + 'forcereason {add <newReason>, remove, clearAll}'));
 
         if(args[0] == 'add') {

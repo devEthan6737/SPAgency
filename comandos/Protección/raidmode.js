@@ -10,7 +10,7 @@ module.exports = {
     description: "¿Te amanzan con raidear tu servidor? Con este sistema nadie podrá tocarte.",
     usage: ['<prefix>raidmode [time]'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
         if(message.author.id != message.guild.ownerId)return message.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.' });
 
         if(_guild.protection.raidmode.enable == false) {

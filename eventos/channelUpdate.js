@@ -13,7 +13,7 @@ module.exports = async (client, channel) => {
         if(_guild.configuration.whitelist.includes(prsn.id))return; // Whitelist.
 
         try{
-            if(channel.guild.me.permissions.has('BAN_MEMBERS')) {
+            if(channel.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
 
                 // Antiraid:
                 if(_guild.protection.antiraid.enable == true) {

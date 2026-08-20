@@ -10,8 +10,8 @@ module.exports = {
 	description: 'El bot moderará automáticamente tu servidor.',
 	usage: ['<prefix>automoderator {enable, disable, label, setEvent { ... }, editActions { ... } }'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesitas permiso de __Administrador__.');
         if(!_guild.moderation.dataModeration.muterole)return message.channel.send(`Se debe especificar el rol de muteo con \`${_guild.configuration.prefix}setmuterole <roleMention>\``);
         if(!args[0])return message.reply(await dataRequired('Debes escribir la función del comando.\n\n' + _guild.configuration.prefix + 'automoderator {enable, disable, label, setEvent { ... }, editActions { ... } }'));
 

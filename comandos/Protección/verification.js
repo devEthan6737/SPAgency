@@ -9,8 +9,8 @@ module.exports = {
 	description: 'Activa un sistema para evitar selfbots de forma segura.',
 	usage: ['<prefix>verification'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesitas permiso de __Administrador__.');
 
         if(_guild.protection.verification.enable == false) {
             _guild.protection.verification.enable = true;

@@ -12,8 +12,8 @@ module.exports = {
 
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-		if(!message.guild.me.permissions.has('MANAGE_ROLES')) return message.channel.send({ content: LANG.data.permissionsRolesme });
-		if(!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsKick });
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageRoles)) return message.channel.send({ content: LANG.data.permissionsRolesme });
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.KickMembers)) return message.channel.send({ content: LANG.data.permissionsKick });
         if(!_guild.moderation.dataModeration.muterole)return message.channel.send({content: LANG.commands.mod.muteinfo.message1 + _guild.configuration.prefix + LANG.commands.mod.muteinfo.message2 });
 
 		let userMention = message.mentions.members.first();

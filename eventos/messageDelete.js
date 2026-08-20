@@ -19,7 +19,7 @@ module.exports = async (client, message) => {
     try{
         // Logs:
         if(_guild.configuration.logs[0]) {
-            if(!message.member.permissions.has('MANAGE_MESSAGES') && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
+            if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages) && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
                 // Ghostping
                 client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Ghostping detectado (Mensaje borrado).', embeds: [
                     new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: `${message.author.username}`, iconURL: `${message.author.displayAvatarURL({ })}` }).setDescription(`${message.content ?? '> `Sin contenido en el mensaje.`'}`).setImage(message.attachments.size > 0? (message.attachments.first()).proxyURL : 'https://asd.com/')

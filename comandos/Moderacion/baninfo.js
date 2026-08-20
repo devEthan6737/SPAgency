@@ -11,8 +11,8 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
 		let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 	
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBanMe });
-		if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send(`${LANG.data.permissionsMessages}.`);
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send({ content: LANG.data.permissionsBanMe });
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages))return message.channel.send(`${LANG.data.permissionsMessages}.`);
 
         if(!args[0] || isNaN(parseInt(args[0])))return message.channel.send(await dataRequired(LANG.commands.baninfo.message1 + '\n\n' + _guild.configuration.prefix + 'bainfo <userId>'));
 

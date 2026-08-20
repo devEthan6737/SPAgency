@@ -9,8 +9,8 @@ module.exports = {
 	description: 'Evita mensajes que incluyan muchas mayúsculas.',
 	usage: ['<prefix>capitalLetters'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesitas permiso de __Administrador__.');
 
         if(_guild.moderation.dataModeration.events.capitalLetters == false) {
             _guild.moderation.dataModeration.events.capitalLetters = true;

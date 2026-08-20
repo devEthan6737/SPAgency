@@ -1,3 +1,4 @@
+const { PermissionFlagsBits } = require('discord.js');
 const { dataRequired, updateDataBase } = require("../../functions");
 
 module.exports = {
@@ -8,8 +9,8 @@ module.exports = {
 	description: 'Establece un rol de muteo en el servidor.',
 	usage: ['<prefix>setmurerole <roleMention>'],
 	run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('MANAGE_ROLES'))return message.reply({ content: 'Necesito permisos de __Gestionar Roles__.' });
-        if(!message.member.permissions.has('MANAGE_ROLES'))return message.reply({ content: 'Necesitas permisos de __Gestionar Roles__.' });
+        if(!message.guild.me.permissions.has(PermissionFlagsBits.ManageRoles))return message.reply({ content: 'Necesito permisos de __Gestionar Roles__.' });
+        if(!message.member.permissions.has(PermissionFlagsBits.ManageRoles))return message.reply({ content: 'Necesitas permisos de __Gestionar Roles__.' });
 
         try{
             let roleMention = message.mentions.roles.first();

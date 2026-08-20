@@ -13,7 +13,7 @@ module.exports = {
 	description: 'Realiza una copia de seguridad de tu servidor .',
 	usage: ['<prefix>backup {create, delete, update, load, info} <password>'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
         if(message.author.id != message.guild.ownerId)return message.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.' });
 
         let _backup = await Backup.findOne({ guildId: message.guild.id });

@@ -11,7 +11,7 @@ module.exports = {
     run: async (client, message, args, _guild) => {
         return message.reply(':flag_es: El comando ha sido descontinuado por fallas. De igual forma vamos a intentar volver habilitarlo para la próxima versión.');
     
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
         if(message.author.id != message.guild.ownerId)return message.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.' });
         if(!_guild.moderation.dataModeration.muterole)return message.channel.send(`Se debe especificar el rol de muteo con \`${_guild.configuration.prefix}setmuterole <roleMention>\``)
 

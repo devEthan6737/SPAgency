@@ -1,3 +1,4 @@
+const { PermissionFlagsBits } = require('discord.js');
 const { dataRequired } = require("../../functions");
 
 module.exports = {
@@ -11,8 +12,8 @@ module.exports = {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
         try{
-            if(!message.guild.me.permissions.has('ADMINISTRATOR')) return message.reply({ content: LANG.data.permissionsADMINme });
-            if(!message.member.permissions.has('MANAGE_ROLES'))return message.reply({ content: LANG.data.permissionsManageRoles });
+            if(!message.guild.me.permissions.has(PermissionFlagsBits.Administrator)) return message.reply({ content: LANG.data.permissionsADMINme });
+            if(!message.member.permissions.has(PermissionFlagsBits.ManageRoles))return message.reply({ content: LANG.data.permissionsManageRoles });
 
             let member = message.mentions.members.first();
             if(!member)return message.reply(await dataRequired(LANG.commands.config.verify.message1 + '\n\n' + _guild.configuration.prefix + 'verify <userMention>'));

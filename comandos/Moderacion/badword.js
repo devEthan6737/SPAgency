@@ -9,8 +9,8 @@ module.exports = {
 	description: 'Haz que el bot borre palabras prohibidas en el servidor.',
 	usage: ['<prefix>badword {add <newBadword>, remove, clearAll}'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesitas permiso de __Administrador__.');
         if(!args[0])return message.reply(await dataRequired('Debes escribir la función del comando.\n\n' + _guild.configuration.prefix + 'badword {add, remove, clearAll}'));
 
         if(args[0] == 'add') {

@@ -11,8 +11,8 @@ module.exports = {
 	usage: ['<prefix>forceban'],
 	run: async (client, message, args, database, user) => {
         
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Necesito permiso de __Banear Miembros__.');
-		if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send('Necesito permiso de __Banear Miembros__.');
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesitas permiso de __Administrador__.');
 		message.channel.send({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('<a:sp_loading:805810562349006918> | `Generando row...`') ] }).then(async y => {
             let razones = ['Raider', 'Miembro de una squad', 'Dox', 'Bot raider', 'Spam al md', 'Flood', 'Suplantar identidad', 'Nsfw', 'Toxicidad', 'Amenaza', 'Estafa', 'Infectar usuarios', 'Multicuenta maliciosa', 'Infiltración', 'Plagio', 'Generadores uncheked', 'Uso de tools', 'Incitación a lo repulsivo', 'Violación del Tos', 'Selfbot', 'Abuso de SP Agency', 'DDos'];
             let raiders = []; let hackers = []; let estafadores = []; let botsRaiders = []; let antiToS = []; let  otros = [];
@@ -133,7 +133,7 @@ module.exports = {
                 
                 client.on('interactionCreate', interaction => {
                     if(interaction.isStringSelectMenu()) {
-                        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permiso de __Administrador__.', ephemeral: true });
+                        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permiso de __Administrador__.', ephemeral: true });
                         
                         if(!dataRow.has(message.author.id))return;
                         dataRow.delete(message.author.id);
