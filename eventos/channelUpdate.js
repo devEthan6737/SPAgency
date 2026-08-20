@@ -7,7 +7,7 @@ module.exports = async (client, channel) => {
 
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
-    channel.guild.fetchAuditLogs({ type: 'UPDATE_CHANNEL' }).then(async logs => {
+    channel.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.ChannelUpdate }).then(async logs => {
         let prsn = logs.entries.first().executor;
 
         if(_guild.configuration.whitelist.includes(prsn.id))return; // Whitelist.
