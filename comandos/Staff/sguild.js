@@ -1,5 +1,5 @@
 // Deberías cambiar todo de aquí, en el caso de que no sepas no lo toques y escribe return en la linea 14.
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const db = require('megadb');
 const dev = new db.crearDB('devsActivos', 'data_users');
 
@@ -26,7 +26,7 @@ module.exports = {
 				let codigo = await guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
 				if(codigo === undefined) return message.channel.send('Ups, parece que ocurrió un error. Intenta nuevamente');
 				let a = client.guilds.cache.get(args[0]);
-				message.channel.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(a.name, a.iconURL()).setDescription(`[Link](${codigo}) | \`Propietario:\` ${guild.ownerId}`) ] });
+				message.channel.send({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: a.name, iconURL: a.iconURL() }).setDescription(`[Link](${codigo}) | \`Propietario:\` ${guild.ownerId}`) ] });
 			}catch(err) {
 				message.channel.send({ content: `${err}` });
 			}

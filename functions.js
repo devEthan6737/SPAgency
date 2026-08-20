@@ -1,6 +1,6 @@
 // No es recomendable tocar algo de aquí si no sabes lo que haces.
 
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const package = require('./package.json');
 const os = require('os');
 const process = require('process');
@@ -24,7 +24,7 @@ function pulk(array, object) { // Sustituye <var>.splice();
     return newArray;
 }
 
-const dataRequiredEmbed = new Discord.MessageEmbed().setColor('RED').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
+const dataRequiredEmbed = new Discord.EmbedBuilder().setColor('RED').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
 function dataRequired(message) {
     dataRequiredEmbed.setDescription('`' + message + '`');
     return { content: '`[]` = Opcional.\n`<>` = Requerido.\n`{}` = Función.', embeds: [ dataRequiredEmbed ] };
@@ -35,9 +35,9 @@ async function selectMenu(interaction, value, client) {
 
     // Help command:
     if(value === 'ho_qespa') {
-        interaction.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('La información ha sido transladada a la página web oficial:\n\nEl dominio es privado pero como eres especial para nosotros te otorgaré acceso, [click aquí.](https://youtu.be/dQw4w9WgXcQ)') ], ephemeral: true });
+        interaction.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('La información ha sido transladada a la página web oficial:\n\nEl dominio es privado pero como eres especial para nosotros te otorgaré acceso, [click aquí.](https://youtu.be/dQw4w9WgXcQ)') ], ephemeral: true });
     }else if(value === 'ho_spaeubba') {
-        interaction.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('A nosotros, el personal del bot, nos encanta poner a prueba a SP Agency para ver su capacidad, puedes visitar nuestro canal de youtube [haciendo click aquí.](https://www.youtube.com/channel/UChSb1NskNXQ0nKG4kbNCRaQ)') ], ephemeral: true });
+        interaction.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('A nosotros, el personal del bot, nos encanta poner a prueba a SP Agency para ver su capacidad, puedes visitar nuestro canal de youtube [haciendo click aquí.](https://www.youtube.com/channel/UChSb1NskNXQ0nKG4kbNCRaQ)') ], ephemeral: true });
     }else if(value === 'ho_ddb') {
         cpuStat.usagePercent(function (error, percent) {
             if(error)return;
@@ -51,7 +51,7 @@ async function selectMenu(interaction, value, client) {
             let minutes = Math.floor(totalSeconds / 60);
             let seconds = Math.floor(totalSeconds % 60);
 
-            interaction.reply({ embeds: [ new Discord.MessageEmbed().setTitle(client.user.username + ' - Host Debug:').addField('Bot Data:', `**Nombre del Bot**: \`${client.user.tag}\`\n**ID**: \`${client.user.id}\`\n**Versión**: \`${package.version}\`\n**Dependencias**: \`['discord.js-light', 'fs', 'mongoose', 'zlib-sync', 'bufferutil', 'utf-8-validate', 'eslint', 'manage-maliciousdb', 'discordjs/builders', 'discordjs/rest', 'byte-size', 'cpu-stat', 'discord-api-types', 'erlpack', 'ms', 'os', 'process', 'topgg-autoposter', '@top-gg/sdk', 'danbot-hosting', '@tensorflow/tfjs-node', 'request', 'axios', ]\`\n**CopyRight**: \`CC BY-NC-SA\`\n**Confianza**: \`Verificado por Discord\`\n**Servidores actuales**: \`${client.guilds.cache.size}\`\n**Usuarios en el caché**: \`${client.users.cache.size}\``).addField('Host Data:', `**Nombre de la CPU**: \`${cpuDataArray[0].model} - ${cpuDataArray.length} Cores.\`\n**Uso de memoria**: \`${usage}\`\n\n**Tiempo encendido**: \`${days}d, ${hours}h, ${minutes}m, ${seconds}s.\``).setColor(0x5c4fff) ], ephemeral: true });
+            interaction.reply({ embeds: [ new Discord.EmbedBuilder().setTitle(client.user.username + ' - Host Debug:').addFields({ name: 'Bot Data:', value: `**Nombre del Bot**: \`${client.user.tag}\`\n**ID**: \`${client.user.id}\`\n**Versión**: \`${package.version}\`\n**Dependencias**: \`['discord.js', 'fs', 'mongoose', 'zlib-sync', 'bufferutil', 'utf-8-validate', 'eslint', 'manage-maliciousdb', 'byte-size', 'cpu-stat', 'erlpack', 'ms', 'os', 'process', 'topgg-autoposter', '@top-gg/sdk', 'danbot-hosting', '@tensorflow/tfjs-node', 'request', 'axios', ]\`\n**CopyRight**: \`CC BY-NC-SA\`\n**Confianza**: \`Verificado por Discord\`\n**Servidores actuales**: \`${client.guilds.cache.size}\`\n**Usuarios en el caché**: \`${client.users.cache.size}\`` }).addFields({ name: 'Host Data:', value: `**Nombre de la CPU**: \`${cpuDataArray[0].model} - ${cpuDataArray.length} Cores.\`\n**Uso de memoria**: \`${usage}\`\n\n**Tiempo encendido**: \`${days}d, ${hours}h, ${minutes}m, ${seconds}s.\`` }).setColor(0x5c4fff) ], ephemeral: true });
             
             function formatBytes(a, b) {
                 let c = 1024;
@@ -90,22 +90,22 @@ async function selectMenu(interaction, value, client) {
 
     // Command of editPingReply
     }else if(value === 'allDetails') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'allDetails';
         updateDataBase(client, interaction.guild, _guild);
         interaction.reply({ content: '¡Ahora mostraré la mayor información posible cuando alguien me mencione!', ephemeral: true });
     }else if(value === 'pingLessDetails') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'pingLessDetails';
         updateDataBase(client, interaction.guild, _guild);
         interaction.reply({ content: '¡Ahora mostraré la menor información posible cuando alguien me mencione!', ephemeral: true });
     }else if(value === 'onlySupportServer') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'onlySupportServer';
         updateDataBase(client, interaction.guild, _guild);
         interaction.reply({ content: '¡Ahora solo mostraré el servidor de soporte de mi personal cuando alguien me mencione!', ephemeral: true });
     }else if(value === 'ignore') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
+        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
         return interaction.reply({ content: '`PREMIUM ERROR:` SPA Code is not ready to use TIBAJS API.', ephemeral: true });
         _guild.configuration.subData.pingMessage = 'ignore';
         updateDataBase(client, interaction.guild, _guild);
@@ -152,11 +152,11 @@ async function automoderator(client, mongoose, message, sanctionReason) {
         });
         userWarns.save();
 
-        message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`<@${message.author.id}>, has sido advertido.\n\nRazón: \`${sanctionReason}\`\nModerador: \`${client.user.tag}\``) ] });
+        message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`<@${message.author.id}>, has sido advertido.\n\nRazón: \`${sanctionReason}\`\nModerador: \`${client.user.tag}\``) ] });
 
         if(userWarns.warns.length == mongoose.moderation.automoderator.actions.warns[0]) {
             if(message.member.roles.cache.has(mongoose.moderation.dataModeration.muterole))return;
-            if(!message.guild.me.permissions.has('MANAGE_ROLES')) {
+            if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageRoles)) {
                 client.users.cache.get(message.guild.ownerId).send('No tengo permisos para mutear a un usuario, he desactivado el automoderador.').catch(err => {
                     message.channel.send('<@' + message.guild.ownerId + '>, no tengo permisos para mutear al usuario, he desactivado el automoderador.');
                 });
@@ -198,7 +198,7 @@ async function automoderator(client, mongoose, message, sanctionReason) {
             message.reply({ content: `He muteado a \`${message.author.username}\` durante \`${mongoose.moderation.automoderator.actions.muteTime[1]}\` por tener demasiadas infracciónes.` });
         }else if(userWarns.warns.length > mongoose.moderation.automoderator.actions.warns[1]) {
             if(mongoose.moderation.automoderator.actions.action == 'BAN') {
-                if(!message.guild.me.permissions.has('BAN_MEMBERS')) {
+                if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                     client.users.cache.get(message.guild.ownerId).send('No tengo permisos para banear a un usuario, he desactivado el automoderador.').catch(err => {
                         message.channel.send('<@' + message.guild.ownerId + '>, no tengo permisos para banear al usuario, he desactivado el automoderador.');
                     });
@@ -211,7 +211,7 @@ async function automoderator(client, mongoose, message, sanctionReason) {
                 }).catch(err => {});
                 return;
             }else{
-                if(!message.guild.me.permissions.has('KICK_MEMBERS')) {
+                if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.KickMembers)) {
                     client.users.cache.get(message.guild.ownerId).send('No tengo permisos para expulsar a un usuario, he desactivado el automoderador.').catch(err => {
                         message.channel.send('<@' + message.guild.ownerId + '>, no tengo permisos para expulsar al usuario, he desactivado el automoderador.');
                     });

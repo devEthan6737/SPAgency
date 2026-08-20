@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const ms = require('ms');
 const { getResponseAndDelete } = require('../../functions');
 
@@ -37,7 +37,7 @@ module.exports = {
                 setTimeout(async () => {
                     let response = await getResponseAndDelete(message.author.id);
                     message.reply({ embeds: [
-                        new Discord.MessageEmbed().setDescription(`${LANG.commands.mod.predict.message2} **${ms(Date.now() - ping)}**\n\n${response.predictions.map(predict => `\`func ${predict[0]}\` __says__ **${alt(predict[1])}**`).join('\n')}`).setColor('RED')
+                        new Discord.EmbedBuilder().setDescription(`${LANG.commands.mod.predict.message2} **${ms(Date.now() - ping)}**\n\n${response.predictions.map(predict => `\`func ${predict[0]}\` __says__ **${alt(predict[1])}**`).join('\n')}`).setColor('RED')
                     ] });
                 }, 4000);
             }else{

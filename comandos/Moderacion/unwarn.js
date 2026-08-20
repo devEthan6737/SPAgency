@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired, pulk } = require("../../functions");
 const Warns = require('../../schemas/warnsSchema');
 
@@ -12,7 +12,7 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send(`${LANG.data.permissionsMessages}.`);
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages))return message.channel.send(`${LANG.data.permissionsMessages}.`);
 
         let userMention = message.mentions.members.first();
         if(!userMention)return message.reply(await dataRequired('' + LANG.commands.mod.unwarn.message1 + '.\n\n' + _guild.configuration.prefix + 'unwarn <userMention> [all]'));
@@ -28,7 +28,7 @@ module.exports = {
         }else{
 
             let cc = 1;
-            message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${LANG.commands.mod.unwarn.message5} ${userWarns.warns.length} ${LANG.commands.mod.unwarn.message6} <@${userMention.id}>, ${LANG.commands.mod.unwarn.message7}.\n\n${userWarns.warns.map(x => `\`${cc++}-\` ${x.reason}`).join('\n')}`) ] });
+            message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${LANG.commands.mod.unwarn.message5} ${userWarns.warns.length} ${LANG.commands.mod.unwarn.message6} <@${userMention.id}>, ${LANG.commands.mod.unwarn.message7}.\n\n${userWarns.warns.map(x => `\`${cc++}-\` ${x.reason}`).join('\n')}`) ] });
             let collector = message.channel.createMessageCollector({ time: 15000 });
             collector.on('collect', async m => {
                 if(m.content == '')return;

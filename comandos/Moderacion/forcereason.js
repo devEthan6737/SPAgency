@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired, pulk, updateDataBase } = require("../../functions");
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
 	description: 'Gestiona razones forzadas para acciones de moderación.',
 	usage: ['<prefix>forcereason {add <newReason>, remove, clearAll}'],
 	run: async (client, message, args, _guild) => {
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply('Necesitas permisos de __Administrador__.');
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.reply('Necesitas permisos de __Administrador__.');
         if(!args[0])return message.reply(await dataRequired('No has escrito el tipo de función.\n\n' + _guild.configuration.prefix + 'forcereason {add <newReason>, remove, clearAll}'));
 
         if(args[0] == 'add') {
@@ -23,7 +23,7 @@ module.exports = {
 
             if(_guild.moderation.dataModeration.forceReasons.length == 0)return message.reply({ content: 'No hay razones forzadas agregadas.' });
             let cc = 1;
-            message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`Estás viendo las ${_guild.moderation.dataModeration.forceReasons.length} razones forzadas de este servidor, después de este mensaje escribe el numero adjunto a la razón forzada para eliminarla.\n\n${_guild.moderation.dataModeration.forceReasons.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] });
+            message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`Estás viendo las ${_guild.moderation.dataModeration.forceReasons.length} razones forzadas de este servidor, después de este mensaje escribe el numero adjunto a la razón forzada para eliminarla.\n\n${_guild.moderation.dataModeration.forceReasons.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] });
             let collector = message.channel.createMessageCollector({ time: 15000 });
             collector.on('collect', async m => {
                 if(m.content == '')return;

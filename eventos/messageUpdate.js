@@ -1,5 +1,5 @@
 const Guild = require('../schemas/guildsSchema');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { pulk, ratelimitFilter, automoderator, fecthDataBase, updateDataBase } = require('../functions');
 const antiIpLogger = require("anti-ip-logger");
 
@@ -21,15 +21,15 @@ module.exports = async (client, oldMessage, message) => {
         // Logs:
         if(_guild.configuration.logs[0]) {
             // Ghostping
-            if(!message.member.permissions.has('MANAGE_MESSAGES') && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
+            if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages) && _guild.moderation.dataModeration.events.ghostping && message.mentions.members.first()) {
                 client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Ghostping detectado (Mensaje editado).', embeds: [
-                    new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(`${message.author.username}`, `${message.author.displayAvatarURL({ })}`).setDescription(`${oldMessage.content ?? '> `Sin contenido en el mensaje.`'}`).setImage(oldMessage.attachments.size > 0? (oldMessage.attachments.first()).proxyURL : 'https://asd.com/')
+                    new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: `${message.author.username}`, iconURL: `${message.author.displayAvatarURL({ })}` }).setDescription(`${oldMessage.content ?? '> `Sin contenido en el mensaje.`'}`).setImage(oldMessage.attachments.size > 0? (oldMessage.attachments.first()).proxyURL : 'https://asd.com/')
                 ] });
 
                 if(_guild.moderation.automoderator.enable == true && _guild.moderation.automoderator.events.ghostping == true) {
                     await automoderator(client, _guild, oldMessage, 'Menciones fantasmas.');
                 }
-            }else client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Mensaje editado.', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription('`(Mostrando mensaje antes de editar)` ' + oldMessage.content + '\n\n`(Mostrando mensaje después de editar)` ' + message.content).addField('En el canal:', `<#${message.channel.id}>`, true).addField('Bot:', `\`${message.author.bot}\``, true) ] }).catch(err => {
+            }else client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Mensaje editado.', embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() }).setDescription('`(Mostrando mensaje antes de editar)` ' + oldMessage.content + '\n\n`(Mostrando mensaje después de editar)` ' + message.content).addFields({ name: 'En el canal:', value: `<#${message.channel.id}>`, inline: true }).addFields({ name: 'Bot:', value: `\`${message.author.bot}\``, inline: true }) ] }).catch(err => {
                 client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`Error 004`: Message so long!' }).catch(error => {
                     _guild.configuration.logs = [];
                     updateDataBase(client, message.guild, _guild, true);
@@ -40,7 +40,7 @@ module.exports = async (client, oldMessage, message) => {
         
         if(_guild.configuration.ignoreChannels.includes(message.channel.id) && !message.content.startsWith(`${_guild.configuration.prefix}ignoreThisChannel`))return; // <- Ignoring channels...
 
-        if(!message.member.permissions.has('MANAGE_MESSAGES')) {
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages)) {
             // Badwords:
             for(x of _guild.moderation.dataModeration.badwords) {
                 if(message.content.toLowerCase().includes(x)) {

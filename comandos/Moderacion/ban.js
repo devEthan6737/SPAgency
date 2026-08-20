@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired } = require('../../functions');
 
 module.exports = {
@@ -11,8 +11,8 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
 		let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBanMe });
-		if(!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBan });
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send({ content: LANG.data.permissionsBanMe });
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send({ content: LANG.data.permissionsBan });
 
 		let userMention = message.mentions.members.first();
         if(!userMention)return message.reply(await dataRequired(LANG.commands.mod.ban.message1 + '\n\n' + _guild.configuration.prefix + 'ban <userMention> [reason]'));
@@ -30,7 +30,7 @@ module.exports = {
 		let userID = client.users.cache.get(userMention.id);
 		userID.send(LANG.commands.mod.ban.message9.replace('<guild>', message.guild.name).replace('<moderator>', message.author.tag).replace('<reason>', args.join(' ').split(`${userMention.id}> `)[1])).catch(err => {});
 		userMention.ban({ reason: args.join(' ').split(`${userMention.id}> `)[1] });
-		let banEmbed = new Discord.MessageEmbed()
+		let banEmbed = new Discord.EmbedBuilder()
 			.setDescription(LANG.commands.mod.ban.message10.replace('<userMention>', '<@' + userMention.id + '>').replace('<userMentionId>', userMention.id).replace('<authorMention>', '<@' + message.author.id + '>').replace('<authorId>', message.author.id).replace('<reason>', args.join(' ').split(`${userMention.id}> `)[1]))
 			.setTimestamp().setColor(0x5c4fff);
 		message.channel.send({ embeds: [ banEmbed ] });

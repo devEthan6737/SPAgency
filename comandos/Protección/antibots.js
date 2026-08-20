@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { updateDataBase } = require('../../functions');
 
 module.exports = {
@@ -11,13 +11,13 @@ module.exports = {
     run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send(`${LANG.data.permissionsADMINme}.`);
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send(`${LANG.data.permissionsADMINme}.`);
         if(message.author.id != message.guild.ownerId)return message.reply({ content: `${LANG.data.permissionsOwner}.` });
 
         if(_guild.protection.antibots.enable == false) {
             _guild.protection.antibots.enable = true;
 
-            message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${LANG.commands.protect.antibots.message1}.`) ] });
+            message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${LANG.commands.protect.antibots.message1}.`) ] });
             let collector = message.channel.createMessageCollector({ time: 30000 });
             collector.on('collect', m => {
                 if(m.content == '')return;

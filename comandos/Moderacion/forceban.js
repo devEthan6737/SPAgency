@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const db = require('megadb');
 const dataRow = new db.crearDB('dataRows', 'data_bot');
 
@@ -11,9 +11,9 @@ module.exports = {
 	usage: ['<prefix>forceban'],
 	run: async (client, message, args, database, user) => {
         
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Necesito permiso de __Banear Miembros__.');
-		if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
-		message.channel.send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('<a:sp_loading:805810562349006918> | `Generando row...`') ] }).then(async y => {
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send('Necesito permiso de __Banear Miembros__.');
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesitas permiso de __Administrador__.');
+		message.channel.send({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('<a:sp_loading:805810562349006918> | `Generando row...`') ] }).then(async y => {
             let razones = ['Raider', 'Miembro de una squad', 'Dox', 'Bot raider', 'Spam al md', 'Flood', 'Suplantar identidad', 'Nsfw', 'Toxicidad', 'Amenaza', 'Estafa', 'Infectar usuarios', 'Multicuenta maliciosa', 'Infiltración', 'Plagio', 'Generadores uncheked', 'Uso de tools', 'Incitación a lo repulsivo', 'Violación del Tos', 'Selfbot', 'Abuso de SP Agency', 'DDos'];
             let raiders = []; let hackers = []; let estafadores = []; let botsRaiders = []; let antiToS = []; let  otros = [];
             let ids = await client.ubfb.getAllUsers();
@@ -90,7 +90,7 @@ module.exports = {
 					otros.push(x);
 				}
 			});
-            let MaliciousRow = new Discord.MessageActionRow().addComponents(new Discord.MessageSelectMenu().setCustomId('MaliciousRow').setPlaceholder('Seleccionar tipo de forceban.').addOptions([
+            let MaliciousRow = new Discord.ActionRowBuilder().addComponents(new Discord.StringSelectMenuBuilder().setCustomId('MaliciousRow').setPlaceholder('Seleccionar tipo de forceban.').addOptions([
                 {
                     label: `Raiders (${raiders.length}).`,
                     description: 'Banear a los raiders de la blacklist.',
@@ -128,12 +128,12 @@ module.exports = {
                 }
             ]));
             setTimeout(() => {
-                y.edit({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('Elige la opción que desea para banear usuarios maliciosos de tu servidor, sin necesidad de que sean miembros de este (`' + ids.length + ' usuarios maliciosos`).') ], components: [ MaliciousRow ] });
+                y.edit({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('Elige la opción que desea para banear usuarios maliciosos de tu servidor, sin necesidad de que sean miembros de este (`' + ids.length + ' usuarios maliciosos`).') ], components: [ MaliciousRow ] });
                 dataRow.set(message.author.id, 'not-external');
                 
                 client.on('interactionCreate', interaction => {
-                    if(interaction.isSelectMenu()) {
-                        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permiso de __Administrador__.', ephemeral: true });
+                    if(interaction.isStringSelectMenu()) {
+                        if(!interaction.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return interaction.reply({ content: 'Necesitas permiso de __Administrador__.', ephemeral: true });
                         
                         if(!dataRow.has(message.author.id))return;
                         dataRow.delete(message.author.id);

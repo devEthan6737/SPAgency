@@ -1,5 +1,5 @@
 const Guild = require('../schemas/guildsSchema');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { intelligentSOS, updateDataBase, fecthDataBase } = require('../functions');
 
 module.exports = async (client, member) => {
@@ -8,13 +8,13 @@ module.exports = async (client, member) => {
 
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
-    member.guild.fetchAuditLogs({ type: 'BAN' }).then(async logs => {
+    member.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.MemberBanAdd }).then(async logs => {
         let prsn = logs.entries.first();
 
         // Logs:
         try{
             if(_guild.configuration.logs[0]) {
-                client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.guildBanAdd.log_banAdd}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(member.guild.name, member.guild.iconURL()).addField(`${LANG.events.guildBanAdd.log_author}:`, `\`${prsn.executor.username} (${prsn.executor.id})\``, true).addField(`${LANG.events.guildBanAdd.log_bannedPerson}:`, `\`${prsn.target.username} (${prsn.target.id})\``, true) ] }).catch(err => {});        
+                client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.guildBanAdd.log_banAdd}.`, embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: member.guild.name, iconURL: member.guild.iconURL() }).addFields({ name: `${LANG.events.guildBanAdd.log_author}:`, value: `\`${prsn.executor.username} (${prsn.executor.id})\``, inline: true }).addFields({ name: `${LANG.events.guildBanAdd.log_bannedPerson}:`, value: `\`${prsn.target.username} (${prsn.target.id})\``, inline: true }) ] }).catch(err => {});        
             }
         }catch(err) {
             client.channels.cache.get(_guild.configuration.logs[1]).send({ content: `Logs error (guildBanAdd): \`${err}\`` }).catch(() => {});
@@ -25,7 +25,7 @@ module.exports = async (client, member) => {
         if(_guild.configuration.whitelist.includes(prsn.id))return; // Whitelist.
 
         // Antiraid:
-        if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+        if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
             if(_guild.protection.antiraid.enable == true) {
                 let cache = await client.super.cache.get(member.guild.id, true);
 
@@ -55,7 +55,7 @@ module.exports = async (client, member) => {
 
         // Raidmode:
         if(_guild.protection.raidmode.enable == true) {
-            if(member.guild.me.permissions.has('BAN_MEMBERS')) {
+            if(member.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                 await member.guild.members.ban(prsn, { reason: 'Raidmode.' }).catch(e => {});
             }
         }

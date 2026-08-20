@@ -1,5 +1,5 @@
 const Guild = require('../schemas/guildsSchema');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { intelligentSOS, updateDataBase, fecthDataBase } = require('../functions');
 
 module.exports = async (client, channel) => {
@@ -8,13 +8,13 @@ module.exports = async (client, channel) => {
 
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
     
-    channel.guild.fetchAuditLogs({ type: 'DELETE_CHANNEL' }).then(async logs => {
+    channel.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.ChannelDelete }).then(async logs => {
         let prsn = logs.entries.first().executor;
     
         // Logs:
         try{
             if(_guild.configuration.logs[0]) {
-                client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.channelDelete.log_channelDelete}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(prsn.tag, prsn.displayAvatarURL()).addField(`${LANG.events.channelDelete.log_channelDelete}:`, `\`${channel.name} (${channel.id})\``, true) ] }).catch(err => {});
+                client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.channelDelete.log_channelDelete}.`, embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: prsn.tag, iconURL: prsn.displayAvatarURL() }).addFields({ name: `${LANG.events.channelDelete.log_channelDelete}:`, value: `\`${channel.name} (${channel.id})\``, inline: true }) ] }).catch(err => {});
             }
         }catch(err) {
             client.channels.cache.get(_guild.configuration.logs[1]).send({ content: `Logs error (channelDelete): \`${err}\`` }).catch(() => {});
@@ -24,7 +24,7 @@ module.exports = async (client, channel) => {
         
         if(_guild.configuration.whitelist.includes(prsn.id))return; // Whitelist.
 
-        if(channel.guild.me.permissions.has('BAN_MEMBERS')) {
+        if(channel.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
 
             // Antiraid:
             if(_guild.protection.antiraid.enable == true) {

@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Malicious = require('../../schemas/maliciousSchema');
 const ms = require('ms');
 
@@ -17,9 +17,9 @@ module.exports = {
             malicious = await client.ubfb.getUser(args[0]);
             if(malicious && malicious.isMalicious) {
                 if(malicious.record)return message.reply({ content: '<a:sp_si:805810572599099413> | `' + LANG.commands.others.me.message1 + ': ' + malicious.record + '.`' });
-                let embed = new Discord.MessageEmbed()
-                    .setAuthor(`${LANG.commands.others.me.message2}.`)
-                    .setFooter(`${LANG.commands.others.me.message3}.`).setColor(0x5c4fff);
+                let embed = new Discord.EmbedBuilder()
+                    .setAuthor({ name: `${LANG.commands.others.me.message2}.` })
+                    .setFooter({ text: `${LANG.commands.others.me.message3}.` }).setColor(0x5c4fff);
                 if(malicious.punishment - Date.now() < 0) {
                     embed.setDescription(`ID: **${args[0]}**\n${LANG.commands.others.me.message4}: \`${malicious.reason}\`\n${LANG.commands.others.me.message5} \`${ms(Math.abs(malicious.dates.punishment - Date.now()))}\`.`);
                 }else{
@@ -40,9 +40,9 @@ module.exports = {
             malicious = await client.ubfb.getUser(message.author.id);
             if(malicious && malicious.isMalicious) {
                 if(malicious.record)return message.reply({ content: '<a:sp_si:805810572599099413> | `' + LANG.commands.others.me.message10 + ': ' + malicious.record + '.`' });
-                let embed = new Discord.MessageEmbed()
-                    .setAuthor(`${LANG.commands.others.me.message2}.`)
-                    .setFooter(`${malicious.proof}`)
+                let embed = new Discord.EmbedBuilder()
+                    .setAuthor({ name: `${LANG.commands.others.me.message2}.` })
+                    .setFooter({ text: `${malicious.proof}` })
                     .setImage(malicious.proof).setColor(0x5c4fff);
                 if(malicious.punishment - Date.now() < 0) {
                     embed.setDescription(`ID: **${message.author.id}**\n${LANG.commands.others.me.message4}: \`${malicious.reason}\`\n${LANG.commands.others.me.message11} \`${ms(Math.abs(malicious.dates.punishment - Date.now()))}\`.`);

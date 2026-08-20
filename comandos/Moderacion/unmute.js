@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Timers = require('../../schemas/timersSchema');
 const { dataRequired, pulk, updateDataBase } = require('../../functions');
 const ms = require('ms');
@@ -13,8 +13,8 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-		if(!message.guild.me.permissions.has('MANAGE_ROLES'))return message.channel.send(`${LANG.data.permissionsRolesme}.`);
-        if(!message.member.permissions.has('KICK_MEMBERS'))return message.channel.send(`${LANG.data.permissionsKick}.`);
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageRoles))return message.channel.send(`${LANG.data.permissionsRolesme}.`);
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.KickMembers))return message.channel.send(`${LANG.data.permissionsKick}.`);
         if(!_guild.moderation.dataModeration.muterole)return message.channel.send(`Se debe especificar el rol de muteo con \`${_guild.configuration.prefix}setmuterole <roleMention>\``)
 
 		let userMention = message.mentions.members.first();

@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 
 module.exports = {
 	nombre: 'editpingreply',
@@ -10,13 +10,13 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.reply({ content: LANG.data.permissionsADMIN });
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.reply({ content: LANG.data.permissionsADMIN });
         message.channel.send({
             embeds: [
-                new Discord.MessageEmbed().setColor(0x0056ff).setDescription(LANG.commands.config.editpingreply.message1)
+                new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(LANG.commands.config.editpingreply.message1)
             ],
             components: [
-                new Discord.MessageActionRow().addComponents(new Discord.MessageSelectMenu().setCustomId('chooseOption').setPlaceholder(LANG.commands.config.editpingreply.message2).addOptions([
+                new Discord.ActionRowBuilder().addComponents(new Discord.StringSelectMenuBuilder().setCustomId('chooseOption').setPlaceholder(LANG.commands.config.editpingreply.message2).addOptions([
                     {
                         label: LANG.commands.config.editpingreply.message3[0][0],
                         description: LANG.commands.config.editpingreply.message3[0][1],

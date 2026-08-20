@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired, updateDataBase } = require('../../functions');
 
 module.exports = {
@@ -9,18 +9,18 @@ module.exports = {
 	description: 'Activa un sistema para evitar selfbots de forma segura.',
 	usage: ['<prefix>verification'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
-        if(!message.member.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesitas permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesitas permiso de __Administrador__.');
 
         if(_guild.protection.verification.enable == false) {
             _guild.protection.verification.enable = true;
 
             message.channel.send({ embeds: [
-                new Discord.MessageEmbed().setColor(0x0056ff).setDescription('Estoy activando el sistema de verificación, mientras tanto dime el tipo de verificación que deseas establecer:')
-                .addField('Verificación tipo 1:', '`Una verificación manual, escribiendo el comando "' + _guild.configuration.prefix + 'verify <userMention>".`\n\n**Activar con:**\n--v1 <channelMention> <roleMention>\n**Ejemplo:**\n--v1 <#' + message.guild.channels.cache.filter(x => x.type == 'GUILD_TEXT').random().id + '> <@&' + message.guild.roles.cache.random().id + '>')
-                .addField('Verificación tipo 2:', '`Una verificación recolectando mensajes. Cuando se detecte una entrada de un usuario en el servidor, SP Agency enviará un código que el usuario deberá repetir.`\n\n**Activar con:**\n--v2 <channelMention> <roleMention>\n**Ejemplo:**\n--v2 <#' + message.guild.channels.cache.filter(x => x.type == 'GUILD_TEXT').random().id + '> <@&' + message.guild.roles.cache.random().id + '>')
-                .addField('Verificación tipo 3:', '`Verificación con botones. Cuando un usuario entre en el servidor deberá pulsar un botón en el canal mencionado para que se le agregue el rol de verificado.`\n\n**Activar con:**\n--v3 <channelMention> <roleMention> [buttonContent] /split/ [messageContent]\n**Ejemplo:**\n--v3 <#' + message.guild.channels.cache.filter(x => x.type == 'GUILD_TEXT').random().id + '> <@&' + message.guild.roles.cache.random().id + '> Verificar. /split/ ¡Haz click en el botón de abajo para verificarte!')
-                .addField('Verificación tipo 4:', '`Una verificación completamente automática que se basará en el sistema antitokens. Si el bot no detecta ningún problema, se le agregará el rol de usuario verificado.`\n\n**Activar con:**\n--v4 <roleMention>\n**Ejemplo:**\n--v4 <@&' + message.guild.roles.cache.random().id + '>')
+                new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('Estoy activando el sistema de verificación, mientras tanto dime el tipo de verificación que deseas establecer:')
+                .addFields({ name: 'Verificación tipo 1:', value: '`Una verificación manual, escribiendo el comando "' + _guild.configuration.prefix + 'verify <userMention>".`\n\n**Activar con:**\n--v1 <channelMention> <roleMention>\n**Ejemplo:**\n--v1 <#' + message.guild.channels.cache.filter(x => x.type == 'GUILD_TEXT').random().id + '> <@&' + message.guild.roles.cache.random().id + '>' })
+                .addFields({ name: 'Verificación tipo 2:', value: '`Una verificación recolectando mensajes. Cuando se detecte una entrada de un usuario en el servidor, SP Agency enviará un código que el usuario deberá repetir.`\n\n**Activar con:**\n--v2 <channelMention> <roleMention>\n**Ejemplo:**\n--v2 <#' + message.guild.channels.cache.filter(x => x.type == 'GUILD_TEXT').random().id + '> <@&' + message.guild.roles.cache.random().id + '>' })
+                .addFields({ name: 'Verificación tipo 3:', value: '`Verificación con botones. Cuando un usuario entre en el servidor deberá pulsar un botón en el canal mencionado para que se le agregue el rol de verificado.`\n\n**Activar con:**\n--v3 <channelMention> <roleMention> [buttonContent] /split/ [messageContent]\n**Ejemplo:**\n--v3 <#' + message.guild.channels.cache.filter(x => x.type == 'GUILD_TEXT').random().id + '> <@&' + message.guild.roles.cache.random().id + '> Verificar. /split/ ¡Haz click en el botón de abajo para verificarte!' })
+                .addFields({ name: 'Verificación tipo 4:', value: '`Una verificación completamente automática que se basará en el sistema antitokens. Si el bot no detecta ningún problema, se le agregará el rol de usuario verificado.`\n\n**Activar con:**\n--v4 <roleMention>\n**Ejemplo:**\n--v4 <@&' + message.guild.roles.cache.random().id + '>' })
             ] });
             let collector = message.channel.createMessageCollector({ time: 60000 });
             collector.on('collect', async m => {
@@ -84,7 +84,7 @@ module.exports = {
                             messageContent = m.content.split(' /split/ ')[1];
                         }
 
-                        client.channels.cache.get(channelMention.id).send({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${messageContent}`) ], components: [ new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId('verifyButton').setLabel(`${buttonContent}`).setStyle('PRIMARY')) ] });
+                        client.channels.cache.get(channelMention.id).send({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${messageContent}`) ], components: [ new Discord.ActionRowBuilder().addComponents(new Discord.ButtonBuilder().setCustomId('verifyButton').setLabel(`${buttonContent}`).setStyle('PRIMARY')) ] });
                         message.channel.send({ content: 'Sistema activado, ya he enviado el botón en el canal de verificación.' });
                     }else if(m.content.split(' ')[0] == '--v4') {
                         if(_guild.protection.antitokens.enable == false) {

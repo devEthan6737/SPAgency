@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired } = require("../../functions");
 const Warns = require('../../schemas/warnsSchema');
 const db = require('megadb');
@@ -14,7 +14,7 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send(`${LANG.data.permissionsMessages}.`);
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages))return message.channel.send(`${LANG.data.permissionsMessages}.`);
 
         let userMention = message.mentions.members.first();
         if(!userMention)return message.reply(await dataRequired('' + LANG.commands.mod.warns.message1 + '.\n\n' + _guild.configuration.prefix + 'warn-list <userMention>'));
@@ -23,6 +23,6 @@ module.exports = {
         if(!userWarns)return message.reply({ content: `${LANG.commands.mod.warns.message2}.` });
 
         let cc = 1;
-        message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${LANG.commands.mod.warns.message3} ${userWarns.warns.length} ${LANG.commands.mod.warns.message4} <@${userMention.id}>.\n\n${userWarns.warns.map(x => `\`${cc++}-\` __${x.reason}__, ${LANG.commands.mod.warns.message5}: <@${x.moderator}>`).join('\n')}`) ] });
+        message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${LANG.commands.mod.warns.message3} ${userWarns.warns.length} ${LANG.commands.mod.warns.message4} <@${userMention.id}>.\n\n${userWarns.warns.map(x => `\`${cc++}-\` __${x.reason}__, ${LANG.commands.mod.warns.message5}: <@${x.moderator}>`).join('\n')}`) ] });
     },
 };

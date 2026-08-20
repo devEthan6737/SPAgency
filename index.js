@@ -22,7 +22,8 @@ Vaya al archivo .env para editar la configuración.
 
 const fs = require('fs');
 const package = require('./package.json');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
+const { GatewayIntentBits, Partials } = Discord;
 const client = new Discord.Client({
     shards: 'auto',
     makeCache: Discord.Options.cacheWithLimits({
@@ -48,8 +49,8 @@ const client = new Discord.Client({
         UserManager: Infinity, // client.users
         VoiceStateManager: 0 // guild.voiceStates
     }),
-    intents: [ Discord.Intents.FLAGS.GUILDS, "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_BANS", "GUILDS", "GUILD_EMOJIS_AND_STICKERS", "GUILD_INVITES", "GUILD_WEBHOOKS", "GUILD_INTEGRATIONS", "GUILD_VOICE_STATES", "DIRECT_MESSAGES", "DIRECT_MESSAGE_TYPING", "GUILD_MESSAGE_TYPING", "GUILD_SCHEDULED_EVENTS" ],
-    partials: [ 'CHANNEL', 'GUILD_MEMBER', 'GUILD_SCHEDULED_EVENT', 'MESSAGE', 'REACTION', 'USER' ]
+    intents: [ GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildBans, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildScheduledEvents ],
+    partials: [ Partials.Channel, Partials.GuildMember, Partials.GuildScheduledEvent, Partials.Message, Partials.Reaction, Partials.User ]
 });
 
 const mongoose = require('mongoose');

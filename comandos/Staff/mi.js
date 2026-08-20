@@ -1,5 +1,5 @@
 // Deberías cambiar todo de aquí, en el caso de que no sepas no lo toques y escribe return en la linea 14.
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Malicious = require('../../schemas/maliciousSchema');
 const db = require('megadb');
 const dev = new db.crearDB('devsActivos', 'data_users');
@@ -18,10 +18,10 @@ module.exports = {
             if(!parseInt(args[0]))return message.reply('Ingresa una id.');
             let malicious = await Malicious.findOne({ userId: args[0] });
             if(malicious && malicious.isMalicious) {
-                let embed = new Discord.MessageEmbed()
-                    .setAuthor('Información De Lista Negra.')
+                let embed = new Discord.EmbedBuilder()
+                    .setAuthor({ name: 'Información De Lista Negra.' })
                     .setDescription(`ID: **${args[0]}**\nRazón: \`${malicious.reason}\`\nCastigo termina en/hace: \`${ms(malicious.punishment - Date.now())}\`\nAntecedentes: \`${malicious.record ?? 'Sin antecedentes.'}\`\nEstado: \`${malicious.appealStatus}\``)
-                    .setFooter(`${malicious.proof}`)
+                    .setFooter({ text: `${malicious.proof}` })
                     .setImage(malicious.proof).setColor(0x5c4fff);
                 message.channel.send({ embeds: [ embed ] });
                 if(malicious.record) {

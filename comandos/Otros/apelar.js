@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired } = require('../../functions');
 const Malicious = require('../../schemas/maliciousSchema');
 
@@ -20,12 +20,12 @@ module.exports = {
             if(malicious.appealStatus == 'Aceptado')return message.reply({ content: `${LANG.commands.others.apelar.message4}.` });
             if(!args[0])return message.reply(await dataRequired('' + LANG.commands.others.apelar.message5 + '.\n\n' + _guild.configuration.prefix + 'apelar <message>'));
             if(args.length < 50)return message.reply(`${LANG.commands.others.apelar.message6}.`);
-            let embed = new Discord.MessageEmbed()
+            let embed = new Discord.EmbedBuilder()
                 .setDescription(`Solicitud de apelación.\n\n**${message.author.tag}** | **${message.author.id}**`)
-                .addField('Apelación:', `\`${message}\``)
-                .setFooter(`Servidor: ${message.guild.name} (${message.guild.id})`);
+                .addFields({ name: 'Apelación:', value: `\`${message}\`` })
+                .setFooter({ text: `Servidor: ${message.guild.name} (${message.guild.id})` });
             client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ embed ], components: [
-/* Estos botones no tienen código que los haga funcionar. Puedes quitarlos */                new Discord.MessageActionRow().addComponents(new Discord.MessageButton().setCustomId(`apealAcept-${message.author.id}`).setLabel('Aceptar apelación').setStyle('PRIMARY')).addComponents(new Discord.MessageButton().setCustomId(`deniedApeal-${message.author.id}`).setLabel('Denegar apelación').setStyle('DANGER'))
+/* Estos botones no tienen código que los haga funcionar. Puedes quitarlos */                new Discord.ActionRowBuilder().addComponents(new Discord.ButtonBuilder().setCustomId(`apealAcept-${message.author.id}`).setLabel('Aceptar apelación').setStyle('PRIMARY')).addComponents(new Discord.ButtonBuilder().setCustomId(`deniedApeal-${message.author.id}`).setLabel('Denegar apelación').setStyle('DANGER'))
             ] });
             message.reply({ content: `<@${message.author.id}> ${LANG.commands.others.apelar.message7}` });
             malicious.appealStatus = 'En Espera';

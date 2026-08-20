@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Timers = require('../../schemas/timersSchema');
 const { dataRequired, updateDataBase } = require('../../functions');
 const ms = require('ms');
@@ -13,8 +13,8 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-		if(!message.guild.me.permissions.has('MANAGE_ROLES')) return message.channel.send({ content: LANG.data.permissionsRolesme });
-		if(!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsKick });
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageRoles)) return message.channel.send({ content: LANG.data.permissionsRolesme });
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.KickMembers)) return message.channel.send({ content: LANG.data.permissionsKick });
         if(!_guild.moderation.dataModeration.muterole)return message.channel.send(LANG.commands.mod.mute.message1.replace('<prefix>', _guild.configuration.prefix));
 
 		let userMention = message.mentions.members.first();

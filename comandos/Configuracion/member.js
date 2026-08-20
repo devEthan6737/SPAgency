@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired } = require('../../functions');
 
 module.exports = {
@@ -12,20 +12,20 @@ module.exports = {
         try{
             let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-            if(!message.guild.me.permissions.has('ADMINISTRATOR')) return message.reply(LANG.data.permissionsADMINme);
+            if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator)) return message.reply(LANG.data.permissionsADMINme);
 
             let member = message.mentions.members.first();
             if(!member)return message.reply(await dataRequired(LANG.commands.config.member.message1 + '\n\n' + _guild.configuration.prefix + LANG.commands.config.member.message2));
             if(!args[1])return message.reply(await dataRequired(LANG.commands.config.member.message3 + '\n\n' + _guild.configuration.prefix + LANG.commands.config.member.message2));
             
             if(args[1] == 'setnickname') {
-                if(!message.member.permissions.has('MANAGE_NICKNAMES'))return message.reply(LANG.data.permissionsMAnageNicknames);
+                if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageNicknames))return message.reply(LANG.data.permissionsMAnageNicknames);
                 if(!args[2])return message.reply(await dataRequired(LANG.commands.config.member.message4 + '\n\n' + _guild.configuration.prefix + LANG.commands.config.member.message5));
                 let newNickname = args.join(' ').split('setNickname ');
                 member.setNickname(newNickname[1]);
                 message.reply(LANG.commands.config.member.message6);
             }else if(args[1] == 'removeRole') {
-                if(!message.member.permissions.has('MANAGE_ROLES'))return message.reply(LANG.data.permissionsManageRoles);
+                if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageRoles))return message.reply(LANG.data.permissionsManageRoles);
                 let roleMention = message.mentions.roles.first();
                 if(!roleMention)return message.reply(await dataRequired(LANG.commands.config.member.message7 + '\n\n' + _guild.configuration.prefix + LANG.commands.config.member.message8));
                 if(roleMention.position > message.member.roles.highest.position)return message.reply(LANG.commands.config.member.message9);
@@ -33,7 +33,7 @@ module.exports = {
                 member.roles.remove(roleMention.id).catch(err => {});
                 message.reply(LANG.commands.config.member.message11);
             }else if(args[1] == 'addRole') {
-                if(!message.member.permissions.has('MANAGE_ROLES'))return message.reply(LANG.data.permissionsManageRoles);
+                if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageRoles))return message.reply(LANG.data.permissionsManageRoles);
                 let roleMention = message.mentions.roles.first();
                 if(!roleMention)return message.reply(await dataRequired(LANG.commands.config.member.message7 + '\n\n' + _guild.configuration.prefix + LANG.commands.config.member.message8));
                 if(roleMention.position > message.member.roles.highest.position)return message.reply(LANG.commands.config.member.message9);
@@ -52,8 +52,8 @@ module.exports = {
     
                 message.reply({
                     embeds: [
-                        new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(member.user.tag, member.user.displayAvatarURL())
-                        .setDescription(`ID & NICKNAME: \`${ member.nickname ?? 'Sin apodo.' } (${ member.user.id })\`\nEntrada en el servidor: \`${ new Date(member.joinedTimestamp) }\`\nBanderas: \`${ member.user.flags.bitfield }\`\nBot: \`${ member.user.bot ? 'Es un bot.' : 'No es un bot' }\`\nRol más alto: \`${ member.roles.highest.name }\`\nAdmin: \`${ member.permissions.has('ADMINISTRATOR') ? 'Sí.' : 'No.' }\`\nRoles: \`${ herRoles.map(x => `\`${x}\``).join(', ') }\``)
+                        new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: member.user.tag, iconURL: member.user.displayAvatarURL() })
+                        .setDescription(`ID & NICKNAME: \`${ member.nickname ?? 'Sin apodo.' } (${ member.user.id })\`\nEntrada en el servidor: \`${ new Date(member.joinedTimestamp) }\`\nBanderas: \`${ member.user.flags.bitfield }\`\nBot: \`${ member.user.bot ? 'Es un bot.' : 'No es un bot' }\`\nRol más alto: \`${ member.roles.highest.name }\`\nAdmin: \`${ member.permissions.has(Discord.PermissionFlagsBits.Administrator) ? 'Sí.' : 'No.' }\`\nRoles: \`${ herRoles.map(x => `\`${x}\``).join(', ') }\``)
                     ]
                 });
             }else{

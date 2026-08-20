@@ -1,3 +1,4 @@
+const { PermissionFlagsBits } = require('discord.js');
 const { dataRequired } = require('../../functions');
 
 module.exports = {
@@ -8,8 +9,8 @@ module.exports = {
 	description: 'Banea a un usuario que no esté dentro de tu gremio.',
 	usage: ['<prefix>hackban <userId>'],
 	run: async (client, message, args, _guild) => {
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Necesito permiso de __Banear Miembros__.');
-		if(!message.member.permissions.has('BAN_MEMBERS'))return message.channel.send('Necesitas permisos de __Banear Miembros__.');
+		if(!message.guild.me.permissions.has(PermissionFlagsBits.BanMembers)) return message.channel.send('Necesito permiso de __Banear Miembros__.');
+		if(!message.member.permissions.has(PermissionFlagsBits.BanMembers))return message.channel.send('Necesitas permisos de __Banear Miembros__.');
         if(!args[0])return message.reply(await dataRequired('No has escrito la id de la persona.\n\n' + _guild.configuration.prefix + 'hackban <userId>'));
 		if(isNaN(args[0]))return message.channel.send('Eso no era una id.');
 		try{

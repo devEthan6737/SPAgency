@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired, pulk } = require('../../functions');
 
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
     run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send(`${LANG.data.permissionsADMINme}.`);
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send(`${LANG.data.permissionsADMINme}.`);
         if(message.author.id != message.guild.ownerId)return message.reply({ content: `${LANG.data.permissionsOwner}.` });
 
         if(!args[0])return message.reply(await dataRequired('' + LANG.commands.protect.bebn.message1 + '.\n\n' + _guild.configuration.prefix + 'bebn {add, remove, clearAll}'));
@@ -27,7 +27,7 @@ module.exports = {
 
             if(_guild.protection.bloqEntritiesByName.names.length == 0)return message.reply({ content: `${LANG.commands.protect.bebn.message5}.` });
             let cc = 1;
-            message.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`${LANG.commands.protect.bebn.message6}.\n\n${_guild.protection.bloqEntritiesByName.names.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] }).catch(err => {});
+            message.reply({ embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`${LANG.commands.protect.bebn.message6}.\n\n${_guild.protection.bloqEntritiesByName.names.map(x => `\`${cc++}-\` ${x}`).join('\n')}`) ] }).catch(err => {});
             let collector = message.channel.createMessageCollector({ time: 15000 });
             collector.on('collect', async m => {
                 if(m.content == '')return;

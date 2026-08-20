@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 
 module.exports = { 
 	nombre: 'nuke',
@@ -10,8 +10,8 @@ module.exports = {
 	run: async (client, message) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-		if(!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.channel.send(LANG.data.permissionsChannelsMe);
-		if(!message.member.permissions.has('MANAGE_CHANNELS'))return message.channel.send(LANG.data.permissionsChannelsU);
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.ManageChannels)) return message.channel.send(LANG.data.permissionsChannelsMe);
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageChannels))return message.channel.send(LANG.data.permissionsChannelsU);
 
         message.reply({ content: LANG.commands.mod.nuke.message1 });
         let collector = message.channel.createMessageCollector({ time: 15000 });

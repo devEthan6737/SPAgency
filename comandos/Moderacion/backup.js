@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Backup = require('../../schemas/backupsSchema');
 const byteSize = require('byte-size');
 const { dataRequired } = require('../../functions');
@@ -13,7 +13,7 @@ module.exports = {
 	description: 'Realiza una copia de seguridad de tu servidor .',
 	usage: ['<prefix>backup {create, delete, update, load, info} <password>'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
         if(message.author.id != message.guild.ownerId)return message.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.' });
 
         let _backup = await Backup.findOne({ guildId: message.guild.id });
@@ -136,7 +136,7 @@ module.exports = {
                 let cORu;
                 if(args[0] == 'update') cORu = 'actualizado'; else cORu = 'creado';
                 wait.edit({ content: `Backup ${cORu} con éxito:`, embeds: [
-                    new Discord.MessageEmbed().setColor(0x0056ff).setDescription(`\`\`\`${newBackup.channels.text.length + newBackup.channels.noCategory.length} canales guardados.\n${newBackup.channels.category.length} categorías guardadas.\n${newBackup.roles.length} roles guardados.\n${bans.size} usuarios baneados han sido guardados.\nPeso del backup: ${memory.value}${memory.unit} (${memory.long})\`\`\``)
+                    new Discord.EmbedBuilder().setColor(0x0056ff).setDescription(`\`\`\`${newBackup.channels.text.length + newBackup.channels.noCategory.length} canales guardados.\n${newBackup.channels.category.length} categorías guardadas.\n${newBackup.roles.length} roles guardados.\n${bans.size} usuarios baneados han sido guardados.\nPeso del backup: ${memory.value}${memory.unit} (${memory.long})\`\`\``)
                 ] });
             });
         }else if(args[0] == 'load') {
@@ -268,9 +268,9 @@ module.exports = {
             memory = byteSize(memory);
 
             message.reply({ content: 'Información de backup:', embeds: [
-                new Discord.MessageEmbed().setColor(0x0056ff).setFooter(_backup.name, _backup.icon).setAuthor('Canales:').setDescription(`\`\`\`${orderChannels.noCategory.map(x => `  [-] ${x}`).join('\n')}\n\n${ orderChannels.array.map(x => `[+] ${x}\n${ orderChannels[x].map(i => `  [-] ${i}`).join('\n') }`).join('\n\n') }\`\`\``),
-                new Discord.MessageEmbed().setColor(0x0056ff).setFooter(_backup.name, _backup.icon).setAuthor('Roles:').setDescription(`\`\`\`${_backup.roles.map(x => `[+] ${x.name}`).join('\n')}\`\`\``),
-                new Discord.MessageEmbed().setColor(0x0056ff).setFooter(_backup.name, _backup.icon).setAuthor('Otros datos:').setDescription(`\`\`\`${_backup.bans.length} usuarios baneados han sido guardados.\nPeso del backup: ${memory.value}${memory.unit} (${memory.long})\`\`\``)
+                new Discord.EmbedBuilder().setColor(0x0056ff).setFooter({ text: _backup.name, iconURL: _backup.icon }).setAuthor({ name: 'Canales:' }).setDescription(`\`\`\`${orderChannels.noCategory.map(x => `  [-] ${x}`).join('\n')}\n\n${ orderChannels.array.map(x => `[+] ${x}\n${ orderChannels[x].map(i => `  [-] ${i}`).join('\n') }`).join('\n\n') }\`\`\``),
+                new Discord.EmbedBuilder().setColor(0x0056ff).setFooter({ text: _backup.name, iconURL: _backup.icon }).setAuthor({ name: 'Roles:' }).setDescription(`\`\`\`${_backup.roles.map(x => `[+] ${x.name}`).join('\n')}\`\`\``),
+                new Discord.EmbedBuilder().setColor(0x0056ff).setFooter({ text: _backup.name, iconURL: _backup.icon }).setAuthor({ name: 'Otros datos:' }).setDescription(`\`\`\`${_backup.bans.length} usuarios baneados han sido guardados.\nPeso del backup: ${memory.value}${memory.unit} (${memory.long})\`\`\``)
             ] });
         }else{
             message.reply(await dataRequired('Debes indicar la función del comando.\n\n' + _guild.configuration.prefix + 'backups {create, delete, update, load, info}'));

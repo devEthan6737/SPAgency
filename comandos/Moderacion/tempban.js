@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const Timers = require('../../schemas/timersSchema');
 const { dataRequired, updateDataBase } = require('../../functions');
 const ms = require('ms');
@@ -13,8 +13,8 @@ module.exports = {
 	run: async (client, message, args, _guild) => {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
-		if(!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBanMe });
-		if(!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send({ content: LANG.data.permissionsBan });
+		if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send({ content: LANG.data.permissionsBanMe });
+		if(!message.member.permissions.has(Discord.PermissionFlagsBits.BanMembers)) return message.channel.send({ content: LANG.data.permissionsBan });
 
 		let userMention = message.mentions.members.first();
         if(!userMention)return message.reply(await dataRequired(LANG.commands.mod.tempban.message1 + _guild.configuration.prefix + LANG.commands.mod.tempban.message2));
@@ -40,7 +40,7 @@ module.exports = {
 		let userID = client.users.cache.get(userMention.id);
 		userID.send(LANG.commands.mod.tempban.message12 + message.guild.name + LANG.commands.mod.tempban.message13 + args[1] + '\n' + LANG.commands.mod.tempban.message14 + message.author.tag + LANG.commands.mod.tempban.message15 + args.join(' ').split(`${args[1]} `)[1] + '`').then(x => {
             userMention.ban({ reason: args.join(' ').split(`${args[1]} `)[1] });
-            let banEmbed = new Discord.MessageEmbed()
+            let banEmbed = new Discord.EmbedBuilder()
 			.setDescription(`${LANG.commands.mod.tempban.message16} <@${userMention.id}> (${userMention.id})${LANG.commands.mod.tempban.message14} <@${message.author.id}> (${message.author.id})${LANG.commands.mod.tempban.message15} \`${args.join(' ').split(`${args[1]} `)[1]}\`\n${LANG.commands.mod.tempban.message17} \`${args[1]}\``)
 			.setTimestamp().setColor(0x5c4fff);
             message.channel.send({ embeds: [ banEmbed ] });

@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired, pulk, updateDataBase } = require("../../functions");
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
         try{
-            if(!message.member.permissions.has('MANAGE_CHANNELS'))return message.reply({ content: LANG.data.permissionsChannelsU });
+            if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageChannels))return message.reply({ content: LANG.data.permissionsChannelsU });
             if(!args[0])return message.reply(await dataRequired(LANG.commands.config.ignorethischannel.message1 + _guild.configuration.prefix + LANG.commands.config.ignorethischannel.message2));
 
             if(args[0] == 'enable') {

@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { intelligentSOS, fecthDataBase, updateDataBase } = require('../functions');
 
 module.exports = async (client, channel) => {
@@ -7,13 +7,13 @@ module.exports = async (client, channel) => {
 
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
-    channel.guild.fetchAuditLogs({ type: 'UPDATE_CHANNEL' }).then(async logs => {
+    channel.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.ChannelUpdate }).then(async logs => {
         let prsn = logs.entries.first().executor;
 
         if(_guild.configuration.whitelist.includes(prsn.id))return; // Whitelist.
 
         try{
-            if(channel.guild.me.permissions.has('BAN_MEMBERS')) {
+            if(channel.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
 
                 // Antiraid:
                 if(_guild.protection.antiraid.enable == true) {

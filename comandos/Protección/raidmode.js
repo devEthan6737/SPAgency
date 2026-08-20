@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const ms = require('ms');
 const { dataRequired, updateDataBase } = require('../../functions');
 
@@ -10,7 +10,7 @@ module.exports = {
     description: "¿Te amanzan con raidear tu servidor? Con este sistema nadie podrá tocarte.",
     usage: ['<prefix>raidmode [time]'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('ADMINISTRATOR'))return message.channel.send('Necesito permiso de __Administrador__.');
+        if(!message.guild.me.permissions.has(Discord.PermissionFlagsBits.Administrator))return message.channel.send('Necesito permiso de __Administrador__.');
         if(message.author.id != message.guild.ownerId)return message.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.' });
 
         if(_guild.protection.raidmode.enable == false) {
@@ -52,10 +52,10 @@ module.exports = {
                 /* Other systems */
 
                 message.reply({ content: `He activado el sistema, para activarlo vuelve a escribir el comando.\nEl sistema raidmode será desactivado automáticamente en \`${ms(time)}\`.`, embeds: [
-                    new Discord.MessageEmbed().setColor(0x0056ff).setDescription('`>` __Raidmode preparado:__\n\n1 **::** __Solo el propietario__ puede `gestionar canales`.\n2 **::** __Solo el propietario__ puede `banear miembros`.\n3 **::** __Solo el propietario__ puede `gestionar roles`.\n4 **::** __Solo el propietario__ puede `desactivar este comando`.\n5 **::** __Nadie__ puede `añadir bots`.\n6 **::** __Ningún usuario malicioso__ puede `ingresar al servidor`.\n7 **::** __Todos las cuentas que ingresen al servidor__ deben tener `30 días de antiguedad`.')
-                    .addField('> Detección de usuarios y forceban:', 'He activado dos comandos que pueden interesarte: `' + _guild.configuration.prefix + 'forceban` y `' + _guild.configuration.prefix + 'detectar`')
-                    .addField('> Sistemas activados a la fuerza:', 'Los siguientes sistemas fueron activados forzosamente: `Antiraid`, `intelligentAntiflood`, `Antiflood`, `purgeWebhooksAttacks`, `bloqNewCreatedUsers`, `Antitokens`, `intelligentSOS`, `warnEntry`, `kickMalicious`, `Antibots`')
-                    .addField('> Cuidado al desactivarlo:', 'El sistema raidmode es muy exigente, para desactivarlo deberás escribir la contraseña que se te ha enviado por privado. Si al escribirla fallas la contraseña se desactivará y se sumarán `10 días` hasta que se desactive el raidmode.')
+                    new Discord.EmbedBuilder().setColor(0x0056ff).setDescription('`>` __Raidmode preparado:__\n\n1 **::** __Solo el propietario__ puede `gestionar canales`.\n2 **::** __Solo el propietario__ puede `banear miembros`.\n3 **::** __Solo el propietario__ puede `gestionar roles`.\n4 **::** __Solo el propietario__ puede `desactivar este comando`.\n5 **::** __Nadie__ puede `añadir bots`.\n6 **::** __Ningún usuario malicioso__ puede `ingresar al servidor`.\n7 **::** __Todos las cuentas que ingresen al servidor__ deben tener `30 días de antiguedad`.')
+                    .addFields({ name: '> Detección de usuarios y forceban:', value: 'He activado dos comandos que pueden interesarte: `' + _guild.configuration.prefix + 'forceban` y `' + _guild.configuration.prefix + 'detectar`' })
+                    .addFields({ name: '> Sistemas activados a la fuerza:', value: 'Los siguientes sistemas fueron activados forzosamente: `Antiraid`, `intelligentAntiflood`, `Antiflood`, `purgeWebhooksAttacks`, `bloqNewCreatedUsers`, `Antitokens`, `intelligentSOS`, `warnEntry`, `kickMalicious`, `Antibots`' })
+                    .addFields({ name: '> Cuidado al desactivarlo:', value: 'El sistema raidmode es muy exigente, para desactivarlo deberás escribir la contraseña que se te ha enviado por privado. Si al escribirla fallas la contraseña se desactivará y se sumarán `10 días` hasta que se desactive el raidmode.' })
                 ] });
 
                 message.content = `${_guild.configuration.prefix}detectar`;

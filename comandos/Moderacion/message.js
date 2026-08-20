@@ -1,4 +1,4 @@
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { dataRequired } = require('../../functions');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
         let LANG = require(`../../LANG/${_guild.configuration.language}.json`);
 
         client = {};
-        if(!message.member.permissions.has('MANAGE_MESSAGES'))return message.channel.send(`${LANG.data.permissionsMessages}.`);
+        if(!message.member.permissions.has(Discord.PermissionFlagsBits.ManageMessages))return message.channel.send(`${LANG.data.permissionsMessages}.`);
         if(!args[0])return message.reply(await dataRequired(LANG.commands.mod.message.message1 + '\n\n' + _guild.configuration.prefix + 'message {content: hola} {title: Un título en un embed} {author: Un autor en un embed} {color: Un color en un embed} {image: Una imagen en un embed} {description: Una descripción en un embed} {footer: Un footer en un embed} {thumbnail: Un thumbnail en un embed} {addField: hola, soy un bot hermoso} {reply: false}'));
 		try{
 			let _message = args.join(' ').split('{').join('').split('}');
@@ -44,17 +44,17 @@ module.exports = {
 
             let embed;
             if(title || author || image || description || footer || thumbnail) {
-                embed = new Discord.MessageEmbed();
+                embed = new Discord.EmbedBuilder();
                 embed.setColor(`${color ?? 0x0056ff}`)
                 if(title) embed.setTitle(`${title}`)
-                if(author) embed.setAuthor(`${author}`)
+                if(author) embed.setAuthor({ name: `${author}` })
                 if(image) embed.setImage(`${image}`)
                 if(description) embed.setDescription(`${description}`)
-                if(footer) embed.setFooter(`${footer}`)
+                if(footer) embed.setFooter({ text: `${footer}` })
                 if(thumbnail) embed.setThumbnail(`${thumbnail}`)
                 
                 for(x of fields) {
-                    embed.addField(`${x.split(',')[0]}`, `${x.split(', ')[1]}`);
+                    embed.addFields({ name: `${x.split(',')[0]}`, value: `${x.split(', ')[1]}` });
                 }
             }
             

@@ -1,5 +1,5 @@
 const Guild = require('../schemas/guildsSchema');
-const Discord = require('discord.js-light');
+const Discord = require('discord.js');
 const { intelligentSOS, fecthDataBase, updateDataBase } = require('../functions');
 
 module.exports = async (client, role) => {
@@ -9,13 +9,13 @@ module.exports = async (client, role) => {
         if(!_guild)return;
         let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
-        role.guild.fetchAuditLogs({ type: 'DELETE_ROLE' }).then(async logs => {
+        role.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.RoleDelete }).then(async logs => {
             let prsn = logs.entries.first().executor;
 
             // Logs:
             try{
                 if(_guild.configuration.logs[0]) {
-                    client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.roleDelete.logMessage1}.`, embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(prsn.tag, prsn.displayAvatarURL()).addField(`${LANG.events.roleDelete.logMessage1}:`, `\`${role.name} (${role.id})\``, true) ] }).catch(err => {});
+                    client.channels.cache.get(_guild.configuration.logs[0]).send({ content: `\`LOG:\` ${LANG.events.roleDelete.logMessage1}.`, embeds: [ new Discord.EmbedBuilder().setColor(0x0056ff).setAuthor({ name: prsn.tag, iconURL: prsn.displayAvatarURL() }).addFields({ name: `${LANG.events.roleDelete.logMessage1}:`, value: `\`${role.name} (${role.id})\``, inline: true }) ] }).catch(err => {});
                 }
             }catch(err) {
                 client.channels.cache.get(_guild.configuration.logs[1]).send({ content: `Logs error (roleDelete): \`${err}\`` }).catch(() => {});
@@ -26,7 +26,7 @@ module.exports = async (client, role) => {
             if(_guild.configuration.whitelist.includes(prsn.id))return; // Whitelist.
 
             // Antiraid:
-            if(role.guild.me.permissions.has('BAN_MEMBERS')) {
+            if(role.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                 if(_guild.protection.antiraid.enable == true) {
                     let cache = await client.super.cache.get(role.guild.id, true);
 
@@ -56,7 +56,7 @@ module.exports = async (client, role) => {
 
             // Raidmode
             if(_guild.protection.raidmode.enable == true) {
-                if(role.guild.me.permissions.has('BAN_MEMBERS')) {
+                if(role.guild.me.permissions.has(Discord.PermissionFlagsBits.BanMembers)) {
                     await role.guild.members.ban(prsn, { reason: 'Raidmode.' }).catch(e => {});
                 }
             }
