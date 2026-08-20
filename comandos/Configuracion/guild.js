@@ -17,7 +17,7 @@ module.exports = {
             if(!args[0])return message.reply(await dataRequired(LANG.commands.config.guild.message1 + _guild.configuration.prefix + LANG.commands.config.guild.message2));
             
             if(args[0] == 'createInvite') {
-                if(message.member.permissions.has('CREATE_INSTANT_INVITE'))return message.reply({ content: LANG.data.permissionsCreateInvite });
+                if(message.member.permissions.has(Discord.PermissionFlagsBits.CreateInstantInvite))return message.reply({ content: LANG.data.permissionsCreateInvite });
                 let invite = await message.guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
                 message.reply({ content: `${invite}` });
             }else if(args[0] == 'setName') {

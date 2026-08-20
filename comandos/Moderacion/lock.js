@@ -7,7 +7,7 @@ module.exports = {
 	description: 'Bloquea un canal para que solo el personal pueda enviar mensajes.',
 	usage: ['<prefix>lock [@roleMention]'],
     run: async (client, message, args, _guild) => {
-        if(!message.guild.me.permissions.has('MANAGE_CHANNLES'))return message.reply('Necesito permisos de __Gestionar canales__.');
+        if(!message.guild.me.permissions.has(PermissionFlagsBits.ManageChannels))return message.reply('Necesito permisos de __Gestionar canales__.');
         if(!message.member.permissions.has(PermissionFlagsBits.ManageChannels))return message.reply('Necesitas permisos de __Gestionar canales__.');
 
         try{
