@@ -9,7 +9,7 @@ module.exports = async (client, role) => {
         if(!_guild)return;
         let LANG = require(`../LANG/${_guild.configuration.language}.json`);
 
-        role.guild.fetchAuditLogs({ type: 'CREATE_ROLE' }).then(async logs => {
+        role.guild.fetchAuditLogs({ type: Discord.AuditLogEvent.RoleCreate }).then(async logs => {
             let prsn = logs.entries.first().executor;
             
             // Logs:
