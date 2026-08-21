@@ -11,5 +11,18 @@ export default {
                     `🌐 Latencia del mensaje: \`${message}ms\`\n🤖 Latencia de la API: \`${api}ms\`\n📚 Latencia de la base de datos: \`${database}ms\``
             }
         }
+    },
+    systems: {
+        logs: {
+            events: {
+                memberJoin: (userId: string) => `📥 <@${userId}> se ha unido al servidor.`,
+                memberLeave: (userId: string) => `📤 <@${userId}> ha salido del servidor.`
+            },
+            actions: {
+                ban: (userId: string, reason?: string) =>
+                    `🔨 <@${userId}> ha sido baneado.` + (reason ? `\n**Razón:** ${reason}` : ''),
+                warn: (userId: string, reason: string) => `⚠️ <@${userId}> ha sido advertido.\n**Razón:** ${reason}`
+            }
+        }
     }
 };
