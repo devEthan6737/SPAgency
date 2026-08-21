@@ -11,6 +11,13 @@ const client = new Client({
 client.setServices({
     cache: {
         disabledCache: { bans: true, emojis: true, stickers: true, roles: true, presences: true }
+    },
+    langs: {
+        default: 'es',
+        aliases: {
+            es: ['es-ES'],
+            en: ['en-US', 'en-GB']
+        }
     }
 });
 

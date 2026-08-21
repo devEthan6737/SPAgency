@@ -7,7 +7,7 @@ import { Command, Declare, type CommandContext } from 'seyfert';
 export default class PingCommand extends Command {
     async run(ctx: CommandContext) {
         const start = Date.now();
-        await ctx.write({ content: 'Calculando...' });
-        await ctx.editOrReply({ content: `Pong! ${Date.now() - start}ms` });
+        await ctx.write({ content: ctx.t.general.calculating.get() });
+        await ctx.editOrReply({ content: ctx.t.general.pong(Date.now() - start).get() });
     }
 }
