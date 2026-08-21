@@ -10,6 +10,17 @@ export default {
                 withDatabase: (message: number, api: number, database: number) =>
                     `🌐 Message latency: \`${message}ms\`\n🤖 API latency: \`${api}ms\`\n📚 Database latency: \`${database}ms\``
             }
+        },
+        others: {
+            commands: {
+                name: 'commands',
+                description: "Get all the bot's commands.",
+                intro: 'Here are all my commands.',
+                categories: {
+                    configuration: '⚙️ Configuration',
+                    others: '📦 Others'
+                }
+            }
         }
     },
     systems: {

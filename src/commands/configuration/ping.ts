@@ -4,7 +4,8 @@ import { db } from '../../database/connection.js';
 
 @Declare({
     name: 'ping',
-    description: 'Muestra la latencia del bot.'
+    description: 'Muestra la latencia del bot.',
+    props: { category: 'configuration' }
 })
 
 @LocalesT('commands.configuration.ping.name', 'commands.configuration.ping.description')

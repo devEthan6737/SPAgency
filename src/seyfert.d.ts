@@ -6,4 +6,9 @@ declare module 'seyfert' {
         langs: typeof es;
         client: Client;
     }
+
+    interface ExtraProps {
+        /** Folder this command lives in under src/commands, used to group it in /commands. */
+        category?: string;
+    }
 }
