@@ -1,6 +1,13 @@
 export default {
-    general: {
-        calculating: 'Calculando...',
-        pong: (ms: number) => `Pong! ${ms}ms`
+    commands: {
+        configuration: {
+            ping: {
+                calculating: 'Calculando...',
+                latency: (message: number, api: number) =>
+                    `🌐 Latencia del mensaje: \`${message}ms\`\n🤖 Latencia de la API: \`${api}ms\``,
+                withDatabase: (message: number, api: number, database: number) =>
+                    `🌐 Latencia del mensaje: \`${message}ms\`\n🤖 Latencia de la API: \`${api}ms\`\n📚 Latencia de la base de datos: \`${database}ms\``
+            }
+        }
     }
 };

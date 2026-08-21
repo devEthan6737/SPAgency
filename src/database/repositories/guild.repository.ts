@@ -1,11 +1,9 @@
 import { eq } from 'drizzle-orm';
-import { connectDatabase } from '../connection.js';
+import { db } from '../connection.js';
 import { guildConfiguration } from '../schema/guild-configuration.js';
 import { guildModeration } from '../schema/guild-moderation.js';
 import { guildProtection } from '../schema/guild-protection.js';
 import { guilds } from '../schema/guild.js';
-
-const db = connectDatabase(process.env.DATABASE_URL!);
 
 export interface GuildConfig {
     core: typeof guilds.$inferSelect;
