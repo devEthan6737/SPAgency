@@ -15,6 +15,13 @@
       "when": 1787333859618,
       "tag": "0001_elite_golden_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787335200000,
+      "tag": "0002_moaning_marvex",
+      "breakpoints": true
     }
   ]
 }

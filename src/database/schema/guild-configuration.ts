@@ -6,10 +6,13 @@ export const guildConfiguration = pgTable('guild_configuration', {
 
     // users/bots exempt from the protection systems
     whitelist: text('whitelist').array().notNull().default([]),
-    // channel ids where bot logs (bans, raid detections...) are sent
-    logs: text('logs').array().notNull().default([]),
     // channels ignored by moderation filters
     ignoreChannels: text('ignore_channels').array().notNull().default([]),
+
+    // server event logs (joins, leaves...) sent to logsChannel. Bot action logs
+    // (bans, warns...) are always saved regardless of this toggle.
+    logsEnable: boolean('logs_enable').notNull().default(true),
+    logsChannel: text('logs_channel'),
 
     // 2fa: locks bot commands behind a password (2fa.js)
     passwordEnable: boolean('password_enable').notNull().default(false),
