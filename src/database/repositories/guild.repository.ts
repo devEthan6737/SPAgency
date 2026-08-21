@@ -13,6 +13,12 @@ export interface GuildConfig {
 }
 
 export class GuildRepository {
+    /** Single-column lookup for the message prefix handler, avoids the full joined get(). */
+    static async getPrefix(id: string): Promise<string | null> {
+        const [row] = await db.select({ prefix: guilds.prefix }).from(guilds).where(eq(guilds.id, id));
+        return row?.prefix ?? null;
+    }
+
     static async get(id: string): Promise<GuildConfig | null> {
         const [row] = await db
             .select()

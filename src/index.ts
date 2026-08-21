@@ -1,10 +1,14 @@
 import { Client } from 'seyfert';
 import 'dotenv/config';
+import { GuildRepository } from './database/repositories/guild.repository.js';
 import { commandDefaults } from './systems/commands/defaults.js';
 
 const client = new Client({
     commands: {
-        prefix: () => [process.env.PREFIX ?? '!'],
+        prefix: async (message) => {
+            const prefix = message.guildId ? await GuildRepository.getPrefix(message.guildId) : null;
+            return [prefix ?? process.env.PREFIX ?? 'sp!'];
+        },
         reply: () => true,
         defaults: commandDefaults
     }
