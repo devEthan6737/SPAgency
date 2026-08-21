@@ -1,11 +1,14 @@
 import { sql } from 'drizzle-orm';
-import { Command, Declare, type CommandContext } from 'seyfert';
+import { Command, Declare, LocalesT, type CommandContext } from 'seyfert';
 import { db } from '../../database/connection.js';
 
 @Declare({
     name: 'ping',
     description: 'Muestra la latencia del bot.'
 })
+
+@LocalesT('commands.configuration.ping.name', 'commands.configuration.ping.description')
+
 export default class PingCommand extends Command {
     async run(ctx: CommandContext) {
         const start = Date.now();

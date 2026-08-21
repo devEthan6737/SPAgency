@@ -2,6 +2,8 @@ export default {
     commands: {
         configuration: {
             ping: {
+                name: 'ping',
+                description: 'Muestra la latencia del bot.',
                 calculating: 'Calculando...',
                 latency: (message: number, api: number) =>
                     `🌐 Latencia del mensaje: \`${message}ms\`\n🤖 Latencia de la API: \`${api}ms\``,
