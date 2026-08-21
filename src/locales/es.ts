@@ -44,6 +44,13 @@ export default {
                     `🔨 <@${userId}> ha sido baneado.` + (reason ? `\n**Razón:** ${reason}` : ''),
                 warn: (userId: string, reason: string) => `⚠️ <@${userId}> ha sido advertido.\n**Razón:** ${reason}`
             }
+        },
+        commands: {
+            optionsError: (options: string) => `❌ Revisa lo que has escrito, algo no es válido: \`${options}\`.`,
+            permissionsFail: (permissions: string) => `❌ Te faltan permisos para usar esto: \`${permissions}\`.`,
+            botPermissionsFail: (permissions: string) => `❌ Me faltan permisos para hacer esto: \`${permissions}\`.`,
+            middlewaresError: (reason: string) => `❌ ${reason}`,
+            runError: '❌ Ha ocurrido un error al ejecutar el comando.'
         }
     }
 };

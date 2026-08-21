@@ -44,6 +44,13 @@ export default {
                     `🔨 <@${userId}> has been banned.` + (reason ? `\n**Reason:** ${reason}` : ''),
                 warn: (userId: string, reason: string) => `⚠️ <@${userId}> has been warned.\n**Reason:** ${reason}`
             }
+        },
+        commands: {
+            optionsError: (options: string) => `❌ Check what you wrote, something isn't valid: \`${options}\`.`,
+            permissionsFail: (permissions: string) => `❌ You're missing permissions to use this: \`${permissions}\`.`,
+            botPermissionsFail: (permissions: string) => `❌ I'm missing permissions to do this: \`${permissions}\`.`,
+            middlewaresError: (reason: string) => `❌ ${reason}`,
+            runError: '❌ Something went wrong running that command.'
         }
     }
 };

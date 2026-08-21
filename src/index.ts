@@ -1,10 +1,12 @@
 import { Client } from 'seyfert';
 import 'dotenv/config';
+import { commandDefaults } from './systems/commands/defaults.js';
 
 const client = new Client({
     commands: {
         prefix: () => [process.env.PREFIX ?? '!'],
-        reply: () => true
+        reply: () => true,
+        defaults: commandDefaults
     }
 });
 
