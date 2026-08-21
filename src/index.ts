@@ -14,7 +14,7 @@ client.setServices({
     }
 });
 
-client.start();
+await client.start();
 
 process.on('unhandledRejection', (err) => {
     console.error(err);

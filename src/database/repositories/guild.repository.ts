@@ -1,0 +1,66 @@
+import { eq } from 'drizzle-orm';
+import { connectDatabase } from '../connection.js';
+import { guildConfiguration } from '../schema/guild-configuration.js';
+import { guildModeration } from '../schema/guild-moderation.js';
+import { guildProtection } from '../schema/guild-protection.js';
+import { guilds } from '../schema/guild.js';
+
+const db = connectDatabase(process.env.DATABASE_URL!);
+
+export interface GuildConfig {
+    core: typeof guilds.$inferSelect;
+    protection: typeof guildProtection.$inferSelect;
+    moderation: typeof guildModeration.$inferSelect;
+    configuration: typeof guildConfiguration.$inferSelect;
+}
+
+export class GuildRepository {
+    static async get(id: string): Promise<GuildConfig | null> {
+        const [row] = await db
+            .select()
+            .from(guilds)
+            .innerJoin(guildProtection, eq(guildProtection.guildId, guilds.id))
+            .innerJoin(guildModeration, eq(guildModeration.guildId, guilds.id))
+            .innerJoin(guildConfiguration, eq(guildConfiguration.guildId, guilds.id))
+            .where(eq(guilds.id, id));
+
+        if (!row) return null;
+
+        return {
+            core: row.guilds,
+            protection: row.guild_protection,
+            moderation: row.guild_moderation,
+            configuration: row.guild_configuration
+        };
+    }
+
+    static async findOrCreate(id: string, ownerId: string): Promise<GuildConfig> {
+        const existing = await GuildRepository.get(id);
+        if (existing) return existing;
+
+        await db.transaction(async (tx) => {
+            await tx.insert(guilds).values({ id, ownerId });
+            await tx.insert(guildProtection).values({ guildId: id });
+            await tx.insert(guildModeration).values({ guildId: id });
+            await tx.insert(guildConfiguration).values({ guildId: id });
+        });
+
+        return (await GuildRepository.get(id))!;
+    }
+
+    static updateCore(id: string, patch: Partial<typeof guilds.$inferInsert>) {
+        return db.update(guilds).set(patch).where(eq(guilds.id, id)).returning();
+    }
+
+    static updateProtection(id: string, patch: Partial<typeof guildProtection.$inferInsert>) {
+        return db.update(guildProtection).set(patch).where(eq(guildProtection.guildId, id)).returning();
+    }
+
+    static updateModeration(id: string, patch: Partial<typeof guildModeration.$inferInsert>) {
+        return db.update(guildModeration).set(patch).where(eq(guildModeration.guildId, id)).returning();
+    }
+
+    static updateConfiguration(id: string, patch: Partial<typeof guildConfiguration.$inferInsert>) {
+        return db.update(guildConfiguration).set(patch).where(eq(guildConfiguration.guildId, id)).returning();
+    }
+}
