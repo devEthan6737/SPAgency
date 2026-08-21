@@ -19,6 +19,16 @@ export default {
                 categories: {
                     configuration: '⚙️ Configuración',
                     others: '📦 Otros'
+                },
+                option: {
+                    name: 'comando',
+                    description: 'Nombre del comando a consultar.'
+                },
+                notFound: (name: string) => `❌ No existe ningún comando llamado \`${name}\`.`,
+                usage: {
+                    options: 'Opciones',
+                    required: 'requerido',
+                    noOptions: 'Este comando no tiene opciones.'
                 }
             }
         }
