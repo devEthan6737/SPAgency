@@ -115,6 +115,35 @@ export default {
                 bans: { name: 'bans', description: 'Unbans every currently banned user.' }
             }
         },
+        moderation: {
+            lock: {
+                name: 'lock',
+                description: 'Locks the channel so only staff can send messages.',
+                option: { role: { name: 'role', description: 'Role to lock. Defaults to @everyone.' } },
+                done: '🔒 Channel locked.'
+            },
+            unlock: {
+                name: 'unlock',
+                description: 'Unlocks the channel, letting the role send messages again.',
+                option: { role: { name: 'role', description: 'Role to unlock. Defaults to @everyone.' } },
+                done: '🔓 Channel unlocked.'
+            },
+            clear: {
+                name: 'clear',
+                description: 'Bulk-deletes messages from this channel.',
+                option: { amount: { name: 'amount', description: 'How many messages to delete (1-1000).' } },
+                done: (amount: number) => `✅ Deleted \`${amount}\` messages.`
+            },
+            nuke: {
+                name: 'nuke',
+                description: 'Deletes and recreates this channel, wiping all its messages.',
+                notText: '❌ This can only be used in text channels.',
+                confirm: "⚠️ This will delete **all** messages in this channel and can't be undone. Are you sure?",
+                confirmLabel: 'Yes, wipe it',
+                cancelLabel: 'Cancel',
+                done: '✅ Channel reset.'
+            }
+        },
         others: {
             commands: {
                 name: 'commands',
@@ -122,6 +151,7 @@ export default {
                 intro: 'Here are all my commands.',
                 categories: {
                     configuration: '⚙️ Configuration',
+                    moderation: '🛡️ Moderation',
                     others: '📦 Others'
                 },
                 option: {

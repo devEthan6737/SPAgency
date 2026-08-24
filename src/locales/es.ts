@@ -115,6 +115,35 @@ export default {
                 bans: { name: 'bans', description: 'Desbanea a todos los usuarios baneados actualmente.' }
             }
         },
+        moderation: {
+            lock: {
+                name: 'lock',
+                description: 'Bloquea el canal para que solo el staff pueda escribir.',
+                option: { role: { name: 'rol', description: 'Rol a bloquear. Por defecto, @everyone.' } },
+                done: '🔒 Canal bloqueado.'
+            },
+            unlock: {
+                name: 'unlock',
+                description: 'Desbloquea el canal para que el rol pueda volver a escribir.',
+                option: { role: { name: 'rol', description: 'Rol a desbloquear. Por defecto, @everyone.' } },
+                done: '🔓 Canal desbloqueado.'
+            },
+            clear: {
+                name: 'clear',
+                description: 'Borra mensajes de este canal en bloque.',
+                option: { amount: { name: 'cantidad', description: 'Cuántos mensajes borrar (1-1000).' } },
+                done: (amount: number) => `✅ Se han borrado \`${amount}\` mensajes.`
+            },
+            nuke: {
+                name: 'nuke',
+                description: 'Borra y recrea este canal, eliminando todos sus mensajes.',
+                notText: '❌ Esto solo se puede usar en canales de texto.',
+                confirm: '⚠️ Esto borrará **todos** los mensajes de este canal y no se puede deshacer. ¿Seguro?',
+                confirmLabel: 'Sí, borrar todo',
+                cancelLabel: 'Cancelar',
+                done: '✅ Canal reiniciado.'
+            }
+        },
         others: {
             commands: {
                 name: 'comandos',
@@ -122,6 +151,7 @@ export default {
                 intro: 'Aquí tienes todos mis comandos.',
                 categories: {
                     configuration: '⚙️ Configuración',
+                    moderation: '🛡️ Moderación',
                     others: '📦 Otros'
                 },
                 option: {
