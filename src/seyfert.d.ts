@@ -1,10 +1,12 @@
 import type { Client } from 'seyfert';
 import type es from './locales/es.js';
+import type { commandMiddlewares } from './middlewares/isOwner.middleware.js';
 
 declare module 'seyfert' {
     interface SeyfertRegistry {
         langs: typeof es;
         client: Client;
+        middlewares: typeof commandMiddlewares;
     }
 
     interface ExtraProps {

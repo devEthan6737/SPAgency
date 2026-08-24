@@ -2,6 +2,7 @@ import { Client } from 'seyfert';
 import 'dotenv/config';
 import { GuildRepository } from './database/repositories/guild.repository.js';
 import { commandDefaults } from './systems/commands/defaults.js';
+import { commandMiddlewares } from './middlewares/isOwner.middleware.js';
 
 const client = new Client({
     commands: {
@@ -24,7 +25,8 @@ client.setServices({
             es: ['es-ES'],
             en: ['en-US', 'en-GB']
         }
-    }
+    },
+    middlewares: commandMiddlewares
 });
 
 await client.start();

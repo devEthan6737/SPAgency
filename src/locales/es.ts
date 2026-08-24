@@ -59,6 +59,60 @@ export default {
                     verificationLevel: 'Nivel de verificación',
                     boosts: 'Boosts'
                 }
+            },
+            member: {
+                name: 'member',
+                description: 'Gestiona los miembros de tu servidor.',
+                usage: 'Usa `/member set-nickname`, `/member add-role`, `/member remove-role` o `/member info`.',
+                setNickname: {
+                    name: 'set-nickname',
+                    description: 'Cambia el apodo de un miembro.',
+                    option: {
+                        member: { name: 'miembro', description: 'Miembro a editar.' },
+                        nickname: { name: 'apodo', description: 'Nuevo apodo.' }
+                    },
+                    done: '✅ Apodo actualizado.'
+                },
+                addRole: {
+                    name: 'add-role',
+                    description: 'Añade un rol a un miembro.',
+                    done: '✅ Rol añadido.'
+                },
+                removeRole: {
+                    name: 'remove-role',
+                    description: 'Quita un rol a un miembro.',
+                    done: '✅ Rol quitado.'
+                },
+                role: {
+                    option: {
+                        member: { name: 'miembro', description: 'Miembro a editar.' },
+                        role: { name: 'rol', description: 'Rol a añadir/quitar.' }
+                    },
+                    hierarchyError: '❌ No puedes gestionar un rol igual o superior al tuyo.'
+                },
+                info: {
+                    name: 'info',
+                    description: 'Muestra información sobre un miembro.',
+                    option: { member: { name: 'miembro', description: 'Miembro a consultar.' } },
+                    id: 'ID',
+                    nickname: 'Apodo',
+                    noNickname: 'Sin apodo',
+                    joinedAt: 'Entró el',
+                    roles: 'Roles',
+                    noRoles: 'Sin roles'
+                }
+            },
+            unnuke: {
+                name: 'unnuke',
+                description: 'Limpieza automática tras un raid: canales/roles/emojis duplicados, o baneos masivos.',
+                usage: 'Usa `/unnuke channels`, `/unnuke roles`, `/unnuke emojis` o `/unnuke bans`.',
+                onCooldown: '❌ Espera antes de volver a usar este comando (cooldown de 15 minutos).',
+                started: '⏳ Limpiando, esto puede tardar un poco...',
+                done: (removed: number) => `✅ Hecho. Se han eliminado \`${removed}\` entradas.`,
+                channels: { name: 'channels', description: 'Elimina canales duplicados por nombre.' },
+                roles: { name: 'roles', description: 'Elimina roles duplicados por nombre.' },
+                emojis: { name: 'emojis', description: 'Elimina emojis duplicados por nombre.' },
+                bans: { name: 'bans', description: 'Desbanea a todos los usuarios baneados actualmente.' }
             }
         },
         others: {
@@ -146,7 +200,8 @@ export default {
             permissionsFail: (permissions: string) => `❌ Te faltan permisos para usar esto: \`${permissions}\`.`,
             botPermissionsFail: (permissions: string) => `❌ Me faltan permisos para hacer esto: \`${permissions}\`.`,
             middlewaresError: (reason: string) => `❌ ${reason}`,
-            runError: '❌ Ha ocurrido un error al ejecutar el comando.'
+            runError: '❌ Ha ocurrido un error al ejecutar el comando.',
+            ownerOnly: 'Solo el propietario del servidor puede usar este comando.'
         }
     }
 };

@@ -59,6 +59,60 @@ export default {
                     verificationLevel: 'Verification level',
                     boosts: 'Boosts'
                 }
+            },
+            member: {
+                name: 'member',
+                description: 'Manage your server members.',
+                usage: 'Use `/member set-nickname`, `/member add-role`, `/member remove-role`, or `/member info`.',
+                setNickname: {
+                    name: 'set-nickname',
+                    description: "Changes a member's nickname.",
+                    option: {
+                        member: { name: 'member', description: 'Member to edit.' },
+                        nickname: { name: 'nickname', description: 'New nickname.' }
+                    },
+                    done: '✅ Nickname updated.'
+                },
+                addRole: {
+                    name: 'add-role',
+                    description: 'Adds a role to a member.',
+                    done: '✅ Role added.'
+                },
+                removeRole: {
+                    name: 'remove-role',
+                    description: 'Removes a role from a member.',
+                    done: '✅ Role removed.'
+                },
+                role: {
+                    option: {
+                        member: { name: 'member', description: 'Member to edit.' },
+                        role: { name: 'role', description: 'Role to add/remove.' }
+                    },
+                    hierarchyError: "❌ You can't manage a role equal to or higher than your own."
+                },
+                info: {
+                    name: 'info',
+                    description: 'Shows information about a member.',
+                    option: { member: { name: 'member', description: 'Member to look up.' } },
+                    id: 'ID',
+                    nickname: 'Nickname',
+                    noNickname: 'No nickname',
+                    joinedAt: 'Joined at',
+                    roles: 'Roles',
+                    noRoles: 'No roles'
+                }
+            },
+            unnuke: {
+                name: 'unnuke',
+                description: 'Automated cleanup after a raid: duplicate channels/roles/emojis, or a mass-ban.',
+                usage: 'Use `/unnuke channels`, `/unnuke roles`, `/unnuke emojis`, or `/unnuke bans`.',
+                onCooldown: '❌ Wait before using this command again (15 minute cooldown).',
+                started: "⏳ Cleaning up, this might take a moment...",
+                done: (removed: number) => `✅ Done. Removed \`${removed}\` entries.`,
+                channels: { name: 'channels', description: 'Deletes channels with a duplicate name.' },
+                roles: { name: 'roles', description: 'Deletes roles with a duplicate name.' },
+                emojis: { name: 'emojis', description: 'Deletes emojis with a duplicate name.' },
+                bans: { name: 'bans', description: 'Unbans every currently banned user.' }
             }
         },
         others: {
@@ -146,7 +200,8 @@ export default {
             permissionsFail: (permissions: string) => `❌ You're missing permissions to use this: \`${permissions}\`.`,
             botPermissionsFail: (permissions: string) => `❌ I'm missing permissions to do this: \`${permissions}\`.`,
             middlewaresError: (reason: string) => `❌ ${reason}`,
-            runError: '❌ Something went wrong running that command.'
+            runError: '❌ Something went wrong running that command.',
+            ownerOnly: 'Only the server owner can use this command.'
         }
     }
 };
