@@ -16,23 +16,15 @@ import {
 
 type CommandsLocale = SeyfertLocale['commands']['others']['commands'];
 
-function isCommand(value: Command | ContextMenuCommand): value is Command {
-    return value instanceof Command;
-}
-
 interface CommandOptionInfo {
     name: string;
     description: string;
     required?: boolean;
 }
 
-function isCommandOption(value: SubCommand | CommandOptionInfo): value is CommandOptionInfo {
-    return !(value instanceof SubCommand);
-}
-
 const options = {
-    comando: createStringOption({
-        description: 'Nombre del comando a consultar.',
+    command: createStringOption({
+        description: 'Name of the command to look up.',
         required: false,
         locales: {
             name: 'commands.others.commands.option.name',
@@ -41,7 +33,7 @@ const options = {
         autocomplete: async (interaction: AutocompleteInteraction<boolean, string>) => {
             const input = interaction.getInput().toLowerCase();
             const choices: SeyfertChoice<string>[] = interaction.client.commands.values
-                .filter(isCommand)
+                .filter(CommandsCommand.isCommand)
                 .filter((command: Command) => command.name.toLowerCase().includes(input))
                 .slice(0, 25)
                 .map((command: Command) => ({ name: command.name, value: command.name }));
@@ -51,16 +43,24 @@ const options = {
 };
 
 @Declare({
-    name: 'comandos',
-    description: 'Obtén todos los comandos del bot.',
-    aliases: ['cmds', 'commands'],
+    name: 'commands',
+    description: "Get all the bot's commands.",
+    aliases: ['cmds', 'comandos'],
     props: { category: 'others' }
 })
 @LocalesT('commands.others.commands.name', 'commands.others.commands.description')
 @Options(options)
 export default class CommandsCommand extends Command {
+    static isCommand(value: Command | ContextMenuCommand): value is Command {
+        return value instanceof Command;
+    }
+
+    private isCommandOption(value: SubCommand | CommandOptionInfo): value is CommandOptionInfo {
+        return !(value instanceof SubCommand);
+    }
+
     async run(ctx: CommandContext<typeof options>) {
-        const commandName = ctx.options.comando;
+        const commandName = ctx.options.command;
 
         if (commandName) {
             await this.showUsage(ctx, commandName);
@@ -72,7 +72,7 @@ export default class CommandsCommand extends Command {
     /** Replies with the description and options of a single command, or a not-found message. */
     private async showUsage(ctx: CommandContext<typeof options>, commandName: string) {
         const t = ctx.t.commands.others.commands;
-        const command = ctx.client.commands.values.filter(isCommand).find((value: Command) => value.name === commandName);
+        const command = ctx.client.commands.values.filter(CommandsCommand.isCommand).find((value: Command) => value.name === commandName);
 
         if (!command) {
             await ctx.write({ content: t.notFound(commandName).get() });
@@ -83,7 +83,7 @@ export default class CommandsCommand extends Command {
     }
 
     private buildUsageEmbed(command: Command, t: CommandsLocale) {
-        const commandOptions = (command.options ?? []).filter(isCommandOption);
+        const commandOptions = (command.options ?? []).filter((option) => this.isCommandOption(option));
 
         return new Embed()
             .setColor(EmbedColors.Blue)
@@ -121,7 +121,7 @@ export default class CommandsCommand extends Command {
 
     private groupByCategory(ctx: CommandContext<typeof options>) {
         const byCategory = new Map<string, string[]>();
-        for (const command of ctx.client.commands.values.filter(isCommand)) {
+        for (const command of ctx.client.commands.values.filter(CommandsCommand.isCommand)) {
             if (!command.props?.category) continue;
             const names = byCategory.get(command.props.category) ?? [];
             names.push(command.name);

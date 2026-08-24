@@ -4,7 +4,7 @@ import { db } from '../../database/connection.js';
 
 @Declare({
     name: 'ping',
-    description: 'Muestra la latencia del bot.',
+    description: 'Shows the bot latency.',
     props: { category: 'configuration' }
 })
 

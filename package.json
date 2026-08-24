@@ -22,7 +22,8 @@
     "dotenv": "^16.0.1",
     "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.9",
-    "seyfert": "^5.0.0"
+    "seyfert": "^5.0.0",
+    "ubfb": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

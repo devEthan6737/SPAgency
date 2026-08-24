@@ -30,6 +30,52 @@ export default {
                     required: 'requerido',
                     noOptions: 'Este comando no tiene opciones.'
                 }
+            },
+            me: {
+                name: 'me',
+                description: 'Comprueba si tú (o un usuario) estáis en la blacklist de UBFB.',
+                option: {
+                    name: 'usuario',
+                    description: 'Usuario a consultar. Por defecto, tú mismo.'
+                },
+                clean: (userId: string) => `✅ <@${userId}> no está en la blacklist de UBFB.`,
+                blacklisted: (userId: string) => `🚫 <@${userId}> está en la blacklist de UBFB.`,
+                reason: 'Razón',
+                status: 'Estado'
+            },
+            appeal: {
+                name: 'apelar',
+                description: 'Indica dónde apelar si estás en la blacklist de UBFB.',
+                message: 'Puedes apelar tu entrada en la blacklist en https://ubfb.theindiebrand.es/panel.'
+            },
+            report: {
+                name: 'reporte',
+                description: 'Reporta a un usuario a la blacklist de UBFB.',
+                option: {
+                    user: {
+                        name: 'usuario',
+                        description: 'Usuario que quieres reportar.'
+                    },
+                    reason: {
+                        name: 'razon',
+                        description: 'Motivo del reporte.'
+                    },
+                    proof: {
+                        name: 'prueba',
+                        description: 'Enlace a una imagen que demuestre el motivo.'
+                    },
+                    proof2: {
+                        name: 'prueba2',
+                        description: 'Otro enlace de prueba, si tienes uno.'
+                    },
+                    proof3: {
+                        name: 'prueba3',
+                        description: 'Otro enlace de prueba, si tienes uno.'
+                    }
+                },
+                success: '✅ Reporte enviado. El equipo de UBFB lo revisará.',
+                alreadyPending: '❌ Ese usuario ya tiene un reporte pendiente de revisión.',
+                invalidProof: '❌ El enlace de la prueba no es válido, debe ser una imagen.'
             }
         }
     },

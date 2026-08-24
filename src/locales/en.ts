@@ -30,6 +30,52 @@ export default {
                     required: 'required',
                     noOptions: 'This command has no options.'
                 }
+            },
+            me: {
+                name: 'me',
+                description: 'Checks if you (or a user) are on the UBFB blacklist.',
+                option: {
+                    name: 'user',
+                    description: 'User to check. Defaults to yourself.'
+                },
+                clean: (userId: string) => `✅ <@${userId}> isn't on the UBFB blacklist.`,
+                blacklisted: (userId: string) => `🚫 <@${userId}> is on the UBFB blacklist.`,
+                reason: 'Reason',
+                status: 'Status'
+            },
+            appeal: {
+                name: 'appeal',
+                description: 'Tells you where to appeal if you are on the UBFB blacklist.',
+                message: 'You can appeal your blacklist entry at https://ubfb.theindiebrand.es/panel.'
+            },
+            report: {
+                name: 'report',
+                description: 'Reports a user to the UBFB blacklist.',
+                option: {
+                    user: {
+                        name: 'user',
+                        description: 'User you want to report.'
+                    },
+                    reason: {
+                        name: 'reason',
+                        description: 'Reason for the report.'
+                    },
+                    proof: {
+                        name: 'proof',
+                        description: 'Link to an image proving the reason.'
+                    },
+                    proof2: {
+                        name: 'proof2',
+                        description: 'Another proof link, if you have one.'
+                    },
+                    proof3: {
+                        name: 'proof3',
+                        description: 'Another proof link, if you have one.'
+                    }
+                },
+                success: "✅ Report sent. UBFB's team will review it.",
+                alreadyPending: '❌ That user already has a pending report.',
+                invalidProof: "❌ That proof link isn't valid, it must be an image."
             }
         }
     },
