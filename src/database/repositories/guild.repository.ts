@@ -19,6 +19,21 @@ export class GuildRepository {
         return row?.prefix ?? null;
     }
 
+    /** Lean lookup for the log dispatcher — avoids the full joined get(). */
+    static async getLogSettings(id: string): Promise<{ language: string; logsEnable: boolean; logsChannel: string | null } | null> {
+        const [row] = await db
+            .select({
+                language: guilds.language,
+                logsEnable: guildConfiguration.logsEnable,
+                logsChannel: guildConfiguration.logsChannel
+            })
+            .from(guilds)
+            .innerJoin(guildConfiguration, eq(guildConfiguration.guildId, guilds.id))
+            .where(eq(guilds.id, id));
+
+        return row ?? null;
+    }
+
     static async get(id: string): Promise<GuildConfig | null> {
         const [row] = await db
             .select()
