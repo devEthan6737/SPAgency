@@ -142,6 +142,75 @@ export default {
                 confirmLabel: 'Sí, borrar todo',
                 cancelLabel: 'Cancelar',
                 done: '✅ Canal reiniciado.'
+            },
+            shared: {
+                cannotTargetBot: '❌ No puedo hacer eso conmigo mismo.',
+                cannotTargetSelf: '❌ No puedes hacerte eso a ti mismo.',
+                hierarchyError: '❌ No puedes moderar a alguien con un rol igual o superior al tuyo.',
+                defaultReason: 'No se especificó ninguna razón.',
+                dm: (guildName: string, reason: string) => `Has recibido una acción de moderación en \`${guildName}\`.\n**Razón:** ${reason}`
+            },
+            ban: {
+                name: 'ban',
+                description: 'Banea a un miembro de tu servidor.',
+                option: {
+                    member: { name: 'miembro', description: 'Miembro a banear.' },
+                    reason: { name: 'razon', description: 'Razón del baneo.' }
+                },
+                done: (userId: string, reason: string) => `🔨 <@${userId}> ha sido baneado.\n**Razón:** ${reason}`
+            },
+            kick: {
+                name: 'kick',
+                description: 'Expulsa a un miembro de tu servidor.',
+                option: {
+                    member: { name: 'miembro', description: 'Miembro a expulsar.' },
+                    reason: { name: 'razon', description: 'Razón de la expulsión.' }
+                },
+                notAMember: '❌ Ese usuario no es miembro de este servidor.',
+                done: (userId: string, reason: string) => `👢 <@${userId}> ha sido expulsado.\n**Razón:** ${reason}`
+            },
+            hackban: {
+                name: 'hackban',
+                description: 'Banea a un usuario que no es miembro de tu servidor, por id.',
+                option: {
+                    id: { name: 'id', description: 'ID del usuario a banear — no hace falta que sea miembro de este servidor.' },
+                    reason: { name: 'razon', description: 'Razón del baneo.' }
+                },
+                invalidId: '❌ Eso no es una id válida.',
+                failed: '❌ No he podido banear a ese usuario.',
+                done: (userId: string, reason: string) => `🔨 \`${userId}\` ha sido baneado.\n**Razón:** ${reason}`
+            },
+            timeout: {
+                name: 'timeout',
+                description: 'Aislamiento nativo de Discord — silencia a un miembro durante un tiempo.',
+                option: {
+                    member: { name: 'miembro', description: 'Miembro a aislar.' },
+                    minutes: { name: 'minutos', description: 'Duración en minutos (10-40320, el límite de Discord son 28 días).' },
+                    reason: { name: 'razon', description: 'Razón del aislamiento.' }
+                },
+                notAMember: '❌ Ese usuario no es miembro de este servidor.',
+                failed: '❌ No he podido aislar a ese usuario.',
+                done: (userId: string, minutes: number, reason: string) =>
+                    `🔇 <@${userId}> ha sido aislado durante \`${minutes}\` minutos.\n**Razón:** ${reason}`
+            },
+            detect: {
+                name: 'detect',
+                description: 'Escanea los miembros de tu servidor contra la blacklist de UBFB.',
+                scanning: '🔎 Escaneando miembros, esto puede tardar un poco...',
+                noneFound: '✅ No se ha encontrado ningún usuario malicioso.',
+                found: (count: number, guildName: string) => `🚫 Se han encontrado \`${count}\` usuarios maliciosos en \`${guildName}\`:`,
+                entry: (userId: string, reason: string) => `<@${userId}> — Razón: \`${reason}\``,
+                entryUnknownReason: (userId: string) => `<@${userId}> — Razón desconocida`
+            },
+            forceban: {
+                name: 'forceban',
+                description: 'Banea a todos los de la blacklist de UBFB de tu servidor, sean miembros o no.',
+                option: { reason: { name: 'razon', description: 'Solo banea entradas de la blacklist con esta razón. Por defecto, todas.' } },
+                noneMatching: '❌ No hay ninguna entrada de la blacklist que coincida.',
+                confirm: (count: number) => `⚠️ Esto baneará a \`${count}\` usuarios de la blacklist de UBFB. ¿Seguro?`,
+                confirmLabel: 'Sí, banear a todos',
+                cancelLabel: 'Cancelar',
+                done: (banned: number, total: number) => `✅ Baneados \`${banned}\`/\`${total}\` usuarios.`
             }
         },
         others: {

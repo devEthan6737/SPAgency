@@ -142,6 +142,75 @@ export default {
                 confirmLabel: 'Yes, wipe it',
                 cancelLabel: 'Cancel',
                 done: '✅ Channel reset.'
+            },
+            shared: {
+                cannotTargetBot: "❌ I can't do that to myself.",
+                cannotTargetSelf: "❌ You can't do that to yourself.",
+                hierarchyError: "❌ You can't moderate someone with a role equal to or higher than your own.",
+                defaultReason: 'No reason specified.',
+                dm: (guildName: string, reason: string) => `You received a moderation action in \`${guildName}\`.\n**Reason:** ${reason}`
+            },
+            ban: {
+                name: 'ban',
+                description: 'Bans a member from your server.',
+                option: {
+                    member: { name: 'member', description: 'Member to ban.' },
+                    reason: { name: 'reason', description: 'Ban reason.' }
+                },
+                done: (userId: string, reason: string) => `🔨 <@${userId}> has been banned.\n**Reason:** ${reason}`
+            },
+            kick: {
+                name: 'kick',
+                description: 'Kicks a member from your server.',
+                option: {
+                    member: { name: 'member', description: 'Member to kick.' },
+                    reason: { name: 'reason', description: 'Kick reason.' }
+                },
+                notAMember: "❌ That user isn't a member of this server.",
+                done: (userId: string, reason: string) => `👢 <@${userId}> has been kicked.\n**Reason:** ${reason}`
+            },
+            hackban: {
+                name: 'hackban',
+                description: "Bans a user who isn't a member of your server, by id.",
+                option: {
+                    id: { name: 'id', description: "ID of the user to ban — doesn't need to be a member of this server." },
+                    reason: { name: 'reason', description: 'Ban reason.' }
+                },
+                invalidId: "❌ That isn't a valid id.",
+                failed: "❌ I couldn't ban that user.",
+                done: (userId: string, reason: string) => `🔨 \`${userId}\` has been banned.\n**Reason:** ${reason}`
+            },
+            timeout: {
+                name: 'timeout',
+                description: "Discord's native timeout — mutes a member for a set duration.",
+                option: {
+                    member: { name: 'member', description: 'Member to time out.' },
+                    minutes: { name: 'minutes', description: "Duration in minutes (10-40320, Discord's 28-day cap)." },
+                    reason: { name: 'reason', description: 'Timeout reason.' }
+                },
+                notAMember: "❌ That user isn't a member of this server.",
+                failed: "❌ I couldn't time out that user.",
+                done: (userId: string, minutes: number, reason: string) =>
+                    `🔇 <@${userId}> has been timed out for \`${minutes}\` minutes.\n**Reason:** ${reason}`
+            },
+            detect: {
+                name: 'detect',
+                description: 'Scans your server members against the UBFB blacklist.',
+                scanning: '🔎 Scanning members, this might take a moment...',
+                noneFound: '✅ No malicious users found.',
+                found: (count: number, guildName: string) => `🚫 Found \`${count}\` malicious users in \`${guildName}\`:`,
+                entry: (userId: string, reason: string) => `<@${userId}> — Reason: \`${reason}\``,
+                entryUnknownReason: (userId: string) => `<@${userId}> — Unknown reason`
+            },
+            forceban: {
+                name: 'forceban',
+                description: 'Bans every UBFB blacklist entry from your server, member or not.',
+                option: { reason: { name: 'reason', description: 'Only ban blacklist entries with this reason. Defaults to everyone.' } },
+                noneMatching: '❌ No blacklist entries match.',
+                confirm: (count: number) => `⚠️ This will ban \`${count}\` users from the UBFB blacklist. Are you sure?`,
+                confirmLabel: 'Yes, ban them all',
+                cancelLabel: 'Cancel',
+                done: (banned: number, total: number) => `✅ Banned \`${banned}\`/\`${total}\` users.`
             }
         },
         others: {
