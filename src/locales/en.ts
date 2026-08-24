@@ -9,6 +9,56 @@ export default {
                     `🌐 Message latency: \`${message}ms\`\n🤖 API latency: \`${api}ms\``,
                 withDatabase: (message: number, api: number, database: number) =>
                     `🌐 Message latency: \`${message}ms\`\n🤖 API latency: \`${api}ms\`\n📚 Database latency: \`${database}ms\``
+            },
+            channel: {
+                name: 'channel',
+                description: 'Manage your server channels.',
+                usage: 'Use `/channel create` or `/channel delete`.',
+                created: '✅ Channel created.',
+                deleted: '✅ Channel deleted.',
+                create: {
+                    name: 'create',
+                    description: 'Creates a new text channel.',
+                    option: { name: { name: 'name', description: 'Name for the new channel.' } }
+                },
+                delete: {
+                    name: 'delete',
+                    description: 'Deletes a channel.',
+                    option: { channel: { name: 'channel', description: 'Channel to delete.' } }
+                }
+            },
+            guild: {
+                name: 'guild',
+                description: 'Manage your server.',
+                usage: 'Use `/guild set-name`, `/guild set-icon`, `/guild create-invite`, or `/guild info`.',
+                setName: {
+                    name: 'set-name',
+                    description: "Changes the server's name.",
+                    option: { name: { name: 'name', description: 'New server name.' } },
+                    done: '✅ Server name updated.'
+                },
+                setIcon: {
+                    name: 'set-icon',
+                    description: "Changes the server's icon.",
+                    option: { url: { name: 'url', description: 'Link to the new icon image.' } },
+                    done: '✅ Server icon updated.',
+                    invalidUrl: "❌ Couldn't download that image."
+                },
+                createInvite: {
+                    name: 'create-invite',
+                    description: 'Creates an invite for a random text channel.',
+                    done: (invite: string) => `✅ Invite created: ${invite}`,
+                    noChannel: '❌ No text channel is available.'
+                },
+                info: {
+                    name: 'info',
+                    description: 'Shows information about the server.',
+                    id: 'ID',
+                    owner: 'Owner',
+                    createdAt: 'Created at',
+                    verificationLevel: 'Verification level',
+                    boosts: 'Boosts'
+                }
             }
         },
         others: {

@@ -9,6 +9,56 @@ export default {
                     `🌐 Latencia del mensaje: \`${message}ms\`\n🤖 Latencia de la API: \`${api}ms\``,
                 withDatabase: (message: number, api: number, database: number) =>
                     `🌐 Latencia del mensaje: \`${message}ms\`\n🤖 Latencia de la API: \`${api}ms\`\n📚 Latencia de la base de datos: \`${database}ms\``
+            },
+            channel: {
+                name: 'channel',
+                description: 'Gestiona los canales de tu servidor.',
+                usage: 'Usa `/channel create` o `/channel delete`.',
+                created: '✅ Canal creado.',
+                deleted: '✅ Canal eliminado.',
+                create: {
+                    name: 'create',
+                    description: 'Crea un nuevo canal de texto.',
+                    option: { name: { name: 'nombre', description: 'Nombre para el nuevo canal.' } }
+                },
+                delete: {
+                    name: 'delete',
+                    description: 'Elimina un canal.',
+                    option: { channel: { name: 'canal', description: 'Canal a eliminar.' } }
+                }
+            },
+            guild: {
+                name: 'guild',
+                description: 'Gestiona tu servidor.',
+                usage: 'Usa `/guild set-name`, `/guild set-icon`, `/guild create-invite` o `/guild info`.',
+                setName: {
+                    name: 'set-name',
+                    description: 'Cambia el nombre del servidor.',
+                    option: { name: { name: 'nombre', description: 'Nuevo nombre del servidor.' } },
+                    done: '✅ Nombre del servidor actualizado.'
+                },
+                setIcon: {
+                    name: 'set-icon',
+                    description: 'Cambia el icono del servidor.',
+                    option: { url: { name: 'url', description: 'Enlace a la nueva imagen del icono.' } },
+                    done: '✅ Icono del servidor actualizado.',
+                    invalidUrl: '❌ No se pudo descargar esa imagen.'
+                },
+                createInvite: {
+                    name: 'create-invite',
+                    description: 'Crea una invitación en un canal de texto al azar.',
+                    done: (invite: string) => `✅ Invitación creada: ${invite}`,
+                    noChannel: '❌ No hay ningún canal de texto disponible.'
+                },
+                info: {
+                    name: 'info',
+                    description: 'Muestra información sobre el servidor.',
+                    id: 'ID',
+                    owner: 'Propietario',
+                    createdAt: 'Creado el',
+                    verificationLevel: 'Nivel de verificación',
+                    boosts: 'Boosts'
+                }
             }
         },
         others: {
