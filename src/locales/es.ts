@@ -211,6 +211,81 @@ export default {
                 confirmLabel: 'Sí, banear a todos',
                 cancelLabel: 'Cancelar',
                 done: (banned: number, total: number) => `✅ Baneados \`${banned}\`/\`${total}\` usuarios.`
+            },
+            sos: {
+                name: 'sos',
+                description: 'Avisa con un @everyone en el canal de logs, con una invitación nueva. Para emergencias.',
+                noLogChannel: '❌ Este servidor no tiene un canal de logs configurado.',
+                noChannel: '❌ No hay ningún canal de texto disponible para crear la invitación.',
+                alert: (invite: string) => `@everyone 🆘 **¡S.O.S.!**\n${invite}`,
+                done: '✅ Aviso enviado.'
+            },
+            baninfo: {
+                name: 'baninfo',
+                description: "Muestra los detalles de un baneo del servidor.",
+                option: { user: { name: 'usuario', description: 'Usuario a consultar.' } },
+                notBanned: '❌ Ese usuario no está baneado.',
+                noReason: 'Sin razón especificada',
+                info: (username: string, reason: string) => `🔨 \`${username}\` está baneado.\n**Razón:** ${reason}`
+            },
+            unban: {
+                name: 'unban',
+                description: 'Desbanea a un usuario de tu servidor.',
+                option: { id: { name: 'id', description: 'ID del usuario a desbanear.' } },
+                invalidId: '❌ Eso no es una id válida.',
+                notBanned: '❌ Ese usuario no está baneado.',
+                done: (userId: string) => `✅ \`${userId}\` ha sido desbaneado.`
+            },
+            untimeout: {
+                name: 'untimeout',
+                description: 'Elimina el aislamiento de un miembro.',
+                option: { member: { name: 'miembro', description: 'Miembro al que quitar el aislamiento.' } },
+                notAMember: '❌ Ese usuario no es miembro de este servidor.',
+                failed: '❌ No he podido quitarle el aislamiento a ese usuario.',
+                done: (userId: string) => `✅ Se ha eliminado el aislamiento de <@${userId}>.`
+            },
+            tempban: {
+                name: 'tempban',
+                description: 'Banea a un miembro durante un tiempo, y lo desbanea automáticamente al terminar.',
+                option: {
+                    member: { name: 'miembro', description: 'Miembro a banear temporalmente.' },
+                    minutes: { name: 'minutos', description: 'Duración del baneo en minutos (mínimo 2).' },
+                    reason: { name: 'razon', description: 'Razón del baneo.' }
+                },
+                autoUnbanReason: 'Fin del baneo temporal.',
+                done: (userId: string, minutes: number, reason: string) =>
+                    `🔨 <@${userId}> baneado durante \`${minutes}\` minutos.\n**Razón:** ${reason}`
+            },
+            warn: {
+                name: 'warn',
+                description: 'Añade un aviso a un miembro.',
+                option: {
+                    member: { name: 'miembro', description: 'Miembro a avisar.' },
+                    reason: { name: 'razon', description: 'Razón del aviso.' }
+                },
+                done: (userId: string, total: number, reason: string) =>
+                    `⚠️ <@${userId}> avisado (\`${total}\` en total).\n**Razón:** ${reason}`
+            },
+            warns: {
+                name: 'warns',
+                description: 'Lista los avisos de un miembro.',
+                option: { member: { name: 'miembro', description: 'Miembro a consultar.' } },
+                none: '✅ Ese usuario no tiene avisos.',
+                intro: (userId: string, total: number) => `<@${userId}> tiene \`${total}\` aviso(s):`,
+                entry: (id: number, reason: string, moderatorId: string) => `\`#${id}\` — ${reason} (por <@${moderatorId}>)`
+            },
+            unwarn: {
+                name: 'unwarn',
+                description: 'Elimina uno (o todos) los avisos de un miembro.',
+                option: {
+                    member: { name: 'miembro', description: 'Miembro al que quitar un aviso.' },
+                    id: { name: 'id', description: 'ID del aviso concreto a eliminar (ver /warns).' },
+                    all: { name: 'todos', description: 'Elimina todos los avisos de este miembro en vez de uno.' }
+                },
+                needsIdOrAll: '❌ Especifica `id` o pon `todos` en `true`.',
+                notFound: '❌ No existe ningún aviso con esa id para ese usuario.',
+                done: (userId: string, id: number) => `✅ Eliminado el aviso \`#${id}\` de <@${userId}>.`,
+                doneAll: (userId: string, total: number) => `✅ Eliminados \`${total}\` avisos de <@${userId}>.`
             }
         },
         others: {

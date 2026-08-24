@@ -41,7 +41,8 @@ export default class DetectCommand extends Command {
 
         if (!matches.length) return await ctx.editOrReply({ content: t.noneFound.get() });
 
-        const embed = new Embed().setColor(EmbedColors.Red).setDescription(matches.map((line, i) => `**${i + 1}.** ${line}`).join('\n').slice(0, 4096));
-        await ctx.editOrReply({ content: t.found(matches.length, guild.name).get(), embeds: [embed] });
+        await ctx.editOrReply({ content: t.found(matches.length, guild.name).get(), embeds: [
+            new Embed().setColor(EmbedColors.Red).setDescription(matches.map((line, i) => `**${i + 1}.** ${line}`).join('\n').slice(0, 4096))
+        ] });
     }
 }

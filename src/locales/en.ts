@@ -211,6 +211,81 @@ export default {
                 confirmLabel: 'Yes, ban them all',
                 cancelLabel: 'Cancel',
                 done: (banned: number, total: number) => `✅ Banned \`${banned}\`/\`${total}\` users.`
+            },
+            sos: {
+                name: 'sos',
+                description: 'Pings @everyone in the log channel with a fresh invite. For emergencies.',
+                noLogChannel: "❌ This server doesn't have a log channel configured.",
+                noChannel: '❌ No text channel is available to create the invite.',
+                alert: (invite: string) => `@everyone 🆘 **S.O.S.!**\n${invite}`,
+                done: '✅ Alert sent.'
+            },
+            baninfo: {
+                name: 'baninfo',
+                description: "Shows a server ban's details.",
+                option: { user: { name: 'user', description: 'User to check.' } },
+                notBanned: "❌ That user isn't banned.",
+                noReason: 'No reason specified',
+                info: (username: string, reason: string) => `🔨 \`${username}\` is banned.\n**Reason:** ${reason}`
+            },
+            unban: {
+                name: 'unban',
+                description: 'Unbans a user from your server.',
+                option: { id: { name: 'id', description: 'ID of the user to unban.' } },
+                invalidId: "❌ That isn't a valid id.",
+                notBanned: "❌ That user isn't banned.",
+                done: (userId: string) => `✅ \`${userId}\` has been unbanned.`
+            },
+            untimeout: {
+                name: 'untimeout',
+                description: "Removes a member's timeout.",
+                option: { member: { name: 'member', description: 'Member to remove the timeout from.' } },
+                notAMember: "❌ That user isn't a member of this server.",
+                failed: "❌ I couldn't remove that user's timeout.",
+                done: (userId: string) => `✅ Removed the timeout from <@${userId}>.`
+            },
+            tempban: {
+                name: 'tempban',
+                description: 'Bans a member for a set duration, then unbans them automatically.',
+                option: {
+                    member: { name: 'member', description: 'Member to temp-ban.' },
+                    minutes: { name: 'minutes', description: 'Ban duration in minutes (minimum 2).' },
+                    reason: { name: 'reason', description: 'Ban reason.' }
+                },
+                autoUnbanReason: 'Temp-ban expired.',
+                done: (userId: string, minutes: number, reason: string) =>
+                    `🔨 <@${userId}> banned for \`${minutes}\` minutes.\n**Reason:** ${reason}`
+            },
+            warn: {
+                name: 'warn',
+                description: 'Adds a warning to a member.',
+                option: {
+                    member: { name: 'member', description: 'Member to warn.' },
+                    reason: { name: 'reason', description: 'Warn reason.' }
+                },
+                done: (userId: string, total: number, reason: string) =>
+                    `⚠️ <@${userId}> warned (\`${total}\` total).\n**Reason:** ${reason}`
+            },
+            warns: {
+                name: 'warns',
+                description: "Lists a member's warnings.",
+                option: { member: { name: 'member', description: 'Member to check warnings for.' } },
+                none: "✅ That user has no warnings.",
+                intro: (userId: string, total: number) => `<@${userId}> has \`${total}\` warning(s):`,
+                entry: (id: number, reason: string, moderatorId: string) => `\`#${id}\` — ${reason} (by <@${moderatorId}>)`
+            },
+            unwarn: {
+                name: 'unwarn',
+                description: "Removes one (or all) of a member's warnings.",
+                option: {
+                    member: { name: 'member', description: 'Member to remove a warning from.' },
+                    id: { name: 'id', description: 'ID of the specific warning to remove (see /warns).' },
+                    all: { name: 'all', description: "Remove all of this member's warnings instead of one." }
+                },
+                needsIdOrAll: '❌ Specify `id` or set `all` to true.',
+                notFound: "❌ There's no warning with that id for that user.",
+                done: (userId: string, id: number) => `✅ Removed warning \`#${id}\` from <@${userId}>.`,
+                doneAll: (userId: string, total: number) => `✅ Removed \`${total}\` warnings from <@${userId}>.`
             }
         },
         others: {

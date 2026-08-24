@@ -52,7 +52,8 @@ export default class HackbanCommand extends Command {
             return await ctx.write({ content: t.failed.get() });
         }
 
-        const embed = new Embed().setColor(EmbedColors.Red).setDescription(t.done(userId, reason).get());
-        await ctx.write({ embeds: [embed] });
+        await ctx.write({ embeds: [
+            new Embed().setColor(EmbedColors.Red).setDescription(t.done(userId, reason).get())
+        ] });
     }
 }

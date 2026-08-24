@@ -55,7 +55,8 @@ export default class BanCommand extends Command {
         await ctx.options.member.write({ content: shared.dm(guild.name, reason).get() }).catch(() => {});
         await guild.bans.create(targetId, { reason });
 
-        const embed = new Embed().setColor(EmbedColors.Red).setDescription(t.done(targetId, reason).get());
-        await ctx.write({ embeds: [embed] });
+        await ctx.write({ embeds: [
+            new Embed().setColor(EmbedColors.Red).setDescription(t.done(targetId, reason).get())
+        ] });
     }
 }
