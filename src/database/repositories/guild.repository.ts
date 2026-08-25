@@ -82,4 +82,9 @@ export class GuildRepository {
     static updateConfiguration(id: string, patch: Partial<typeof guildConfiguration.$inferInsert>) {
         return db.update(guildConfiguration).set(patch).where(eq(guildConfiguration.guildId, id)).returning();
     }
+
+    /** Deletes the guild row — protection/moderation/configuration/backups cascade with it. */
+    static delete(id: string) {
+        return db.delete(guilds).where(eq(guilds.id, id)).returning();
+    }
 }
