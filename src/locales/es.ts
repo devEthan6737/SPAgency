@@ -286,6 +286,40 @@ export default {
                 notFound: '❌ No existe ningún aviso con esa id para ese usuario.',
                 done: (userId: string, id: number) => `✅ Eliminado el aviso \`#${id}\` de <@${userId}>.`,
                 doneAll: (userId: string, total: number) => `✅ Eliminados \`${total}\` avisos de <@${userId}>.`
+            },
+            backup: {
+                name: 'backup',
+                description: 'Guarda y restaura una copia de este servidor (canales, roles, baneos, emojis, stickers).',
+                usage: 'Usa `/backup create`, `/backup info`, `/backup load`, o `/backup delete`.',
+                none: '❌ Este servidor no tiene ningún backup guardado.',
+                deleted: '✅ Backup eliminado.',
+                overwritePrompt: '⚠️ Esto reemplazará el backup existente — el anterior se perderá. ¿Estás seguro?',
+                overwriteYes: 'Sí, sobrescribirlo',
+                overwriteNo: 'Cancelar',
+                deletePrompt: '⚠️ Esto eliminará permanentemente el backup de este servidor. ¿Estás seguro?',
+                deleteYes: 'Sí, eliminarlo',
+                deleteNo: 'Cancelar',
+                creating: '⏳ Creando backup, esto puede tardar un momento...',
+                created: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
+                    `✅ Backup creado: \`${channels}\` canales, \`${roles}\` roles, \`${bans}\` baneos, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                details: (name: string, channels: number, roles: number, bans: number, emojis: number, stickers: number, createdAt: Date) =>
+                    `📦 Backup de \`${name}\`, tomado <t:${Math.floor(createdAt.getTime() / 1000)}:R>.\n\`${channels}\` canales, \`${roles}\` roles, \`${bans}\` baneos, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                cleanupPrompt: '⚠️ ¿Limpiar canales/roles duplicados (de un raid) antes de restaurar?',
+                cleanupYes: 'Sí, limpiar primero',
+                cleanupNo: 'No, solo restaurar',
+                restoring: '⏳ Restaurando, esto puede tardar un momento...',
+                restored: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
+                    `✅ Restaurados \`${channels}\` canales, \`${roles}\` roles, \`${bans}\` baneos, \`${emojis}\` emojis y \`${stickers}\` stickers que faltaban.`,
+                create: {
+                    name: 'create',
+                    description: 'Guarda una copia de este servidor (canales, roles, baneos, emojis, stickers) para restaurarla luego.'
+                },
+                info: { name: 'info', description: 'Muestra el backup guardado de este servidor, si existe.' },
+                load: {
+                    name: 'load',
+                    description: 'Restaura lo que falte (canales, roles, baneos, emojis, stickers) desde el backup guardado.'
+                },
+                delete: { name: 'delete', description: 'Elimina el backup guardado de este servidor.' }
             }
         },
         others: {

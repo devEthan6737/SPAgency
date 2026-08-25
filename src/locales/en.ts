@@ -286,6 +286,40 @@ export default {
                 notFound: "❌ There's no warning with that id for that user.",
                 done: (userId: string, id: number) => `✅ Removed warning \`#${id}\` from <@${userId}>.`,
                 doneAll: (userId: string, total: number) => `✅ Removed \`${total}\` warnings from <@${userId}>.`
+            },
+            backup: {
+                name: 'backup',
+                description: 'Snapshot and restore this server (channels, roles, bans, emojis, stickers).',
+                usage: 'Use `/backup create`, `/backup info`, `/backup load`, or `/backup delete`.',
+                none: "❌ This server doesn't have a saved backup.",
+                deleted: '✅ Backup deleted.',
+                overwritePrompt: '⚠️ This will replace the existing backup — the old one will be lost. Are you sure?',
+                overwriteYes: 'Yes, overwrite it',
+                overwriteNo: 'Cancel',
+                deletePrompt: "⚠️ This will permanently delete this server's backup. Are you sure?",
+                deleteYes: 'Yes, delete it',
+                deleteNo: 'Cancel',
+                creating: '⏳ Creating backup, this might take a moment...',
+                created: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
+                    `✅ Backup created: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                details: (name: string, channels: number, roles: number, bans: number, emojis: number, stickers: number, createdAt: Date) =>
+                    `📦 Backup of \`${name}\`, taken <t:${Math.floor(createdAt.getTime() / 1000)}:R>.\n\`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                cleanupPrompt: '⚠️ Clean up duplicate-named channels/roles (from a raid) before restoring?',
+                cleanupYes: 'Yes, clean up first',
+                cleanupNo: 'No, just restore',
+                restoring: '⏳ Restoring, this might take a moment...',
+                restored: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
+                    `✅ Restored \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, and \`${stickers}\` stickers that were missing.`,
+                create: {
+                    name: 'create',
+                    description: 'Snapshots this server (channels, roles, bans, emojis, stickers) so it can be restored later.'
+                },
+                info: { name: 'info', description: "Shows this server's saved backup, if any." },
+                load: {
+                    name: 'load',
+                    description: 'Restores whatever is missing (channels, roles, bans, emojis, stickers) from the saved backup.'
+                },
+                delete: { name: 'delete', description: "Deletes this server's saved backup." }
             }
         },
         others: {

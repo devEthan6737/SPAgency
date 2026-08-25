@@ -1,14 +1,45 @@
-import { boolean, jsonb, pgTable, text } from 'drizzle-orm/pg-core';
+import { jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import type { APIBan, APIOverwrite, APIRole, ChannelType } from 'seyfert';
 import { guilds } from './guild.js';
-import type { BackupBan, BackupChannel, BackupRole } from './backup.types.js';
+
+export interface BackupChannel {
+    name: string;
+    type: ChannelType;
+    rawPosition: number;
+    nsfw?: boolean;
+    topic?: string | null;
+    parent?: string;
+    permissionOverwrites: APIOverwrite[];
+}
+
+export interface BackupRole extends Pick<APIRole, 'name' | 'hoist' | 'permissions' | 'mentionable'> {
+    colors: { primaryColor: number; secondaryColor: number | null; tertiaryColor: number | null };
+    rawPosition: number;
+}
+
+export interface BackupBan extends Pick<APIBan, 'reason'> {
+    id: string;
+}
+
+export interface BackupEmoji {
+    name: string;
+    /** Base64-encoded image data, no `data:` prefix. */
+    image: string;
+}
+
+export interface BackupSticker {
+    name: string;
+    description: string;
+    tags: string;
+    /** Base64-encoded image data, no `data:` prefix. PNG/APNG/GIF only — Lottie stickers aren't backed up. */
+    image: string;
+}
 
 export const backups = pgTable('backups', {
-    // one backup per server (comandos/Moderacion/backup.js hace findOne por guildId, nunca hay más de uno)
+    // one backup per server, only exists once /backup create has run (row presence == "a backup exists")
     guildId: text('guild_id').primaryKey().references(() => guilds.id, { onDelete: 'cascade' }),
-    // is backup enabled?
-    enable: boolean('enable').notNull().default(true),
-    // the password to modify /// load the backup
-    password: text('password'),
+    // when this snapshot was taken/last replaced by /backup create
+    createdAt: timestamp('created_at').notNull().defaultNow(),
 
     // the name of the guild
     name: text('name'),
@@ -23,5 +54,9 @@ export const backups = pgTable('backups', {
     // guild roles
     roles: jsonb('roles').$type<BackupRole[]>().notNull().default([]),
     // guild bans
-    bans: jsonb('bans').$type<BackupBan[]>().notNull().default([])
+    bans: jsonb('bans').$type<BackupBan[]>().notNull().default([]),
+    // custom emojis
+    emojis: jsonb('emojis').$type<BackupEmoji[]>().notNull().default([]),
+    // custom stickers (PNG/APNG/GIF only, see BackupSticker)
+    stickers: jsonb('stickers').$type<BackupSticker[]>().notNull().default([])
 });
