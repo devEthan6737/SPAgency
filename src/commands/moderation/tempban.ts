@@ -1,4 +1,5 @@
 import { Command, createIntegerOption, createStringOption, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { TempbanRepository } from '../../database/repositories/tempban.repository.js';
 
 const options = {
     member: createUserOption({
@@ -41,9 +42,6 @@ const options = {
 @Options(options)
 
 export default class TempbanCommand extends Command {
-    /** guildId-userId -> pending unban timer. In-memory only — lost on restart. */
-    private static pendingUnbans = new Map<string, NodeJS.Timeout>();
-
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.moderation.tempban;
@@ -63,25 +61,13 @@ export default class TempbanCommand extends Command {
         }
 
         const reason = ctx.options.reason ?? shared.defaultReason.get();
-        const durationMs = ctx.options.minutes * 60_000;
+        const expiresAt = new Date(Date.now() + ctx.options.minutes * 60_000);
 
         await ctx.options.member.write({ content: shared.dm(guild.name, reason).get() }).catch(() => {});
         await guild.bans.create(targetId, { reason });
+        await TempbanRepository.create(guild.id, targetId, t.autoUnbanReason.get(), expiresAt);
 
-        const key = `${guild.id}-${targetId}`;
-        const existing = TempbanCommand.pendingUnbans.get(key);
-        if (existing) clearTimeout(existing);
-
-        TempbanCommand.pendingUnbans.set(
-            key,
-            setTimeout(() => {
-                TempbanCommand.pendingUnbans.delete(key);
-                guild.bans.remove(targetId, t.autoUnbanReason.get()).catch(() => {});
-            }, durationMs)
-        );
-
-        await ctx.write({ embeds: [
-            new Embed().setColor(EmbedColors.Red).setDescription(t.done(targetId, ctx.options.minutes, reason).get())
-        ] });
+        const embed = new Embed().setColor(EmbedColors.Red).setDescription(t.done(targetId, ctx.options.minutes, reason).get());
+        await ctx.write({ embeds: [embed] });
     }
 }
