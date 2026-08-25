@@ -44,6 +44,7 @@ const options = {
 export default class TempbanCommand extends Command {
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
+        
         const t = ctx.t.commands.moderation.tempban;
         const shared = ctx.t.commands.moderation.shared;
         const guild = await ctx.guild();
