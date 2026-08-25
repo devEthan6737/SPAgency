@@ -1,133 +1,11 @@
 // No es recomendable tocar algo de aquí si no sabes lo que haces.
 
 const Discord = require('discord.js-light');
-const package = require('./package.json');
-const os = require('os');
 const process = require('process');
-const cpuStat = require('cpu-stat');
-const Guild = require('./schemas/guildsSchema');
 const Timers = require('./schemas/timersSchema');
 const Warns = require('./schemas/warnsSchema');
-const db = require('megadb');
-const dataRow = new db.crearDB('dataRows', 'data_bot');
 const usersWithCooldown = new Map();
 const cooldown = new Map();
-const _db = require('./Utils/DataBase/base');
-
-function pulk(array, object) { // Sustituye <var>.splice();
-    let newArray = [];
-    for(x of array) {
-        if(x != object) {
-            newArray.push(x);
-        }
-    }
-    return newArray;
-}
-
-const dataRequiredEmbed = new Discord.MessageEmbed().setColor('RED').setFooter({ text: 'Source Code by TIB.' }); // - No cambiar.
-function dataRequired(message) {
-    dataRequiredEmbed.setDescription('`' + message + '`');
-    return { content: '`[]` = Opcional.\n`<>` = Requerido.\n`{}` = Función.', embeds: [ dataRequiredEmbed ] };
-}
-
-async function selectMenu(interaction, value, client) {
-    let _guild = await Guild.findOne({ id: interaction.guild.id }); // <- The object of the server's database.
-
-    // Help command:
-    if(value === 'ho_qespa') {
-        interaction.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('La información ha sido transladada a la página web oficial:\n\nEl dominio es privado pero como eres especial para nosotros te otorgaré acceso, [click aquí.](https://youtu.be/dQw4w9WgXcQ)') ], ephemeral: true });
-    }else if(value === 'ho_spaeubba') {
-        interaction.reply({ embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription('A nosotros, el personal del bot, nos encanta poner a prueba a SP Agency para ver su capacidad, puedes visitar nuestro canal de youtube [haciendo click aquí.](https://www.youtube.com/channel/UChSb1NskNXQ0nKG4kbNCRaQ)') ], ephemeral: true });
-    }else if(value === 'ho_ddb') {
-        cpuStat.usagePercent(function (error, percent) {
-            if(error)return;
-            let cpuDataArray = os.cpus();
-            let usage = formatBytes(process.memoryUsage().heapUsed);
-            let totalSeconds = (client.uptime / 1000);
-            let days = Math.floor(totalSeconds / 86400);
-            totalSeconds %= 86400;
-            let hours = Math.floor(totalSeconds / 3600);
-            totalSeconds %= 3600;
-            let minutes = Math.floor(totalSeconds / 60);
-            let seconds = Math.floor(totalSeconds % 60);
-
-            interaction.reply({ embeds: [ new Discord.MessageEmbed().setTitle(client.user.username + ' - Host Debug:').addField('Bot Data:', `**Nombre del Bot**: \`${client.user.tag}\`\n**ID**: \`${client.user.id}\`\n**Versión**: \`${package.version}\`\n**Dependencias**: \`['discord.js-light', 'fs', 'mongoose', 'zlib-sync', 'bufferutil', 'utf-8-validate', 'eslint', 'manage-maliciousdb', 'discordjs/builders', 'discordjs/rest', 'byte-size', 'cpu-stat', 'discord-api-types', 'erlpack', 'ms', 'os', 'process', 'topgg-autoposter', '@top-gg/sdk', 'danbot-hosting', '@tensorflow/tfjs-node', 'request', 'axios', ]\`\n**CopyRight**: \`CC BY-NC-SA\`\n**Confianza**: \`Verificado por Discord\`\n**Servidores actuales**: \`${client.guilds.cache.size}\`\n**Usuarios en el caché**: \`${client.users.cache.size}\``).addField('Host Data:', `**Nombre de la CPU**: \`${cpuDataArray[0].model} - ${cpuDataArray.length} Cores.\`\n**Uso de memoria**: \`${usage}\`\n\n**Tiempo encendido**: \`${days}d, ${hours}h, ${minutes}m, ${seconds}s.\``).setColor(0x5c4fff) ], ephemeral: true });
-            
-            function formatBytes(a, b) {
-                let c = 1024;
-                let d = b || 2;
-                let e = ['B', 'KB', 'MB', 'GB', 'TB'];
-                let f = Math.floor(Math.log(a) / Math.log(c));
-                return parseFloat((a / Math.pow(c, f)).toFixed(d)) + "" + e[f];
-            }
-        });
-
-    // Command of commands:
-    }else if(value === 'moreDetails') {
-        if(interaction.user.id == interaction.guild.ownerId) {
-            _guild.configuration.subData.showDetailsInCmdsCommand = 'moreDetails';
-            updateDataBase(client, interaction.guild, _guild);
-            interaction.reply({ content: '¡Ahora mostraré más detalles de comandos!', ephemeral: true });
-        }else{
-            interaction.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.', ephemeral: true });
-        }
-    }else if(value === 'lessDetails') {
-        if(interaction.user.id == interaction.guild.ownerId) {
-            _guild.configuration.subData.showDetailsInCmdsCommand = 'lessDetails';
-            updateDataBase(client, interaction.guild, _guild);
-            interaction.reply({ content: '¡Ahora mostraré menos detalles de comandos!', ephemeral: true });
-        }else{
-            interaction.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.', ephemeral: true });
-        }
-    }else if(value === 'twoOptions') {
-        if(interaction.user.id == interaction.guild.ownerId) {
-            _guild.configuration.subData.showDetailsInCmdsCommand = 'twoOptions';
-            updateDataBase(client, interaction.guild, _guild);
-            interaction.reply({ content: '¡Ahora daré a elegir al usuario el tipo de detalles que quiere ver en los comandos!', ephemeral: true });
-        }else{
-            interaction.reply({ content: 'Necesitas ser __El propietario De Este Servidor__.', ephemeral: true });
-        }
-
-    // Command of editPingReply
-    }else if(value === 'allDetails') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
-        _guild.configuration.subData.pingMessage = 'allDetails';
-        updateDataBase(client, interaction.guild, _guild);
-        interaction.reply({ content: '¡Ahora mostraré la mayor información posible cuando alguien me mencione!', ephemeral: true });
-    }else if(value === 'pingLessDetails') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
-        _guild.configuration.subData.pingMessage = 'pingLessDetails';
-        updateDataBase(client, interaction.guild, _guild);
-        interaction.reply({ content: '¡Ahora mostraré la menor información posible cuando alguien me mencione!', ephemeral: true });
-    }else if(value === 'onlySupportServer') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
-        _guild.configuration.subData.pingMessage = 'onlySupportServer';
-        updateDataBase(client, interaction.guild, _guild);
-        interaction.reply({ content: '¡Ahora solo mostraré el servidor de soporte de mi personal cuando alguien me mencione!', ephemeral: true });
-    }else if(value === 'ignore') {
-        if(!interaction.member.permissions.has('ADMINISTRATOR'))return interaction.reply({ content: 'Necesitas permisos de __Administrador__.', ephemeral: true });
-        return interaction.reply({ content: '`PREMIUM ERROR:` SPA Code is not ready to use TIBAJS API.', ephemeral: true });
-        _guild.configuration.subData.pingMessage = 'ignore';
-        updateDataBase(client, interaction.guild, _guild);
-        interaction.reply({ content: '¡Ahora ignoraré cuando alguien me mencione!', ephemeral: true });
-    
-    // Others:
-    }else{
-        let arr = await dataRow.get(interaction.user.id);
-        if(!arr)return interaction.reply({ content: 'Necesitas volver a activar el comando.', ephemeral: true });
-        if(arr != 'not-external') {
-            let _split = `${interaction.values[0]}`.split('_');
-            arr.forEach(async x => {
-                if(x.value == `whitelist_${_split[1]}`) {
-                    dataRow.delete(interaction.user.id);
-                    _guild.configuration.whitelist = await pulk(_guild.configuration.whitelist, _split[1]);
-                    updateDataBase(client, interaction.guild, _guild);
-                    interaction.reply({ content: 'Bot eliminado de la whitelist.', ephemeral: true });
-                }
-            });
-        }
-    }
-}
 
 async function automoderator(client, mongoose, message, sanctionReason) {
     let userWarns = await Warns.findOne({ guildId: message.guild.id, userId: message.author.id });
@@ -281,37 +159,6 @@ async function ratelimitFilter(message) {
 	}
 }
 
-async function fecthDataBase(client, guild, save = true) {
-    /*
-    Esta función ha sido transladada.
-    Está hecho de esta forma ya que pronto será creado un sistema complejo que requiere la eliminación de esta función.
-    */
-    return await _db.fetch(guild);
-}
-
-async function updateDataBase(client, guild, database, important = false) {
-    /*
-    Esta función ha sido transladada.
-    Está hecho de esta forma ya que pronto será creado un sistema complejo que requiere la eliminación de esta función.
-    */
-    return await _db.update(guild, database);
-}
-
-async function fecthUsersDataBase(client, user, save = true) {
-    /*
-    Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
-    */
-
-    return { premium: {} };
-}
-
-async function updateUsersDataBase(client, user, database, important = false) {
-    /*
-    Cuando TIBA se implemente, esta función será eliminada. Y todo lo que tenga que ver con los usuarios del bot.
-    */
-}
-
 module.exports = {
-    selectMenu, pulk, dataRequired, automoderator, intelligentSOS, ratelimitFilter,
-    fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase
+    automoderator, intelligentSOS, ratelimitFilter
 }
