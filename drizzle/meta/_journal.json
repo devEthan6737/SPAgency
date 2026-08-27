@@ -43,6 +43,13 @@
       "when": 1787700000000,
       "tag": "0005_thin_madame_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787700100000,
+      "tag": "0006_wooden_the_call",
+      "breakpoints": true
     }
   ]
 }
