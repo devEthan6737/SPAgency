@@ -214,10 +214,11 @@ export default {
             },
             sos: {
                 name: 'sos',
-                description: 'Avisa con un @everyone en el canal de logs, con una invitación nueva. Para emergencias.',
-                noLogChannel: '❌ Este servidor no tiene un canal de logs configurado.',
+                description: 'Avisa al staff de SPAgency con una invitación nueva a este servidor. Para emergencias.',
+                noStaffChannel: '❌ El canal de alertas del staff no está configurado — contacta directamente con el soporte de SPAgency.',
                 noChannel: '❌ No hay ningún canal de texto disponible para crear la invitación.',
-                alert: (invite: string) => `@everyone 🆘 **¡S.O.S.!**\n${invite}`,
+                alert: (guildName: string, guildId: string, invite: string) =>
+                    `@everyone 🆘 **S.O.S.** de \`${guildName}\` (${guildId})!\n${invite}`,
                 done: '✅ Aviso enviado.'
             },
             baninfo: {

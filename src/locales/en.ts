@@ -214,10 +214,11 @@ export default {
             },
             sos: {
                 name: 'sos',
-                description: 'Pings @everyone in the log channel with a fresh invite. For emergencies.',
-                noLogChannel: "❌ This server doesn't have a log channel configured.",
+                description: 'Pings SPAgency staff with a fresh invite to this server. For emergencies.',
+                noStaffChannel: "❌ The staff alert channel isn't configured — contact SPAgency support directly.",
                 noChannel: '❌ No text channel is available to create the invite.',
-                alert: (invite: string) => `@everyone 🆘 **S.O.S.!**\n${invite}`,
+                alert: (guildName: string, guildId: string, invite: string) =>
+                    `@everyone 🆘 **S.O.S.** from \`${guildName}\` (${guildId})!\n${invite}`,
                 done: '✅ Alert sent.'
             },
             baninfo: {
