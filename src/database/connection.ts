@@ -9,4 +9,8 @@ export function connectDatabase(url: string) {
 
 export type Database = ReturnType<typeof connectDatabase>;
 
-export const db = connectDatabase(process.env.DATABASE_URL!);
+const client = postgres(process.env.DATABASE_URL!);
+
+export const db = drizzle(client, { schema });
+/** Raw postgres.js client — for LISTEN/NOTIFY and anything else outside drizzle's query builder. */
+export const sql = client;

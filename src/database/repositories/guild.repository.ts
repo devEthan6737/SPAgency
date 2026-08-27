@@ -34,6 +34,22 @@ export class GuildRepository {
         return row ?? null;
     }
 
+    /** Lean lookup for the antiraid detector — avoids the full joined get(), and skips guildModeration entirely. */
+    static async getAntiraidSettings(id: string): Promise<{ language: string; antiraidEnable: boolean; whitelist: string[] } | null> {
+        const [row] = await db
+            .select({
+                language: guilds.language,
+                antiraidEnable: guildProtection.antiraidEnable,
+                whitelist: guildConfiguration.whitelist
+            })
+            .from(guilds)
+            .innerJoin(guildProtection, eq(guildProtection.guildId, guilds.id))
+            .innerJoin(guildConfiguration, eq(guildConfiguration.guildId, guilds.id))
+            .where(eq(guilds.id, id));
+
+        return row ?? null;
+    }
+
     static async get(id: string): Promise<GuildConfig | null> {
         const [row] = await db
             .select()

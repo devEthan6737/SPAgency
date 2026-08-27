@@ -1,4 +1,5 @@
 import { createEvent } from 'seyfert';
+import { GuildConfigCache } from '../systems/antiraid/index.js';
 import { startTempbanPoller } from '../systems/tempban/poller.js';
 import { initUbfb } from '../systems/ubfb/client.js';
 
@@ -8,5 +9,6 @@ export default createEvent({
         client.logger.info(`${user.username} encendido.`);
         initUbfb(user.username, user.avatarURL());
         startTempbanPoller(client);
+        GuildConfigCache.start(client);
     }
 });

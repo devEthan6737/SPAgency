@@ -393,6 +393,9 @@ export default {
         }
     },
     systems: {
+        antiraid: {
+            banReason: 'Raid detectado.'
+        },
         logs: {
             events: {
                 memberJoin: (userId: string) => `📥 <@${userId}> se ha unido al servidor.`,
