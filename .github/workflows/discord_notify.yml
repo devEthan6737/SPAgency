@@ -1,0 +1,21 @@
+name: Discord Notifier
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "Nuevo push en ${{ github.repository }} (${{ github.ref_name }})"
+          color: 0x2ecc71
+          url: "${{ github.event.head_commit.url }}"
+          username: "GitHub - DisCHord Org."
+          avatar_url: "https://cdn.discordapp.com/attachments/1031276794529206342/1483034453956886539/DisChord_01.png?ex=69b91ef7&is=69b7cd77&hm=4273213c080ecb57a6d205090ebd24c790be984aecaf42ba2dea2c8a8b2699b2&"
