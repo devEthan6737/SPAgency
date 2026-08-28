@@ -1,4 +1,5 @@
 import { Declare, LocalesT, SubCommand, type CommandContext } from 'seyfert';
+import { Cooldown } from '@slipher/cooldown';
 import { BackupRepository } from '../../../database/repositories/backup.repository.js';
 import { Confirmation } from '../../../systems/confirmation/index.js';
 
@@ -8,6 +9,8 @@ import { Confirmation } from '../../../systems/confirmation/index.js';
 })
 
 @LocalesT('commands.moderation.backup.delete.name', 'commands.moderation.backup.delete.description')
+
+@Cooldown.user(30 * 60_000, { group: 'backup' })
 
 export default class DeleteSubCommand extends SubCommand {
     async run(ctx: CommandContext) {

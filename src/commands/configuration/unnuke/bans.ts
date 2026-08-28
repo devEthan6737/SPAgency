@@ -1,4 +1,5 @@
 import { Declare, LocalesT, SubCommand, type CommandContext } from 'seyfert';
+import { Cooldown } from '@slipher/cooldown';
 import { UnnukeHelpers } from './shared.js';
 
 @Declare({
@@ -10,10 +11,11 @@ import { UnnukeHelpers } from './shared.js';
 
 @LocalesT('commands.configuration.unnuke.bans.name', 'commands.configuration.unnuke.bans.description')
 
+@Cooldown.user(15 * 60_000, { group: 'unnuke' })
+
 export default class BansSubCommand extends SubCommand {
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
-        if (!(await UnnukeHelpers.checkCooldown(ctx))) return;
 
         const t = ctx.t.commands.configuration.unnuke;
         await ctx.write({ content: t.started.get() });

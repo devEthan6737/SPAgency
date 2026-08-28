@@ -1,4 +1,5 @@
 import { Declare, LocalesT, SubCommand, type CommandContext } from 'seyfert';
+import { Cooldown } from '@slipher/cooldown';
 import { BackupRepository } from '../../../database/repositories/backup.repository.js';
 import { Confirmation } from '../../../systems/confirmation/index.js';
 import { BackupSystem } from '../../../systems/backup/index.js';
@@ -9,6 +10,8 @@ import { BackupSystem } from '../../../systems/backup/index.js';
 })
 
 @LocalesT('commands.moderation.backup.create.name', 'commands.moderation.backup.create.description')
+
+@Cooldown.user(30 * 60_000, { group: 'backup' })
 
 export default class CreateSubCommand extends SubCommand {
     async run(ctx: CommandContext) {

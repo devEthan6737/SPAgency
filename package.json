@@ -19,6 +19,7 @@
   "author": "The Indie Brand",
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@slipher/cooldown": "^1.0.0",
     "dotenv": "^16.0.1",
     "drizzle-orm": "^0.45.2",
     "postgres": "^3.4.9",

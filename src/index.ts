@@ -1,10 +1,29 @@
-import { Client } from 'seyfert';
+import { type AnyContext, Client, definePlugins } from 'seyfert';
 import 'dotenv/config';
+import { cooldown, type CooldownMiddlewares, type CooldownResult } from '@slipher/cooldown';
 import { GuildRepository } from './database/repositories/guild.repository.js';
 import { commandDefaults } from './systems/commands/defaults.js';
 import { commandMiddlewares } from './middlewares/isOwner.middleware.js';
 
+const plugins = definePlugins(
+    cooldown({
+        middleware: {
+            global: true,
+            message: (result: CooldownResult, ctx: AnyContext): string =>
+                ctx.t.systems.cooldown.blocked(Math.ceil(result.remainingMs / 1000)).get()
+        }
+    })
+);
+
+declare module 'seyfert' {
+    interface SeyfertRegistry {
+        plugins: typeof plugins;
+        middlewares: CooldownMiddlewares<'cooldown'> & typeof commandMiddlewares;
+    }
+}
+
 const client = new Client({
+    plugins,
     commands: {
         prefix: async (message) => {
             const prefix = message.guildId ? await GuildRepository.getPrefix(message.guildId) : null;

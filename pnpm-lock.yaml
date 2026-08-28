@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@slipher/cooldown':
+        specifier: ^1.0.0
+        version: 1.0.0(seyfert@5.0.0)
       dotenv:
         specifier: ^16.0.1
         version: 16.6.1
@@ -491,6 +494,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@slipher/cooldown@1.0.0':
+    resolution: {integrity: sha512-+15jGoKQftszUw/WpEC8/PdIRPLLGNTbkGxm8H9ErqidH2xlCrqHJR1ZRxyIlcv8+ETdwLYSLQ4ie61MUu0erQ==}
+    peerDependencies:
+      seyfert: '>=5.0.0'
+
   '@types/node@22.20.1':
     resolution: {integrity: sha512-EANqOCF9QFyra+4pfxUcX9STKJpCLjMbObVzljIJomAWSnuSIEAvyzEU53GaajbXJEgdh0iEcPL+DGvpUd4k1Q==}
 
@@ -901,6 +909,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@slipher/cooldown@1.0.0(seyfert@5.0.0)':
+    dependencies:
+      seyfert: 5.0.0
 
   '@types/node@22.20.1':
     dependencies:

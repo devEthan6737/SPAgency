@@ -106,7 +106,6 @@ export default {
                 name: 'unnuke',
                 description: 'Automated cleanup after a raid: duplicate channels/roles/emojis, or a mass-ban.',
                 usage: 'Use `/unnuke channels`, `/unnuke roles`, `/unnuke emojis`, or `/unnuke bans`.',
-                onCooldown: '❌ Wait before using this command again (15 minute cooldown).',
                 started: "⏳ Cleaning up, this might take a moment...",
                 done: (removed: number) => `✅ Done. Removed \`${removed}\` entries.`,
                 channels: { name: 'channels', description: 'Deletes channels with a duplicate name.' },
@@ -395,6 +394,9 @@ export default {
     systems: {
         antiraid: {
             banReason: 'Raid detected.'
+        },
+        cooldown: {
+            blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
         },
         logs: {
             events: {
