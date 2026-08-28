@@ -5,6 +5,7 @@ import { AntiraidSystem } from '../systems/antiraid/index.js';
 const FLAGGED_ACTIONS = new Set<AuditLogEvent>([
     AuditLogEvent.ChannelCreate,
     AuditLogEvent.ChannelDelete,
+    AuditLogEvent.ChannelUpdate,
     AuditLogEvent.RoleCreate,
     AuditLogEvent.RoleDelete,
     AuditLogEvent.MemberBanAdd
