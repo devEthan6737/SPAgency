@@ -1,4 +1,6 @@
-import { createRoleOption, createUserOption, Declare, LocalesT, Options, SubCommand, type CommandContext } from 'seyfert';
+import { createRoleOption, createUserOption, Declare, EmbedColors, LocalesT, Options, SubCommand, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 const options = {
     member: createUserOption({
@@ -44,6 +46,26 @@ export default class AddRoleSubCommand extends SubCommand {
         }
 
         await guild.members.addRole(ctx.options.member.id, ctx.options.role.id);
+        
+        void dispatchLog(ctx.client, AddRoleSubCommand.log({ guildId: guild.id, targetId: ctx.options.member.id, executorId: ctx.author.id, roleId: ctx.options.role.id })).catch(() => {});
         await ctx.write({ content: ctx.t.commands.configuration.member.addRole.done.get() });
     }
+
+    private static log({ guildId, targetId, executorId, roleId }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.AddRole,
+            color: EmbedColors.Green,
+            describe: (t) => t.systems.logs.actions.addRole(targetId, roleId).get(),
+            targetId,
+            executorId,
+            data: { roleId }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
+    executorId: string;
+    roleId: string;
 }

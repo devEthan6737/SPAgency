@@ -422,7 +422,23 @@ export default {
                 backupCreate: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
                     `📦 Backup created: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
                 backupLoad: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
-                    `📦 Backup restored: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`
+                    `📦 Backup restored: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                tempban: (userId: string, minutes: number, reason: string) =>
+                    `🔨 <@${userId}> temp-banned for \`${minutes}\` minutes.\n**Reason:** ${reason}`,
+                nuke: (channelId: string) => `💥 Channel <#${channelId}> was nuked (deleted and recreated).`,
+                backupDelete: () => "🗑️ This server's backup was deleted.",
+                channelCreate: (channelId: string) => `✅ Channel <#${channelId}> was created.`,
+                channelDelete: (channelId: string) => `🗑️ Channel \`${channelId}\` was deleted.`,
+                createInvite: (channelId: string, code: string) => `✅ Invite \`${code}\` created for <#${channelId}>.`,
+                setIcon: () => "✅ This server's icon was changed.",
+                setName: (name: string) => `✅ This server's name was changed to \`${name}\`.`,
+                addRole: (userId: string, roleId: string) => `✅ Added <@&${roleId}> to <@${userId}>.`,
+                removeRole: (userId: string, roleId: string) => `✅ Removed <@&${roleId}> from <@${userId}>.`,
+                setNickname: (userId: string, nickname: string) => `✅ Changed <@${userId}>'s nickname to \`${nickname}\`.`,
+                unnukeBans: (removed: number) => `🧹 Unnuke: removed \`${removed}\` bans.`,
+                unnukeChannels: (removed: number) => `🧹 Unnuke: removed \`${removed}\` duplicate channels.`,
+                unnukeRoles: (removed: number) => `🧹 Unnuke: removed \`${removed}\` duplicate roles.`,
+                unnukeEmojis: (removed: number) => `🧹 Unnuke: removed \`${removed}\` duplicate emojis.`
             }
         },
         commands: {

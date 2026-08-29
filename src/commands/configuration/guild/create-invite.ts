@@ -1,4 +1,6 @@
-import { ChannelType, Declare, LocalesT, SubCommand, type CommandContext, type TextGuildChannelStructure } from 'seyfert';
+import { ChannelType, Declare, EmbedColors, LocalesT, SubCommand, type CommandContext, type TextGuildChannelStructure } from 'seyfert';
+import { BotActionType } from '../../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 @Declare({
     name: 'create-invite',
@@ -23,6 +25,26 @@ export default class CreateInviteSubCommand extends SubCommand {
         if (!channel) return await ctx.write({ content: t.noChannel.get() });
 
         const invite = await channel.invites.create({ max_age: 86_400 });
+        
+        void dispatchLog(ctx.client, CreateInviteSubCommand.log({ guildId: guild.id, channelId: channel.id, executorId: ctx.author.id, code: invite.code })).catch(() => {});
         await ctx.write({ content: t.done(`https://discord.gg/${invite.code}`).get() });
     }
+
+    private static log({ guildId, channelId, executorId, code }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.CreateInvite,
+            color: EmbedColors.Blurple,
+            describe: (t) => t.systems.logs.actions.createInvite(channelId, code).get(),
+            targetId: channelId,
+            executorId,
+            data: { code }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    channelId: string;
+    executorId: string;
+    code: string;
 }

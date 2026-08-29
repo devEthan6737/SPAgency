@@ -1,6 +1,8 @@
 import { isIP } from 'node:net';
 import { lookup } from 'node:dns/promises';
-import { createStringOption, Declare, LocalesT, Options, SubCommand, type CommandContext } from 'seyfert';
+import { createStringOption, Declare, EmbedColors, LocalesT, Options, SubCommand, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 const options = {
     url: createStringOption({
@@ -106,6 +108,22 @@ export default class SetIconSubCommand extends SubCommand {
 
         const guild = await ctx.guild();
         await guild.edit({ icon: dataUri });
+        
+        void dispatchLog(ctx.client, SetIconSubCommand.log({ guildId: guild.id, executorId: ctx.author.id })).catch(() => {});
         await ctx.write({ content: t.done.get() });
     }
+
+    private static log({ guildId, executorId }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.SetIcon,
+            color: EmbedColors.Blurple,
+            describe: (t) => t.systems.logs.actions.setIcon().get(),
+            executorId
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    executorId: string;
 }

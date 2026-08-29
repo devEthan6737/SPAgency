@@ -1,5 +1,7 @@
-import { Declare, LocalesT, SubCommand, type CommandContext } from 'seyfert';
+import { Declare, EmbedColors, LocalesT, SubCommand, type CommandContext } from 'seyfert';
 import { Cooldown } from '@slipher/cooldown';
+import { BotActionType } from '../../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 import { UnnukeHelpers } from './shared.js';
 
 @Declare({
@@ -26,6 +28,23 @@ export default class ChannelsSubCommand extends SubCommand {
             (channel) => guild.channels.delete(channel.id)
         );
 
+        void dispatchLog(ctx.client, ChannelsSubCommand.log({ guildId: guild.id, executorId: ctx.author.id, removed })).catch(() => {});
         await ctx.editOrReply({ content: t.done(removed).get() });
     }
+
+    private static log({ guildId, executorId, removed }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.UnnukeChannels,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.actions.unnukeChannels(removed).get(),
+            executorId,
+            data: { removed }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    executorId: string;
+    removed: number;
 }

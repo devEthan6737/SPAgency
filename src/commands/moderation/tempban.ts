@@ -1,5 +1,7 @@
 import { Command, createIntegerOption, createStringOption, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { TempbanRepository } from '../../database/repositories/tempban.repository.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     member: createUserOption({
@@ -44,7 +46,7 @@ const options = {
 export default class TempbanCommand extends Command {
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
-        
+
         const t = ctx.t.commands.moderation.tempban;
         const shared = ctx.t.commands.moderation.shared;
         const guild = await ctx.guild();
@@ -67,8 +69,40 @@ export default class TempbanCommand extends Command {
         await ctx.options.member.write({ content: shared.dm(guild.name, reason).get() }).catch(() => {});
         await guild.bans.create(targetId, { reason });
         await TempbanRepository.create(guild.id, targetId, t.autoUnbanReason.get(), expiresAt);
+        
+        void dispatchLog(
+            ctx.client,
+            TempbanCommand.log({
+                guildId: guild.id,
+                targetId,
+                executorId: ctx.author.id,
+                minutes: ctx.options.minutes,
+                reason
+            })
+        ).catch(() => {});
 
-        const embed = new Embed().setColor(EmbedColors.Red).setDescription(t.done(targetId, ctx.options.minutes, reason).get());
-        await ctx.write({ embeds: [embed] });
+        await ctx.write({ embeds: [
+            new Embed().setColor(EmbedColors.Red).setDescription(t.done(targetId, ctx.options.minutes, reason).get())
+        ] });
     }
+
+    private static log({ guildId, targetId, executorId, minutes, reason }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Tempban,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.actions.tempban(targetId, minutes, reason).get(),
+            targetId,
+            executorId,
+            reason,
+            data: { minutes }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
+    executorId: string;
+    minutes: number;
+    reason: string;
 }

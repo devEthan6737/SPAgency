@@ -1,4 +1,6 @@
-import { ChannelType, Command, Declare, LocalesT, type CommandContext } from 'seyfert';
+import { ChannelType, Command, Declare, EmbedColors, LocalesT, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 import { Confirmation } from '../../systems/confirmation/index.js';
 
 @Declare({
@@ -45,6 +47,24 @@ export default class NukeCommand extends Command {
         });
 
         await guild.channels.delete(channel.id);
+
+        void dispatchLog(ctx.client, NukeCommand.log({ guildId: guild.id, channelId: clone.id, executorId: ctx.author.id })).catch(() => {});
         await clone.messages.write({ content: t.done.get() });
     }
+
+    private static log({ guildId, channelId, executorId }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Nuke,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.actions.nuke(channelId).get(),
+            targetId: channelId,
+            executorId
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    channelId: string;
+    executorId: string;
 }

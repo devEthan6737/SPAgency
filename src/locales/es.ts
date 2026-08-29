@@ -422,7 +422,23 @@ export default {
                 backupCreate: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
                     `📦 Backup creado: \`${channels}\` canales, \`${roles}\` roles, \`${bans}\` baneos, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
                 backupLoad: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
-                    `📦 Backup restaurado: \`${channels}\` canales, \`${roles}\` roles, \`${bans}\` baneos, \`${emojis}\` emojis, \`${stickers}\` stickers.`
+                    `📦 Backup restaurado: \`${channels}\` canales, \`${roles}\` roles, \`${bans}\` baneos, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                tempban: (userId: string, minutes: number, reason: string) =>
+                    `🔨 <@${userId}> baneado temporalmente durante \`${minutes}\` minutos.\n**Razón:** ${reason}`,
+                nuke: (channelId: string) => `💥 El canal <#${channelId}> fue nukeado (borrado y recreado).`,
+                backupDelete: () => '🗑️ Se ha eliminado el backup de este servidor.',
+                channelCreate: (channelId: string) => `✅ Se ha creado el canal <#${channelId}>.`,
+                channelDelete: (channelId: string) => `🗑️ Se ha eliminado el canal \`${channelId}\`.`,
+                createInvite: (channelId: string, code: string) => `✅ Invitación \`${code}\` creada para <#${channelId}>.`,
+                setIcon: () => '✅ Se ha cambiado el icono de este servidor.',
+                setName: (name: string) => `✅ Se ha cambiado el nombre de este servidor a \`${name}\`.`,
+                addRole: (userId: string, roleId: string) => `✅ Añadido <@&${roleId}> a <@${userId}>.`,
+                removeRole: (userId: string, roleId: string) => `✅ Quitado <@&${roleId}> a <@${userId}>.`,
+                setNickname: (userId: string, nickname: string) => `✅ Apodo de <@${userId}> cambiado a \`${nickname}\`.`,
+                unnukeBans: (removed: number) => `🧹 Unnuke: eliminados \`${removed}\` baneos.`,
+                unnukeChannels: (removed: number) => `🧹 Unnuke: eliminados \`${removed}\` canales duplicados.`,
+                unnukeRoles: (removed: number) => `🧹 Unnuke: eliminados \`${removed}\` roles duplicados.`,
+                unnukeEmojis: (removed: number) => `🧹 Unnuke: eliminados \`${removed}\` emojis duplicados.`
             }
         },
         commands: {
