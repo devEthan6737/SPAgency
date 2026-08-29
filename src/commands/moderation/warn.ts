@@ -1,5 +1,7 @@
 import { Command, createStringOption, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { WarnRepository } from '../../database/repositories/warn.repository.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     member: createUserOption({
@@ -46,8 +48,28 @@ export default class WarnCommand extends Command {
         await WarnRepository.create(ctx.guildId, targetId, ctx.author.id, ctx.options.reason);
         const total = await WarnRepository.list(ctx.guildId, targetId);
 
+        void dispatchLog(ctx.client, WarnCommand.log({ guildId: ctx.guildId, targetId, executorId: ctx.author.id, reason: ctx.options.reason })).catch(() => {});
+
         await ctx.write({ embeds: [
             new Embed().setColor(EmbedColors.Yellow).setDescription(t.done(targetId, total.length, ctx.options.reason).get())
         ] });
     }
+
+    private static log({ guildId, targetId, executorId, reason }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Warn,
+            color: EmbedColors.Yellow,
+            describe: (t) => t.systems.logs.actions.warn(targetId, reason).get(),
+            targetId,
+            executorId,
+            reason
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
+    executorId: string;
+    reason: string;
 }

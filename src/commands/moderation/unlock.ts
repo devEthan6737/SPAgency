@@ -1,4 +1,6 @@
-import { Command, createRoleOption, Declare, LocalesT, Options, OverwriteType, type CommandContext } from 'seyfert';
+import { Command, createRoleOption, Declare, EmbedColors, LocalesT, Options, OverwriteType, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     role: createRoleOption({
@@ -33,6 +35,26 @@ export default class UnlockCommand extends Command {
         const roleId = ctx.options.role?.id ?? guild.id;
         await channel.permissionOverwrites.edit(roleId, { type: OverwriteType.Role, allow: ['SendMessages'] });
 
+        void dispatchLog(ctx.client, UnlockCommand.log({ guildId: guild.id, roleId, executorId: ctx.author.id, channelId: channel.id })).catch(() => {});
+
         await ctx.write({ content: ctx.t.commands.moderation.unlock.done.get() });
     }
+
+    private static log({ guildId, roleId, executorId, channelId }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Unlock,
+            color: EmbedColors.Green,
+            describe: (t) => t.systems.logs.actions.unlock(roleId, channelId).get(),
+            targetId: roleId,
+            executorId,
+            data: { channelId }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    roleId: string;
+    executorId: string;
+    channelId: string;
 }

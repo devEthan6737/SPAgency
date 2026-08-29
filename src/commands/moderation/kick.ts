@@ -1,4 +1,6 @@
 import { Command, createStringOption, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     member: createUserOption({
@@ -56,9 +58,29 @@ export default class KickCommand extends Command {
         const reason = ctx.options.reason ?? shared.defaultReason.get();
         await target.write({ content: shared.dm(guild.name, reason).get() }).catch(() => {});
         await guild.members.kick(targetId, reason);
+        
+        void dispatchLog(ctx.client, KickCommand.log({ guildId: guild.id, targetId, executorId: ctx.author.id, reason })).catch(() => {});
 
         await ctx.write({ embeds: [
             new Embed().setColor(EmbedColors.Orange).setDescription(t.done(targetId, reason).get())
         ] });
     }
+
+    private static log({ guildId, targetId, executorId, reason }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Kick,
+            color: EmbedColors.Orange,
+            describe: (t) => t.systems.logs.actions.kick(targetId, reason).get(),
+            targetId,
+            executorId,
+            reason
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
+    executorId: string;
+    reason: string;
 }

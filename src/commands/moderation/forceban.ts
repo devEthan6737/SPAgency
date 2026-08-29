@@ -1,6 +1,8 @@
-import { Command, createStringOption, Declare, LocalesT, Options, type CommandContext } from 'seyfert';
+import { Command, createStringOption, Declare, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
 import { BlacklistReason } from 'ubfb';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { Confirmation } from '../../systems/confirmation/index.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 import { getUbfb } from '../../systems/ubfb/client.js';
 
 const options = {
@@ -57,6 +59,24 @@ export default class ForcebanCommand extends Command {
             if (ok) banned++;
         }
 
+        void dispatchLog(ctx.client, ForcebanCommand.log({ guildId: guild.id, executorId: ctx.author.id, banned, total: entries.length })).catch(() => {});
         await ctx.editOrReply({ content: t.done(banned, entries.length).get() });
     }
+
+    private static log({ guildId, executorId, banned, total }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Forceban,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.actions.forceban(banned, total).get(),
+            executorId,
+            data: { banned, total }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    executorId: string;
+    banned: number;
+    total: number;
 }

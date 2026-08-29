@@ -1,5 +1,7 @@
-import { Command, createBooleanOption, createIntegerOption, createUserOption, Declare, LocalesT, Options, type CommandContext } from 'seyfert';
+import { Command, createBooleanOption, createIntegerOption, createUserOption, Declare, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { WarnRepository } from '../../database/repositories/warn.repository.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     member: createUserOption({
@@ -47,6 +49,7 @@ export default class UnwarnCommand extends Command {
 
         if (ctx.options.all) {
             const removed = await WarnRepository.deleteAll(ctx.guildId, targetId);
+            void dispatchLog(ctx.client, UnwarnCommand.log({ guildId: ctx.guildId, targetId, executorId: ctx.author.id, warnId: 'all' })).catch(() => {});
             return await ctx.write({ content: t.doneAll(targetId, removed.length).get() });
         }
 
@@ -55,6 +58,25 @@ export default class UnwarnCommand extends Command {
         const removed = await WarnRepository.deleteById(ctx.guildId, targetId, ctx.options.id);
         if (!removed.length) return await ctx.write({ content: t.notFound.get() });
 
+        void dispatchLog(ctx.client, UnwarnCommand.log({ guildId: ctx.guildId, targetId, executorId: ctx.author.id, warnId: ctx.options.id })).catch(() => {});
         await ctx.write({ content: t.done(targetId, ctx.options.id).get() });
     }
+
+    private static log({ guildId, targetId, executorId, warnId }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Unwarn,
+            color: EmbedColors.Green,
+            describe: (t) => t.systems.logs.actions.unwarn(targetId, warnId).get(),
+            targetId,
+            executorId,
+            data: { warnId }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
+    executorId: string;
+    warnId: number | 'all';
 }

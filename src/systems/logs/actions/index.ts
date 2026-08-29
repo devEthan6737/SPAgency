@@ -1,2 +1,1 @@
-export * from './BanLog.js';
-export * from './WarnLog.js';
+export * from './BotActionLog.js';

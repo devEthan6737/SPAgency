@@ -1,4 +1,6 @@
 import { Command, createStringOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     id: createStringOption({
@@ -39,11 +41,9 @@ export default class HackbanCommand extends Command {
         const guild = await ctx.guild();
         const userId = ctx.options.id;
 
-        if (!/^\d{17,20}$/.test(userId)) {
-            await ctx.write({ content: t.invalidId.get() });
-            return;
-        }
+        if (!/^\d{17,20}$/.test(userId)) return await ctx.write({ content: t.invalidId.get() });
         if (userId === ctx.client.botId || userId === ctx.author.id) return await ctx.write({ content: ctx.t.commands.moderation.shared.cannotTargetSelf.get() });
+
         const reason = ctx.options.reason ?? ctx.t.commands.moderation.shared.defaultReason.get();
 
         try {
@@ -51,9 +51,28 @@ export default class HackbanCommand extends Command {
         } catch {
             return await ctx.write({ content: t.failed.get() });
         }
+        void dispatchLog(ctx.client, HackbanCommand.log({ guildId: guild.id, targetId: userId, executorId: ctx.author.id, reason })).catch(() => {});
 
         await ctx.write({ embeds: [
             new Embed().setColor(EmbedColors.Red).setDescription(t.done(userId, reason).get())
         ] });
     }
+
+    private static log({ guildId, targetId, executorId, reason }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Hackban,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.actions.hackban(targetId, reason).get(),
+            targetId,
+            executorId,
+            reason
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
+    executorId: string;
+    reason: string;
 }

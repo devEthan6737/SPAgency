@@ -7,8 +7,6 @@ export enum BotActionType {
     Forceban = 'forceban',
     Hackban = 'hackban',
     Kick = 'kick',
-    Mute = 'mute',
-    Unmute = 'unmute',
     Timeout = 'timeout',
     Untimeout = 'untimeout',
     Warn = 'warn',

@@ -1,8 +1,10 @@
-import { Declare, LocalesT, SubCommand, type CommandContext } from 'seyfert';
+import { Declare, EmbedColors, LocalesT, SubCommand, type CommandContext } from 'seyfert';
 import { Cooldown } from '@slipher/cooldown';
+import { BotActionType } from '../../../database/schema/bot-action-log.js';
 import { BackupRepository } from '../../../database/repositories/backup.repository.js';
 import { Confirmation } from '../../../systems/confirmation/index.js';
-import { BackupSystem } from '../../../systems/backup/index.js';
+import { BackupSystem, type RestoreCounts } from '../../../systems/backup/index.js';
+import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 @Declare({
     name: 'load',
@@ -35,6 +37,23 @@ export default class LoadSubCommand extends SubCommand {
 
         const counts = await BackupSystem.restore(guild, backup);
 
+        void dispatchLog(ctx.client, LoadSubCommand.log({ guildId: guild.id, executorId: ctx.author.id, counts })).catch(() => {});
         await ctx.editOrReply({ content: t.restored(counts.channels, counts.roles, counts.bans, counts.emojis, counts.stickers).get() });
     }
+
+    private static log({ guildId, executorId, counts }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.BackupLoad,
+            color: EmbedColors.Blurple,
+            describe: (t) => t.systems.logs.actions.backupLoad(counts.channels, counts.roles, counts.bans, counts.emojis, counts.stickers).get(),
+            executorId,
+            data: { ...counts }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    executorId: string;
+    counts: RestoreCounts;
 }

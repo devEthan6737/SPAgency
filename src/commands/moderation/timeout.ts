@@ -1,4 +1,6 @@
 import { Command, createIntegerOption, createStringOption, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     member: createUserOption({
@@ -72,8 +74,30 @@ export default class TimeoutCommand extends Command {
             return await ctx.write({ content: t.failed.get() });
         }
 
+        void dispatchLog(ctx.client, TimeoutCommand.log({ guildId: guild.id, targetId, executorId: ctx.author.id, minutes: ctx.options.minutes, reason })).catch(() => {});
+
         await ctx.write({ embeds: [
             new Embed().setColor(EmbedColors.Yellow).setDescription(t.done(targetId, ctx.options.minutes, reason).get())
         ] });
     }
+
+    private static log({ guildId, targetId, executorId, minutes, reason }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Timeout,
+            color: EmbedColors.Yellow,
+            describe: (t) => t.systems.logs.actions.timeout(targetId, minutes, reason).get(),
+            targetId,
+            executorId,
+            reason,
+            data: { minutes }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
+    executorId: string;
+    minutes: number;
+    reason: string;
 }

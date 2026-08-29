@@ -1,4 +1,6 @@
-import { Command, createIntegerOption, Declare, LocalesT, Options, type CommandContext } from 'seyfert';
+import { Command, createIntegerOption, Declare, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
+import { BotActionType } from '../../database/schema/bot-action-log.js';
+import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
 
 const options = {
     amount: createIntegerOption({
@@ -45,6 +47,24 @@ export default class ClearCommand extends Command {
             if (batch.length < 100) break;
         }
 
+        void dispatchLog(ctx.client, ClearCommand.log({ guildId: ctx.guildId, executorId: ctx.author.id, channelId: channel.id, amount: deleted })).catch(() => {});
         await ctx.write({ content: ctx.t.commands.moderation.clear.done(deleted).get() });
     }
+
+    private static log({ guildId, executorId, channelId, amount }: LogInput) {
+        return new BotActionLog(guildId, {
+            type: BotActionType.Clear,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.actions.clear(amount, channelId).get(),
+            executorId,
+            data: { channelId, amount }
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    executorId: string;
+    channelId: string;
+    amount: number;
 }

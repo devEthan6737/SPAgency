@@ -406,7 +406,23 @@ export default {
             actions: {
                 ban: (userId: string, reason?: string) =>
                     `🔨 <@${userId}> has been banned.` + (reason ? `\n**Reason:** ${reason}` : ''),
-                warn: (userId: string, reason: string) => `⚠️ <@${userId}> has been warned.\n**Reason:** ${reason}`
+                warn: (userId: string, reason: string) => `⚠️ <@${userId}> has been warned.\n**Reason:** ${reason}`,
+                unban: (userId: string) => `✅ \`${userId}\` has been unbanned.`,
+                forceban: (banned: number, total: number) => `🔨 Force-banned \`${banned}\`/\`${total}\` blacklist entries.`,
+                hackban: (userId: string, reason: string) => `🔨 \`${userId}\` has been banned (hackban).\n**Reason:** ${reason}`,
+                kick: (userId: string, reason: string) => `👢 <@${userId}> has been kicked.\n**Reason:** ${reason}`,
+                timeout: (userId: string, minutes: number, reason: string) =>
+                    `🔇 <@${userId}> timed out for \`${minutes}\` minutes.\n**Reason:** ${reason}`,
+                untimeout: (userId: string) => `✅ Removed the timeout from <@${userId}>.`,
+                unwarn: (userId: string, warnId: number | 'all') =>
+                    `✅ Removed warning(s) from <@${userId}> (${warnId === 'all' ? 'all' : `#${warnId}`}).`,
+                clear: (amount: number, channelId: string) => `🧹 Cleared \`${amount}\` messages in <#${channelId}>.`,
+                lock: (roleId: string, channelId: string) => `🔒 Locked <#${channelId}> for <@&${roleId}>.`,
+                unlock: (roleId: string, channelId: string) => `🔓 Unlocked <#${channelId}> for <@&${roleId}>.`,
+                backupCreate: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
+                    `📦 Backup created: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                backupLoad: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
+                    `📦 Backup restored: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`
             }
         },
         commands: {
