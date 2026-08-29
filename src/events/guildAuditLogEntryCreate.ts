@@ -23,7 +23,8 @@ export default createEvent({
     data: { name: 'guildAuditLogEntryCreate' },
     async run(entry, client) {
         if (entry.userId && FLAGGED_ACTIONS.has(entry.actionType)) {
-            await AntiraidSystem.detect({ client, guildId: entry.guildId, executorId: entry.userId });
+            const weight = await AntiraidSystem.weightFor(client, entry);
+            await AntiraidSystem.detect({ client, guildId: entry.guildId, executorId: entry.userId, weight });
         }
 
         if (entry.userId === client.botId) return;

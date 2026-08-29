@@ -1,4 +1,4 @@
-import { EmbedColors, type UsingClient } from 'seyfert';
+import { AuditLogEvent, EmbedColors, type UsingClient } from 'seyfert';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { BurstTracker } from './BurstTracker.js';
@@ -13,6 +13,15 @@ export interface AntiraidDetectOptions {
     client: UsingClient;
     guildId: string;
     executorId: string;
+    /** How much this action counts toward the burst threshold — see {@link AntiraidSystem.weightFor}. Defaults to 1. */
+    weight?: number;
+}
+
+interface WeighableAuditLogEntry {
+    guildId: string;
+    actionType: AuditLogEvent;
+    targetId: string | null;
+    changes?: { key: string; newValue?: unknown }[];
 }
 
 /**
@@ -22,14 +31,14 @@ export interface AntiraidDetectOptions {
  */
 export class AntiraidSystem {
     /** Call for a flagged audit log entry (channel/role create-delete, ban add) — `executorId` comes straight off the gateway payload, no REST lookup needed. */
-    static async detect({ client, guildId, executorId }: AntiraidDetectOptions): Promise<void> {
+    static async detect({ client, guildId, executorId, weight = 1 }: AntiraidDetectOptions): Promise<void> {
         if (executorId === client.botId) return;
 
         const settings = await GuildConfigCache.get(guildId);
         if (!settings?.antiraidEnable) return;
         if (settings.whitelist.includes(executorId)) return;
 
-        const tripped = BurstTracker.hit({ key: guildId, threshold: BURST_THRESHOLD, windowMs: BURST_WINDOW_MS });
+        const tripped = BurstTracker.hit({ key: guildId, threshold: BURST_THRESHOLD, windowMs: BURST_WINDOW_MS, weight });
         if (!tripped) return;
 
         const t = client.t(settings.language);
@@ -44,5 +53,24 @@ export class AntiraidSystem {
                 targetId: executorId
             })
         ).catch(() => {});
+    }
+
+    /**
+     * How much a flagged audit log entry should count toward the burst threshold. Everything is
+     * worth 1 hit except a channel created with the same name as one that already exists — raiders
+     * commonly clone/duplicate channel names when spamming — which counts double so the detector
+     * trips sooner. A false positive here (an admin genuinely naming two channels the same) is far
+     * cheaper than missing a real raid.
+     */
+    static async weightFor(client: UsingClient, entry: WeighableAuditLogEntry): Promise<number> {
+        if (entry.actionType !== AuditLogEvent.ChannelCreate) return 1;
+
+        const newName = entry.changes?.find((change) => change.key === 'name')?.newValue;
+        if (typeof newName !== 'string') return 1;
+
+        const channels = (client.cache.channels?.values(entry.guildId)) ?? [];
+        const isDuplicate = channels.some((channel) => channel.id !== entry.targetId && 'name' in channel && channel.name === newName);
+
+        return isDuplicate ? 2 : 1;
     }
 }
