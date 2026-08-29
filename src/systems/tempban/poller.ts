@@ -20,6 +20,6 @@ async function processExpiredTempbans(client: UsingClient) {
 /** Starts the periodic sweep that lifts expired temp-bans. Call once, from the ready event. */
 export function startTempbanPoller(client: UsingClient) {
     setInterval(() => {
-        processExpiredTempbans(client).catch((error) => client.logger.error('[tempban] Poll failed', error));
+        void processExpiredTempbans(client).catch((error) => client.logger.error('[tempban] Poll failed', error));
     }, 60_000);
 }

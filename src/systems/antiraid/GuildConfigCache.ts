@@ -23,7 +23,7 @@ export class GuildConfigCache {
         if (GuildConfigCache.listening) return;
         GuildConfigCache.listening = true;
 
-        sql.listen('guild_config_changed', (guildId) => GuildConfigCache.entries.delete(guildId)).catch((error) => {
+        void sql.listen('guild_config_changed', (guildId) => GuildConfigCache.entries.delete(guildId)).catch((error) => {
             client.logger.error('[antiraid] Failed to start the guild_config_changed listener', error);
         });
         setInterval(() => GuildConfigCache.entries.clear(), 10 * 60 * 1000);
