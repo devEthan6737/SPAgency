@@ -81,6 +81,7 @@ Esto no son sugerencias sueltas — es cómo está escrito todo el código nuevo
 - Si de verdad se comparte entre varios ficheros hermanos (varios subcomandos de una misma carpeta, p. ej.), se extrae a un fichero compartido en esa misma carpeta como una clase con métodos estáticos (ver `unnuke/shared.ts` → `UnnukeHelpers`), no se duplica.
 - `src/systems/` es para subsistemas transversales reutilizables (`logs/`, `confirmation/`, `ubfb/`, `tempban/`...). `src/middlewares/` es aparte, un fichero por middleware, nombrado `<nombre>.middleware.ts`.
 - Sin comentarios que expliquen *qué* hace el código. Solo cuándo el *por qué* no es obvio (una restricción externa, un bug que se está esquivando, una decisión no evidente). La documentación de una clase/método pensada para verse en el hover del editor es JSDoc (`/** */`), no `//`.
+- Nada de `switch` para traducir un enum externo (una acción de audit log, un tipo de evento de Discord) a nuestra propia forma de dato. Si cada rama solo asigna los mismos campos con valores distintos, eso es una tabla, no control de flujo: se declara como `Record<Enum, Forma>` (o `Partial<...>` si no cubre todos los valores) junto al tipo que construye, y se resuelve con un lookup + guard clause (`const x = TABLA[valor]; if (!x) return;`). Un `switch`/`if` encadenado se reserva para cuando de verdad hay *comportamiento* distinto por rama, no una asignación de campos repetida seis veces.
 
 ### Returns y guard clauses
 

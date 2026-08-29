@@ -1,4 +1,6 @@
-import type { UsingClient } from 'seyfert';
+import { EmbedColors, type UsingClient } from 'seyfert';
+import { ServerEventType } from '../../database/schema/server-event-log.js';
+import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { BurstTracker } from './BurstTracker.js';
 import { GuildConfigCache } from './GuildConfigCache.js';
 
@@ -21,6 +23,8 @@ export interface AntiraidDetectOptions {
 export class AntiraidSystem {
     /** Call for a flagged audit log entry (channel/role create-delete, ban add) — `executorId` comes straight off the gateway payload, no REST lookup needed. */
     static async detect({ client, guildId, executorId }: AntiraidDetectOptions): Promise<void> {
+        if (executorId === client.botId) return;
+
         const settings = await GuildConfigCache.get(guildId);
         if (!settings?.antiraidEnable) return;
         if (settings.whitelist.includes(executorId)) return;
@@ -30,5 +34,15 @@ export class AntiraidSystem {
 
         const t = client.t(settings.language);
         await client.bans.create(guildId, executorId, { reason: t.systems.antiraid.banReason.get() }).catch(() => {});
+
+        void dispatchLog(
+            client,
+            new ServerEventLog(guildId, {
+                type: ServerEventType.RaidDetected,
+                color: EmbedColors.Red,
+                describe: (t) => t.systems.logs.events.raidDetected(executorId).get(),
+                targetId: executorId
+            })
+        ).catch(() => {});
     }
 }

@@ -401,7 +401,14 @@ export default {
         logs: {
             events: {
                 memberJoin: (userId: string) => `📥 <@${userId}> joined the server.`,
-                memberLeave: (userId: string) => `📤 <@${userId}> left the server.`
+                memberLeave: (userId: string) => `📤 <@${userId}> left the server.`,
+                channelCreate: (channelId: string) => `📁 A channel was created: <#${channelId}>.`,
+                channelDelete: (channelId: string) => `🗑️ A channel was deleted: \`${channelId}\`.`,
+                channelUpdate: (channelId: string) => `✏️ A channel was updated: <#${channelId}>.`,
+                roleCreate: (roleId: string) => `✅ A role was created: <@&${roleId}>.`,
+                roleDelete: (roleId: string) => `🗑️ A role was deleted: \`${roleId}\`.`,
+                webhookCreate: () => '🪝 A webhook was created.',
+                raidDetected: (userId: string) => `🚨 Raid detected — banned <@${userId}>.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

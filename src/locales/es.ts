@@ -401,7 +401,14 @@ export default {
         logs: {
             events: {
                 memberJoin: (userId: string) => `📥 <@${userId}> se ha unido al servidor.`,
-                memberLeave: (userId: string) => `📤 <@${userId}> ha salido del servidor.`
+                memberLeave: (userId: string) => `📤 <@${userId}> ha salido del servidor.`,
+                channelCreate: (channelId: string) => `📁 Se ha creado un canal: <#${channelId}>.`,
+                channelDelete: (channelId: string) => `🗑️ Se ha eliminado un canal: \`${channelId}\`.`,
+                channelUpdate: (channelId: string) => `✏️ Se ha editado un canal: <#${channelId}>.`,
+                roleCreate: (roleId: string) => `✅ Se ha creado un rol: <@&${roleId}>.`,
+                roleDelete: (roleId: string) => `🗑️ Se ha eliminado un rol: \`${roleId}\`.`,
+                webhookCreate: () => '🪝 Se ha creado un webhook.',
+                raidDetected: (userId: string) => `🚨 Raid detectado — se ha baneado a <@${userId}>.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>
