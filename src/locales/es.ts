@@ -408,6 +408,8 @@ export default {
                 roleCreate: (roleId: string) => `✅ Se ha creado un rol: <@&${roleId}>.`,
                 roleDelete: (roleId: string) => `🗑️ Se ha eliminado un rol: \`${roleId}\`.`,
                 webhookCreate: () => '🪝 Se ha creado un webhook.',
+                ban: (userId: string) => `🔨 \`${userId}\` ha sido baneado.`,
+                unban: (userId: string) => `✅ \`${userId}\` ha sido desbaneado.`,
                 raidDetected: (userId: string) => `🚨 Raid detectado — se ha baneado a <@${userId}>.`
             },
             actions: {

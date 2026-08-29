@@ -9,8 +9,10 @@ interface AuditLogEventTemplate {
 }
 
 /**
- * How each audit-log-driven server event renders — one entry per action, no branching. Actions the
- * bot doesn't log (member-related ones, mainly) are simply absent, not a `default` case.
+ * How each audit-log-driven server event renders — one entry per action, no branching. Actions not
+ * logged this way (either not useful as a server event, or already covered by a `BotActionLog` when
+ * this bot performed them — see the `botId` check in `guildAuditLogEntryCreate`) are simply absent
+ * here, not a `default` case.
  */
 const AUDIT_LOG_EVENT_TEMPLATES: Partial<Record<AuditLogEvent, AuditLogEventTemplate>> = {
     [AuditLogEvent.ChannelCreate]: {
@@ -42,6 +44,16 @@ const AUDIT_LOG_EVENT_TEMPLATES: Partial<Record<AuditLogEvent, AuditLogEventTemp
         type: ServerEventType.WebhookCreate,
         color: EmbedColors.Yellow,
         describe: (t) => t.systems.logs.events.webhookCreate().get()
+    },
+    [AuditLogEvent.MemberBanAdd]: {
+        type: ServerEventType.Ban,
+        color: EmbedColors.Red,
+        describe: (t, id) => t.systems.logs.events.ban(id!).get()
+    },
+    [AuditLogEvent.MemberBanRemove]: {
+        type: ServerEventType.Unban,
+        color: EmbedColors.Green,
+        describe: (t, id) => t.systems.logs.events.unban(id!).get()
     }
 };
 

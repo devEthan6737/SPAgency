@@ -9,7 +9,8 @@ const FLAGGED_ACTIONS = new Set<AuditLogEvent>([
     AuditLogEvent.ChannelUpdate,
     AuditLogEvent.RoleCreate,
     AuditLogEvent.RoleDelete,
-    AuditLogEvent.MemberBanAdd
+    AuditLogEvent.MemberBanAdd,
+    AuditLogEvent.MemberBanRemove
 ]);
 
 /**

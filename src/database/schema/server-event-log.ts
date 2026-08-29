@@ -12,6 +12,10 @@ export enum ServerEventType {
     RoleCreate = 'roleCreate',
     RoleDelete = 'roleDelete',
     WebhookCreate = 'webhookCreate',
+    /** A member was banned, detected via the audit log — not necessarily through this bot. */
+    Ban = 'ban',
+    /** A member was unbanned, detected via the audit log — not necessarily through this bot. */
+    Unban = 'unban',
     /** The antiraid system detected a raid. */
     RaidDetected = 'raidDetected'
 }
