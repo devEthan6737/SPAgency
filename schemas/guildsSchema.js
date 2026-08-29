@@ -38,35 +38,6 @@ const guildsSchema = new mongoose.Schema({
             enable: mongoose.SchemaTypes.Boolean,
             rememberEntrities: mongoose.SchemaTypes.Array
         },
-        ownSystem: {
-            enable: mongoose.SchemaTypes.Boolean,
-            events: {
-                messageCreate: mongoose.SchemaTypes.Array,
-                messageDelete: mongoose.SchemaTypes.Array,
-                messageUpdate: mongoose.SchemaTypes.Array,
-                channelCreate: mongoose.SchemaTypes.Array,
-                channelDelete: mongoose.SchemaTypes.Array,
-                channelUpdate: mongoose.SchemaTypes.Array,
-                roleCreate: mongoose.SchemaTypes.Array,
-                roleDelete: mongoose.SchemaTypes.Array,
-                roleUpdate: mongoose.SchemaTypes.Array,
-                emojiCreate: mongoose.SchemaTypes.Array,
-                emojiDelete: mongoose.SchemaTypes.Array,
-                emojiUpdate: mongoose.SchemaTypes.Array,
-                stickerCreate: mongoose.SchemaTypes.Array,
-                stickerDelete: mongoose.SchemaTypes.Array,
-                stickerUpdate: mongoose.SchemaTypes.Array,
-                guildMemberAdd: mongoose.SchemaTypes.Array,
-                guildMemberRemove: mongoose.SchemaTypes.Array,
-                guildMemberUpdate: mongoose.SchemaTypes.Array,
-                guildBanAdd: mongoose.SchemaTypes.Array,
-                guildBanRemove: mongoose.SchemaTypes.Array,
-                inviteCreate: mongoose.SchemaTypes.Array,
-                inviteDelete: mongoose.SchemaTypes.Array,
-                threadCreate: mongoose.SchemaTypes.Array,
-                threadDelete: mongoose.SchemaTypes.Array
-            }
-        },
         verification: {
             enable: mongoose.SchemaTypes.Boolean,
             _type: mongoose.SchemaTypes.String,
