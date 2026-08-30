@@ -29,7 +29,9 @@ export enum ServerEventType {
     /** Raidmode temp-banned someone for joining while it was active. */
     RaidmodeJoinBan = 'raidmodeJoinBan',
     /** Raidmode permanently banned someone for a channel/role/ban/bot-add action while it was active. */
-    RaidmodeActionBan = 'raidmodeActionBan'
+    RaidmodeActionBan = 'raidmodeActionBan',
+    /** Raidmode turned itself off automatically once its configured duration elapsed. */
+    RaidmodeExpired = 'raidmodeExpired'
 }
 
 /** One row per server event (memberJoin, channelCreate, ...), never edited. */

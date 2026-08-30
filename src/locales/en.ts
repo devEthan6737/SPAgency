@@ -433,7 +433,8 @@ export default {
                 maliciousMemberMark: (userId: string) => `🚩 A known malicious user (<@${userId}>) joined — nickname changed to flag them.`,
                 maliciousMemberBan: (userId: string) => `🔨 A known malicious user (<@${userId}>) joined — banned.`,
                 raidmodeJoinBan: (userId: string) => `🔒 <@${userId}> joined during raidmode — temp-banned.`,
-                raidmodeActionBan: (userId: string) => `🔒 <@${userId}> made a change during raidmode — banned.`
+                raidmodeActionBan: (userId: string) => `🔒 <@${userId}> made a change during raidmode — banned.`,
+                raidmodeExpired: () => '🔓 Raidmode expired and was turned off automatically.'
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

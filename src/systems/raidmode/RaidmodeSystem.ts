@@ -67,8 +67,11 @@ export class RaidmodeSystem {
         return true;
     }
 
-    /** `'1d'`/`'30m'`/... → ms. Falls back to a day if `value` doesn't parse — better a safe default than an instant expiry. */
-    private static parseDurationMs(value: string): number {
+    /**
+     * `'1d'`/`'30m'`/... → ms. Falls back to a day if `value` doesn't parse — better a safe default
+     * than an instant expiry. Also used by `RaidmodeExpiry` to know how long a lockdown should last.
+     */
+    static parseDurationMs(value: string): number {
         const unitsMs: Record<string, number> = { s: 1_000, m: 60_000, h: 3_600_000, d: 86_400_000, w: 604_800_000 };
         const match = /^(\d+)\s*(s|m|h|d|w)$/i.exec(value.trim());
         if (!match) return unitsMs.d;

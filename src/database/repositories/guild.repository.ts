@@ -69,6 +69,28 @@ export class GuildRepository {
         return rows.map((row) => row.guildId);
     }
 
+    /** Lean list for `RaidmodeExpiry`'s startup sweep — only the guild ids with raidmode turned on. */
+    static async listRaidmodeEnabledGuildIds(): Promise<string[]> {
+        const rows = await db.select({ guildId: guildProtection.guildId }).from(guildProtection).where(eq(guildProtection.raidmodeEnable, true));
+        return rows.map((row) => row.guildId);
+    }
+
+    /** Lean lookup for `RaidmodeExpiry` — avoids the full joined get(). */
+    static async getRaidmodeState(
+        id: string
+    ): Promise<{ raidmodeEnable: boolean; raidmodeTimeToDisable: string; raidmodeActivatedAt: Date | null } | null> {
+        const [row] = await db
+            .select({
+                raidmodeEnable: guildProtection.raidmodeEnable,
+                raidmodeTimeToDisable: guildProtection.raidmodeTimeToDisable,
+                raidmodeActivatedAt: guildProtection.raidmodeActivatedAt
+            })
+            .from(guildProtection)
+            .where(eq(guildProtection.guildId, id));
+
+        return row ?? null;
+    }
+
     /** Single-column lookup for `ForceReasons` — avoids the full joined get(). */
     static async getForceReasons(id: string): Promise<string[]> {
         const [row] = await db.select({ forceReasons: guildModeration.forceReasons }).from(guildModeration).where(eq(guildModeration.guildId, id));

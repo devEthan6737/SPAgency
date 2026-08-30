@@ -113,6 +113,13 @@
       "when": 1788118152881,
       "tag": "0015_wet_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1788118500000,
+      "tag": "0016_petite_shocker",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { boolean, index, integer, pgTable, text } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { guilds } from './guild.js';
 
 export enum AntibotsType {
@@ -38,6 +38,13 @@ export enum MaliciousMemberAction {
     Ban = 'ban'
 }
 
+/**
+ * Any `UPDATE` on this table fires `guild_protection_notify_config_changed` — a Postgres trigger
+ * (see `drizzle/0005_thin_madame_hydra.sql`, not represented here since Drizzle's schema builder has
+ * no declarative way to express triggers) that does `pg_notify('guild_config_changed', guild_id)`.
+ * `GuildConfigCache` and `RaidmodeExpiry` both `LISTEN` on that channel to invalidate/reschedule
+ * without polling — see docs/antiraid.md section 2.
+ */
 export const guildProtection = pgTable('guild_protection',
     {
         guildId: text('guild_id').primaryKey().references(() => guilds.id, { onDelete: 'cascade' }),
@@ -90,9 +97,13 @@ export const guildProtection = pgTable('guild_protection',
         // existing 2FA (guild_configuration.password*) instead of a password of its own.
         raidmodeEnable: boolean('raidmode_enable').notNull().default(false),
         // duration new joins get temp-banned for while active, e.g. '1d' — also how long raidmode
-        // itself stays on before RaidmodeSystem's poller turns it off automatically
+        // itself stays on before RaidmodeExpiry turns it off automatically
         raidmodeTimeToDisable: text('raidmode_time_to_disable').notNull().default('1d'),
-        raidmodeActivedDate: integer('raidmode_actived_date').notNull().default(0)
+        // when raidmode was turned on — null while off. A real timestamp, not epoch ms in an
+        // `integer` column: a 4-byte int overflows a millisecond `Date.now()` (13 digits) by three
+        // orders of magnitude, which the legacy schema did without anyone noticing since Mongo
+        // doesn't enforce column widths.
+        raidmodeActivatedAt: timestamp('raidmode_activated_at')
     },
     (table) => [index('guild_protection_antiraid_enable_idx').on(table.antiraidEnable)]
 );

@@ -1,6 +1,7 @@
 import { createEvent } from 'seyfert';
 import { AntiraidSystem } from '../systems/antiraid/index.js';
 import { GuildConfigCache } from '../systems/protection/index.js';
+import { RaidmodeExpiry } from '../systems/raidmode/index.js';
 import { startTempbanPoller } from '../systems/tempban/poller.js';
 import { initUbfb } from '../systems/ubfb/client.js';
 
@@ -26,5 +27,7 @@ export default createEvent({
         void AntiraidSystem.recheckAllPrerequisites(client).catch((error) =>
             client.logger.error('[antiraid] Startup prerequisites check failed', error)
         );
+
+        RaidmodeExpiry.start(client);
     }
 });

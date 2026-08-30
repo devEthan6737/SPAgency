@@ -28,19 +28,21 @@ Ninguna de estas acciones manda DM al dueño del servidor — a diferencia de `M
 
 ## Lo que se descarta y por qué
 
-- **Contraseña propia (`raidmodePassword`)**: se elimina del schema cuando se implemente esto. SP Agency ya tiene un sistema de 2FA (`guild_configuration.passwordEnable`/`password`) que bloquea comandos sensibles — inventar una segunda contraseña específica de raidmode duplicaría esa misma lógica sin aportar nada. Desactivar raidmode pasa por ese mismo 2FA, no por una contraseña aparte.
-- **Activación/duración/desactivación**: eso es pura configuración (`raidmodeEnable`, `raidmodeTimeToDisable`, `raidmodeActivedDate`) — va a la dashboard, no a un comando de Seyfert, mismo criterio que el resto de toggles de configuración pura de esta sesión.
+- **Contraseña propia (`raidmodePassword`)**: eliminada del schema. SP Agency ya tiene un sistema de 2FA (`guild_configuration.passwordEnable`/`password`) que bloquea comandos sensibles — inventar una segunda contraseña específica de raidmode duplicaría esa misma lógica sin aportar nada. Desactivar raidmode pasa por ese mismo 2FA, no por una contraseña aparte.
+- **Activación/duración**: eso es pura configuración (`raidmodeEnable`, `raidmodeTimeToDisable`) — va a la dashboard, no a un comando de Seyfert, mismo criterio que el resto de toggles de configuración pura de esta sesión.
 
 ## Parseo de duración — `RaidmodeSystem.parseDurationMs`
 
-`raidmodeTimeToDisable` se guarda como texto tipo `'1d'`/`'30m'` (igual que `bloqNewCreatedUsersTime`, sin implementar todavía, que tendrá el mismo problema). No hay ninguna librería de parseo de duraciones en las dependencias (`ms`, que usaba el legacy, no está instalado) — en vez de añadir una dependencia para un formato tan simple, `RaidmodeSystem` trae su propio parser privado (`/^(\d+)\s*(s|m|h|d|w)$/i`), con un día como valor por defecto si el texto no encaja con el patrón (mejor un valor seguro que una expiración instantánea). Si `bloqNewCreatedUsers` acaba necesitando lo mismo, ese es el momento de extraerlo a un sitio compartido — no antes.
+`raidmodeTimeToDisable` se guarda como texto tipo `'1d'`/`'30m'` (igual que `bloqNewCreatedUsersTime`, sin implementar todavía, que tendrá el mismo problema). No hay ninguna librería de parseo de duraciones en las dependencias (`ms`, que usaba el legacy, no está instalado) — en vez de añadir una dependencia para un formato tan simple, `RaidmodeSystem` trae su propio parser (`/^(\d+)\s*(s|m|h|d|w)$/i`), con un día como valor por defecto si el texto no encaja con el patrón (mejor un valor seguro que una expiración instantánea). Si `bloqNewCreatedUsers` acaba necesitando lo mismo, ese es el momento de extraerlo a un sitio compartido — no antes. Es un método `static` (no `private`) precisamente porque `RaidmodeExpiry` (ver abajo) también lo necesita.
 
-## Qué falta
+## Auto-desactivación por tiempo — `RaidmodeExpiry`
 
-- **Auto-desactivación por tiempo**: la dashboard no puede "esperar" a que venza el plazo por sí sola. Pendiente, sin construir — mientras tanto, desactivarlo depende de que alguien lo apague a mano desde la dashboard.
+**Fichero:** [`src/systems/raidmode/RaidmodeExpiry.ts`](../src/systems/raidmode/RaidmodeExpiry.ts)
 
-  **No debería ser un poller tipo `tempban`.** Un barrido periódico de toda la tabla (cada 60s, escaneando todos los servidores) tiene sentido para tempbans porque son relativamente frecuentes — para raidmode, activo en un puñado de servidores como mucho en un momento dado, escanear la tabla entera todo el rato sería desperdiciar ciclos por una feature casi siempre inactiva. Mejor encaja un enfoque dirigido por eventos, reutilizando la infraestructura que ya existe:
-  - Cuando `raidmodeEnable` pasa a `true` (vía el mismo trigger de Postgres que ya invalida `GuildConfigCache`), programar un único `setTimeout` para ese servidor concreto, calculado a partir de `raidmodeActivedDate + raidmodeTimeToDisable` — no un intervalo repetido, un temporizador que dispara una vez y desactiva.
-  - Al arrancar (`ready`), una única pasada por los servidores que ya tengan `raidmodeEnable: true` para reprogramar sus temporizadores restantes — mismo patrón que `AntiraidSystem.recheckAllPrerequisites()` ya usa para cubrir el hueco de "esto pudo cambiar mientras el bot estaba apagado".
-  
-  Con 2-3 servidores activos a la vez como mucho, esto es unos pocos temporizadores en memoria, cero consultas periódicas a la base de datos.
+La dashboard no puede "esperar" a que venza el plazo por sí sola — hace falta algo en el bot. **Deliberadamente no es un poller tipo `tempban`**: un barrido periódico de toda la tabla (cada 60s, escaneando todos los servidores) tiene sentido para tempbans porque son relativamente frecuentes — para raidmode, activo en un puñado de servidores como mucho en un momento dado, escanear la tabla entera todo el rato desperdiciaría ciclos por una feature casi siempre inactiva. En su lugar, un `setTimeout` por servidor, dirigido por eventos, reutilizando la infraestructura que ya existe:
+
+- **Un segundo listener en el mismo canal.** `sql.listen('guild_config_changed', ...)` admite más de un listener por canal (cada `.listen()` añade el suyo, todos se disparan) — así que `RaidmodeExpiry` engancha su propio callback al mismo canal que ya usa `GuildConfigCache`, sin tocar su código. Cada vez que cambia cualquier config de un servidor, se releen `raidmodeEnable`/`raidmodeTimeToDisable`/`raidmodeActivatedAt` y se reprograma (o se limpia) el `setTimeout` de ese servidor concreto.
+- **Una pasada al arrancar.** En `ready` — en cada sesión de gateway nueva, no solo la primera, mismo motivo que `AntiraidSystem.recheckAllPrerequisites()` — se listan los servidores con `raidmodeEnable: true` y se reprograma el temporizador de cada uno, para cubrir el hueco de "esto pudo activarse o casi vencer mientras el bot estaba desconectado".
+- **Al vencer, se desactiva y se loguea** (`ServerEventType.RaidmodeExpired`). Ese propio `UPDATE` dispara otra vez el mismo trigger de Postgres — pero como `reschedule()` no hace nada si `raidmodeEnable` ya está a `false`, no hay bucle.
+
+Con 2-3 servidores activos a la vez como mucho, esto es unos pocos temporizadores en memoria, cero consultas periódicas a la base de datos.
