@@ -27,6 +27,21 @@ Ambos tipos de log se guardan siempre en su tabla, pase lo que pase con el toggl
 2. Si `logsEnable` es `false` o no hay `logsChannel` configurado, corta ahí.
 3. Si el envío al canal falla con 403/404 (el bot perdió acceso, o el canal se borró), `logsChannel` se limpia solo en la config del servidor — así no se reintenta contra un canal muerto en cada acción futura.
 
+## Sin inundar el canal — `LogChannelThrottle`
+
+**Fichero:** [`src/systems/logs/LogChannelThrottle.ts`](../src/systems/logs/LogChannelThrottle.ts)
+
+`dispatchLog()` guarda el log en su tabla siempre, incondicionalmente — pero un raid genera decenas de `ServerEventLog` en pocos segundos (uno por cada canal/rol tocado por el atacante, salte o no el ban), y mandar un mensaje por cada uno reventaría el rate-limit del canal (~5 mensajes/5s) justo cuando más importa que el canal siga funcionando. `LogChannelThrottle` limita a `MaxSendsPerWindow` (3) mensajes cada `WindowMs` (10s) por servidor; lo que se pasa de ahí no se pierde — se apila y se manda junto en un solo mensaje (hasta `MaxEmbedsPerMessage`, el límite real de Discord: 10 embeds por mensaje) en cuanto vuelve a haber hueco.
+
+El `Map` interno se limpia solo: en cuanto pasa una ventana entera sin nada pendiente para un servidor, su entrada se borra (mismo principio que `BurstTracker`/`GuildConfigCache` — nada se queda ocupando memoria indefinidamente solo por haber tocado ese servidor una vez).
+
+**¿Por qué esto no vive en Redis, y por qué sí podría acabar ahí algún día (a diferencia de `BurstTracker`/`GuildConfigCache`, ver `antiraid.md` sección 2):** este `Map` no está en el camino de ninguna decisión de seguridad — no decide si banear a nadie, solo decide si un mensaje se manda ya o se espera un poco. Meterle una petición de red (aunque sea a un Redis en la misma VPS) no compromete ningún principio de diseño, porque `dispatchLog()` ya es fire-and-forget de por sí. Aun así, hoy no hace falta: el bot es un único proceso, así que un `Map` en memoria ve exactamente el mismo estado que vería cualquier alternativa. Solo tendría sentido moverlo si:
+
+1. El bot deja de ser un único proceso y necesita que varios procesos vean la misma cola de un servidor (no aplica hoy — cada guild lo procesa siempre el mismo proceso/shard).
+2. Otro servicio (la futura dashboard, por ejemplo) necesita ver este estado efímero en vivo — algo que hoy no existe en ningún sitio, ni falta hace.
+
+Mientras ninguna de las dos se cumpla, Redis aquí sería complejidad añadida sin beneficio real, no una mejora.
+
 ## Uso desde un comando o un sistema
 
 Cada comando con una acción real (para `BotActionLog`) o cada sistema de protección (para `ServerEventLog`, ej. `AntiraidSystem`/`AntibotsSystem`) declara un `private static log(...)` justo debajo de su método principal (`run()` en un comando, `detect()`/`enforce()` en un sistema), con un `LogInput` con nombres (nunca una lista larga de parámetros posicionales), y lo despacha sin bloquear lo que esté haciendo:

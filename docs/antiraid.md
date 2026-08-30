@@ -40,6 +40,8 @@ Lo interesante no es la caché en sí, es cómo se invalida: en vez de que el bo
 
 Esto significa que **la futura dashboard no necesita avisar al bot de nada** — un `UPDATE` normal ya invalida la caché sola. Como red de seguridad ante un aviso perdido (reconexión del `LISTEN`, etc.), hay además un `setInterval` que vacía toda la caché cada 10 minutos.
 
+**Por qué esto no se mueve a Redis, ni aunque esté en la misma VPS:** `BurstTracker` y `GuildConfigCache` están en el camino de decisión de un ban — cada hit del audit log pasa por ellos antes de decidir si banea. Redis en `localhost` sigue siendo una petición de red (socket/loopback, serialización, esperar respuesta), aunque comparta máquina y RAM con el bot — sustituir un `Map` en proceso por Redis aquí sería reintroducir exactamente la latencia que la idea 1 de la filosofía existe para evitar. Esto no es una cuestión de memoria (un `Map` de este tamaño no pesa nada) ni de "está en la misma VPS entonces da igual" — es que el camino caliente de una decisión de seguridad no puede depender de una petición, esté a un milisegundo o a cien. Este `Map` se queda en proceso salvo que el bot deje de ser un único proceso (sharding real con estado compartido entre procesos) — y aun así, cada guild siempre lo procesa el mismo shard, así que ese escenario ni siquiera obligaría a compartir este `Map` en concreto.
+
 ## 3. Un único punto de entrada — `guildAuditLogEntryCreate`
 
 **Fichero:** [`src/events/guildAuditLogEntryCreate.ts`](../src/events/guildAuditLogEntryCreate.ts)
