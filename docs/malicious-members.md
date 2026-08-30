@@ -51,4 +51,4 @@ Con esas tres fuera, a `Mark` no le queda nada que configurar — siempre cambia
 
 ## Qué falta del bundle completo
 
-`MaliciousMemberSystem` es solo una pieza del bundle de protección al unirse. El resto (`antitokens`, `verification`, `bloqEntritiesByName`, `bloqNewCreatedUsers`) sigue sin implementar, pendiente de su propia sesión de diseño — cada uno se añade a `guildMemberAdd.ts` según le toque, nunca en un fichero de evento aparte. (`antijoins` se eliminó del schema — `raidmode`, ver [`raidmode.md`](raidmode.md), ya cubre "banear a quien se una" de sobra.)
+`MaliciousMemberSystem` es solo una pieza del bundle de protección al unirse. El resto (`antitokens`, `verification`, `bloqNewCreatedUsers`) sigue sin implementar, pendiente de su propia sesión de diseño — cada uno se añade a `guildMemberAdd.ts` según le toque, nunca en un fichero de evento aparte. (`antijoins` se eliminó del schema — `raidmode`, ver [`raidmode.md`](raidmode.md), ya cubre "banear a quien se una" de sobra. `bloqEntritiesByName` también se eliminó — ver `antiraid.md` sección "Lo que falta" para el porqué.)

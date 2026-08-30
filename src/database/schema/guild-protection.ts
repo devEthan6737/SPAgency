@@ -83,10 +83,6 @@ export const guildProtection = pgTable('guild_protection',
         // basic flood protection toggle
         antiflood: boolean('antiflood').notNull().default(true),
 
-        // kicks users whose username matches a blacklist (bloq-entrities-by-name.js)
-        bloqEntritiesByNameEnable: boolean('bloq_entrities_by_name_enable').notNull().default(false),
-        bloqEntritiesByNameNames: text('bloq_entrities_by_name_names').array().notNull().default(['raider', 'doxer', 'hacker', 'infecter']),
-
         // blocks accounts younger than this on join, e.g. '1h' (bloq-new-created-users.js)
         bloqNewCreatedUsersTime: text('bloq_new_created_users_time').notNull().default('1h'),
 

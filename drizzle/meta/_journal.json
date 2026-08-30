@@ -134,6 +134,13 @@
       "when": 1788120600000,
       "tag": "0018_guilds_notify_config_changed",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788125480285,
+      "tag": "0019_drop_bloq_entrities_by_name",
+      "breakpoints": true
     }
   ]
 }

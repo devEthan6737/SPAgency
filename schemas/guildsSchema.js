@@ -59,10 +59,6 @@ const guildsSchema = new mongoose.Schema({
         },
         intelligentAntiflood: mongoose.SchemaTypes.Boolean,
         antiflood: mongoose.SchemaTypes.Boolean,
-        bloqEntritiesByName: {
-            enable: mongoose.SchemaTypes.Boolean,
-            names: mongoose.SchemaTypes.Array
-        },
         bloqNewCreatedUsers: {
             time: mongoose.SchemaTypes.String
         },

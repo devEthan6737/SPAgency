@@ -12,11 +12,11 @@ module.exports = async (client, member) => {
     if(!_guild)return;
     let malicious = await client.ubfb.getUser(member.user.id);
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
-    
-    
+
+
     try{
         let cache = await client.super.cache.get(member.guild.id, true);
-            
+
             // Antitokens:
             if(_guild.protection.antitokens.enable == true) {
 
@@ -84,21 +84,6 @@ module.exports = async (client, member) => {
                             guildChannel.bulkDelete(99);
                         });
                     }).catch(err => {});
-                }
-            }
-
-            // bloqEntritiesByName
-            if(_guild.protection.bloqEntritiesByName.names.length > 0) {
-                for(let x of _guild.protection.bloqEntritiesByName.names) {
-                    if(`${member.user.username}`.includes(x)) {
-                        if(member.guild.me.permissions.has('KICK_MEMBERS')) {
-                            client.users.cache.get(member.user.id).send({ content: 'Tu nombre incluye caracteres que fueron prohibidos en el servidor.' }).then(() => {
-                                member.guild.members.kick(member, 'Nombre prohibido.').catch(err => {});
-                            }).catch(() => {
-                                member.guild.members.kick(member, 'Nombre prohibido.').catch(err => {});
-                            });
-                        }
-                    }
                 }
             }
 
