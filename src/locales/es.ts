@@ -395,6 +395,9 @@ export default {
         antiraid: {
             banReason: 'Raid detectado.'
         },
+        antibots: {
+            kickReason: 'Los bots no pueden unirse a este servidor.'
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Espera un poco — inténtalo de nuevo en \`${seconds}s\`.`
         },
@@ -410,7 +413,8 @@ export default {
                 webhookCreate: () => '🪝 Se ha creado un webhook.',
                 ban: (userId: string) => `🔨 \`${userId}\` ha sido baneado.`,
                 unban: (userId: string) => `✅ \`${userId}\` ha sido desbaneado.`,
-                raidDetected: (userId: string) => `🚨 Raid detectado — se ha baneado a <@${userId}>.`
+                raidDetected: (userId: string) => `🚨 Raid detectado — se ha baneado a <@${userId}>.`,
+                antibotsKick: (userId: string) => `🤖 <@${userId}> fue expulsado — no se permite la entrada de bots.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

@@ -1,8 +1,8 @@
 import { AuditLogEvent, EmbedColors, type UsingClient } from 'seyfert';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
+import { GuildConfigCache } from '../protection/index.js';
 import { BurstTracker } from './BurstTracker.js';
-import { GuildConfigCache } from './GuildConfigCache.js';
 
 /** How many flagged actions within the window count as a raid. */
 const BURST_THRESHOLD = 3;
@@ -44,15 +44,7 @@ export class AntiraidSystem {
         const t = client.t(settings.language);
         await client.bans.create(guildId, executorId, { reason: t.systems.antiraid.banReason.get() }).catch(() => {});
 
-        void dispatchLog(
-            client,
-            new ServerEventLog(guildId, {
-                type: ServerEventType.RaidDetected,
-                color: EmbedColors.Red,
-                describe: (t) => t.systems.logs.events.raidDetected(executorId).get(),
-                targetId: executorId
-            })
-        ).catch(() => {});
+        void dispatchLog(client, AntiraidSystem.log({ guildId, targetId: executorId })).catch(() => {});
     }
 
     /**
@@ -73,4 +65,18 @@ export class AntiraidSystem {
 
         return isDuplicate ? 2 : 1;
     }
+
+    private static log({ guildId, targetId }: LogInput) {
+        return new ServerEventLog(guildId, {
+            type: ServerEventType.RaidDetected,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.events.raidDetected(targetId).get(),
+            targetId
+        });
+    }
+}
+
+interface LogInput {
+    guildId: string;
+    targetId: string;
 }

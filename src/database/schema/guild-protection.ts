@@ -1,6 +1,15 @@
 import { boolean, integer, pgTable, text } from 'drizzle-orm/pg-core';
 import { guilds } from './guild.js';
 
+export enum AntibotsType {
+    /** Kicks every bot that joins. */
+    All = 'all',
+    /** Kicks only bots Discord hasn't reviewed — the real threat, since a Discord-verified bot is
+     * the least suspicious kind. A "kick only verified bots" mode existed in the legacy bot but
+     * made no security sense, so it wasn't carried over. */
+    OnlyUnverified = 'onlyUnverified'
+}
+
 export const guildProtection = pgTable('guild_protection', {
     guildId: text('guild_id').primaryKey().references(() => guilds.id, { onDelete: 'cascade' }),
 
@@ -9,8 +18,7 @@ export const guildProtection = pgTable('guild_protection', {
 
     // kicks bots on join (antibots.js)
     antibotsEnable: boolean('antibots_enable').notNull().default(false),
-    // 'all' | 'only_nv' (unverified) | 'only_v' (verified) — which bots to kick
-    antibotsType: text('antibots_type').notNull().default('all'),
+    antibotsType: text('antibots_type').notNull().$type<AntibotsType>().default(AntibotsType.All),
 
     // expels "zombie" users (selfbots/fake accounts) on join (antitokens.js)
     antitokensEnable: boolean('antitokens_enable').notNull().default(false),

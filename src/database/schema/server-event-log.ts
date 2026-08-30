@@ -17,7 +17,9 @@ export enum ServerEventType {
     /** A member was unbanned, detected via the audit log — not necessarily through this bot. */
     Unban = 'unban',
     /** The antiraid system detected a raid. */
-    RaidDetected = 'raidDetected'
+    RaidDetected = 'raidDetected',
+    /** The antibots system kicked a bot on join. */
+    AntibotsKick = 'antibotsKick'
 }
 
 /** One row per server event (memberJoin, channelCreate, ...), never edited. */

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../connection.js';
 import { guildConfiguration } from '../schema/guild-configuration.js';
 import { guildModeration } from '../schema/guild-moderation.js';
-import { guildProtection } from '../schema/guild-protection.js';
+import { type AntibotsType, guildProtection } from '../schema/guild-protection.js';
 import { guilds } from '../schema/guild.js';
 
 export interface GuildConfig {
@@ -34,13 +34,21 @@ export class GuildRepository {
         return row ?? null;
     }
 
-    /** Lean lookup for the antiraid detector — avoids the full joined get(), and skips guildModeration entirely. */
-    static async getAntiraidSettings(id: string): Promise<{ language: string; antiraidEnable: boolean; whitelist: string[] } | null> {
+    /** Lean lookup for the join-time protection systems (antiraid, antibots...) — avoids the full joined get(), and skips guildModeration entirely. */
+    static async getProtectionSettings(id: string): Promise<{
+        language: string;
+        antiraidEnable: boolean;
+        whitelist: string[];
+        antibotsEnable: boolean;
+        antibotsType: AntibotsType;
+    } | null> {
         const [row] = await db
             .select({
                 language: guilds.language,
                 antiraidEnable: guildProtection.antiraidEnable,
-                whitelist: guildConfiguration.whitelist
+                whitelist: guildConfiguration.whitelist,
+                antibotsEnable: guildProtection.antibotsEnable,
+                antibotsType: guildProtection.antibotsType
             })
             .from(guilds)
             .innerJoin(guildProtection, eq(guildProtection.guildId, guilds.id))
