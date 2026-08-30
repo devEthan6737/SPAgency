@@ -10,6 +10,32 @@ export enum AntibotsType {
     OnlyUnverified = 'onlyUnverified'
 }
 
+/**
+ * What happens on join for a known malicious user (per UBFB). Every case below is logged
+ * unconditionally (the join event itself, regardless of `maliciousMemberAction`) and, if
+ * `warnEntry` is also on, DMs the server owner — those two are independent of which case runs, so
+ * they're not repeated in each one below; only what's specific to that case is.
+ */
+export enum MaliciousMemberAction {
+    /** Nothing beyond the unconditional log/DM — the member joins like anyone else. */
+    None = 'none',
+    /**
+     * Lets them in, but changes their nickname to the reason they're marked malicious — silently
+     * skipped if the bot lacks Manage Nicknames or the member outranks it (the log/DM still happen
+     * either way). The legacy bot had 4 variants here (rename, add a role, log to the log channel,
+     * DM the owner); the other 3 were dead weight — `warnEntry` already covers "DM the owner", the
+     * join is logged regardless of this setting anyway, and "add a role" was never actually used.
+     */
+    Mark = 'mark',
+    /**
+     * Bans them immediately — not a kick, on purpose. A kick lets them try rejoining right away;
+     * letting that repeat indefinitely risks a race in the join-handling path that could eventually
+     * let them slip in undetected. A ban removes that risk entirely, so there's no escalation ladder
+     * to get right — just one action that reliably works the first time.
+     */
+    Ban = 'ban'
+}
+
 export const guildProtection = pgTable('guild_protection',
     {
         guildId: text('guild_id').primaryKey().references(() => guilds.id, { onDelete: 'cascade' }),
@@ -27,24 +53,20 @@ export const guildProtection = pgTable('guild_protection',
         // kicks/bans every detected join while active (antijoins.js)
         antijoinsEnable: boolean('antijoins_enable').notNull().default(false),
 
-        // renames or adds a role to malicious users on join (markmalicious.js)
-        markMaliciousEnable: boolean('mark_malicious_enable').notNull().default(true),
-        markMaliciousType: text('mark_malicious_type').notNull().default('changeNickname'),
+        // what to do when a known malicious user (per UBFB) joins — mark.js and kick-malicious.js
+        // used to be two independent booleans that could both be on at once, which makes no sense
+        // (let them in and flag them, vs. remove them, are mutually exclusive outcomes)
+        maliciousMemberAction: text('malicious_member_action').notNull().$type<MaliciousMemberAction>().default(MaliciousMemberAction.Mark),
 
-        // DMs the server owner when a known malicious user joins (warn-entry.js)
+        // DMs the server owner when a known malicious user joins (warn-entry.js) — independent of
+        // maliciousMemberAction, works alongside either mark or kick
         warnEntry: boolean('warn_entry').notNull().default(true),
-        // kicks a known malicious user on join, bans if they keep rejoining (kick-malicious.js)
-        kickMaliciousEnable: boolean('kick_malicious_enable').notNull().default(false),
 
         // anti-selfbot verification flow (verification.js, variantes --v1..--v4)
         verificationEnable: boolean('verification_enable').notNull().default(false),
         verificationType: text('verification_type'),
         verificationChannel: text('verification_channel'),
         verificationRole: text('verification_role'),
-
-        // kicks a user who left the server and tries to rejoin (cannot-enter-twice.js)
-        cannotEnterTwiceEnable: boolean('cannot_enter_twice_enable').notNull().default(false),
-        cannotEnterTwiceUsers: text('cannot_enter_twice_users').array().notNull().default([]),
 
         // removes malicious webhooks (purge-webhooks-attacks.js)
         purgeWebhooksAttacksEnable: boolean('purge_webhooks_attacks_enable').notNull().default(false),
