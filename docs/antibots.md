@@ -41,4 +41,4 @@ Igual que la detección de ráfagas del antiraid, un kick de antibots es una acc
 
 ## Lo que falta
 
-`guildMemberAdd` es, igual que `guildAuditLogEntryCreate`, un único punto de entrada por la misma restricción de Seyfert (un handler por evento) — cualquier sistema futuro que reaccione a un join (antijoins, verification, bloqEntritiesByName, bloqNewCreatedUsers) se añade ahí, no en un fichero aparte. Ninguno de esos está implementado todavía (`antibots` y `maliciousMemberAction` sí lo están, ver [`malicious-members.md`](malicious-members.md) para el segundo).
+`guildMemberAdd` es, igual que `guildAuditLogEntryCreate`, un único punto de entrada por la misma restricción de Seyfert (un handler por evento) — cualquier sistema futuro que reaccione a un join (verification, bloqEntritiesByName, bloqNewCreatedUsers) se añade ahí, no en un fichero aparte. Ninguno de esos está implementado todavía (`antibots`, `maliciousMemberAction` y `raidmode` sí lo están, ver [`malicious-members.md`](malicious-members.md) y [`raidmode.md`](raidmode.md)).

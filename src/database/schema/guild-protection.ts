@@ -59,9 +59,6 @@ export const guildProtection = pgTable('guild_protection',
         // expels "zombie" users (selfbots/fake accounts) on join (antitokens.js)
         antitokensEnable: boolean('antitokens_enable').notNull().default(false),
 
-        // kicks/bans every detected join while active (antijoins.js)
-        antijoinsEnable: boolean('antijoins_enable').notNull().default(false),
-
         // what to do when a known malicious user (per UBFB) joins — mark.js and kick-malicious.js
         // used to be two independent booleans that could both be on at once, which makes no sense
         // (let them in and flag them, vs. remove them, are mutually exclusive outcomes)
