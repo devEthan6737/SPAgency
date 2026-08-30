@@ -17,10 +17,5 @@ export const guildConfiguration = pgTable('guild_configuration', {
     // 2fa: locks bot commands behind a password (2fa.js)
     passwordEnable: boolean('password_enable').notNull().default(false),
     password: text('password').notNull().default(''),
-    passwordUsersWithAccess: text('password_users_with_access').array().notNull().default([]),
-
-    // how much detail the `comandos` command shows: 'lessDetails' | 'moreDetails' | 'twoOptions'
-    showDetailsInCmdsCommand: text('show_details_in_cmds_command').notNull().default('lessDetails'),
-    // how much detail the bot's ping/mention reply shows: 'allDetails' | 'pingLessDetails' | 'onlySupportServer'
-    pingMessage: text('ping_message').notNull().default('allDetails')
+    passwordUsersWithAccess: text('password_users_with_access').array().notNull().default([])
 });
