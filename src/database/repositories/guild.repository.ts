@@ -41,6 +41,8 @@ export class GuildRepository {
         antibotsEnable: boolean;
         antibotsType: AntibotsType;
         maliciousMemberAction: MaliciousMemberAction;
+        raidmodeEnable: boolean;
+        raidmodeTimeToDisable: string;
     } | null> {
         const [row] = await db
             .select({
@@ -49,7 +51,9 @@ export class GuildRepository {
                 whitelist: guildConfiguration.whitelist,
                 antibotsEnable: guildProtection.antibotsEnable,
                 antibotsType: guildProtection.antibotsType,
-                maliciousMemberAction: guildProtection.maliciousMemberAction
+                maliciousMemberAction: guildProtection.maliciousMemberAction,
+                raidmodeEnable: guildProtection.raidmodeEnable,
+                raidmodeTimeToDisable: guildProtection.raidmodeTimeToDisable
             })
             .from(guilds)
             .innerJoin(guildProtection, eq(guildProtection.guildId, guilds.id))

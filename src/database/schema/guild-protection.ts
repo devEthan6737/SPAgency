@@ -86,10 +86,12 @@ export const guildProtection = pgTable('guild_protection',
         // blocks accounts younger than this on join, e.g. '1h' (bloq-new-created-users.js)
         bloqNewCreatedUsersTime: text('bloq_new_created_users_time').notNull().default('1h'),
 
-        // manual lockdown: bans joins until it expires (raidmode.js)
+        // manual lockdown (raidmode.js) — see docs/raidmode.md. Disabling it goes through the
+        // existing 2FA (guild_configuration.password*) instead of a password of its own.
         raidmodeEnable: boolean('raidmode_enable').notNull().default(false),
+        // duration new joins get temp-banned for while active, e.g. '1d' — also how long raidmode
+        // itself stays on before RaidmodeSystem's poller turns it off automatically
         raidmodeTimeToDisable: text('raidmode_time_to_disable').notNull().default('1d'),
-        raidmodePassword: text('raidmode_password').notNull().default('Nothing'),
         raidmodeActivedDate: integer('raidmode_actived_date').notNull().default(0)
     },
     (table) => [index('guild_protection_antiraid_enable_idx').on(table.antiraidEnable)]

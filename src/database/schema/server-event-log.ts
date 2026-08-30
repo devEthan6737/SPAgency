@@ -25,7 +25,11 @@ export enum ServerEventType {
     /** The log channel got unset after a failed send (channel deleted, access lost...). */
     LogsDisabled = 'logsDisabled',
     /** A known malicious user (per UBFB) joined — `data.action` says what `MaliciousMemberSystem` did about it. */
-    MaliciousMemberJoin = 'maliciousMemberJoin'
+    MaliciousMemberJoin = 'maliciousMemberJoin',
+    /** Raidmode temp-banned someone for joining while it was active. */
+    RaidmodeJoinBan = 'raidmodeJoinBan',
+    /** Raidmode permanently banned someone for a channel/role/ban/bot-add action while it was active. */
+    RaidmodeActionBan = 'raidmodeActionBan'
 }
 
 /** One row per server event (memberJoin, channelCreate, ...), never edited. */

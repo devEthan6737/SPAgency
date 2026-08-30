@@ -406,6 +406,10 @@ export default {
             ownerDmBan: (userId: string, reason: string) =>
                 `⚠️ Un usuario malicioso conocido (<@${userId}>) se ha unido a tu servidor. Lo he baneado.\n**Razón:** ${reason}`
         },
+        raidmode: {
+            joinBanReason: 'Raidmode está activo — no se permiten entradas ahora mismo.',
+            actionBanReason: 'Raidmode está activo — no se permiten cambios de canales/roles/baneos ahora mismo.'
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Espera un poco — inténtalo de nuevo en \`${seconds}s\`.`
         },
@@ -428,7 +432,9 @@ export default {
                 logsDisabled: () => '⚠️ El canal de logs se ha desactivado tras un fallo de envío. Configura uno nuevo para reactivarlos.',
                 maliciousMemberNone: (userId: string) => `👁️ Un usuario malicioso conocido (<@${userId}>) se ha unido — sin ninguna acción.`,
                 maliciousMemberMark: (userId: string) => `🚩 Un usuario malicioso conocido (<@${userId}>) se ha unido — apodo cambiado para marcarlo.`,
-                maliciousMemberBan: (userId: string) => `🔨 Un usuario malicioso conocido (<@${userId}>) se ha unido — baneado.`
+                maliciousMemberBan: (userId: string) => `🔨 Un usuario malicioso conocido (<@${userId}>) se ha unido — baneado.`,
+                raidmodeJoinBan: (userId: string) => `🔒 <@${userId}> se unió durante el raidmode — baneo temporal.`,
+                raidmodeActionBan: (userId: string) => `🔒 <@${userId}> hizo un cambio durante el raidmode — baneado.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

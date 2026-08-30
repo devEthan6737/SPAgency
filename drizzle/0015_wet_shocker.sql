@@ -1,0 +1,1 @@
+ALTER TABLE "guild_protection" DROP COLUMN "raidmode_password";

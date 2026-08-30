@@ -10,6 +10,8 @@ export interface GuildProtectionSettings {
     antibotsEnable: boolean;
     antibotsType: AntibotsType;
     maliciousMemberAction: MaliciousMemberAction;
+    raidmodeEnable: boolean;
+    raidmodeTimeToDisable: string;
 }
 
 /**

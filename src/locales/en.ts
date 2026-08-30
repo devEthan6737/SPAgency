@@ -405,6 +405,10 @@ export default {
                 `⚠️ A known malicious user (<@${userId}>) joined your server. I changed their nickname to \`${reason}\` to flag them.`,
             ownerDmBan: (userId: string, reason: string) => `⚠️ A known malicious user (<@${userId}>) joined your server. I banned them.\n**Reason:** ${reason}`
         },
+        raidmode: {
+            joinBanReason: 'Raidmode is active — no joins are allowed right now.',
+            actionBanReason: 'Raidmode is active — no channel/role/ban changes are allowed right now.'
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
         },
@@ -427,7 +431,9 @@ export default {
                 logsDisabled: () => '⚠️ The log channel was unset after a failed send. Set a new one to turn logs back on.',
                 maliciousMemberNone: (userId: string) => `👁️ A known malicious user (<@${userId}>) joined — no action taken.`,
                 maliciousMemberMark: (userId: string) => `🚩 A known malicious user (<@${userId}>) joined — nickname changed to flag them.`,
-                maliciousMemberBan: (userId: string) => `🔨 A known malicious user (<@${userId}>) joined — banned.`
+                maliciousMemberBan: (userId: string) => `🔨 A known malicious user (<@${userId}>) joined — banned.`,
+                raidmodeJoinBan: (userId: string) => `🔒 <@${userId}> joined during raidmode — temp-banned.`,
+                raidmodeActionBan: (userId: string) => `🔒 <@${userId}> made a change during raidmode — banned.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>
