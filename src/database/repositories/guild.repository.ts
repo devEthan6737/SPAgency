@@ -58,6 +58,12 @@ export class GuildRepository {
         return row ?? null;
     }
 
+    /** Lean list for the antiraid prerequisites check — only the guild ids with antiraid turned on. */
+    static async listAntiraidEnabledGuildIds(): Promise<string[]> {
+        const rows = await db.select({ guildId: guildProtection.guildId }).from(guildProtection).where(eq(guildProtection.antiraidEnable, true));
+        return rows.map((row) => row.guildId);
+    }
+
     static async get(id: string): Promise<GuildConfig | null> {
         const [row] = await db
             .select()

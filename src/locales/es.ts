@@ -414,7 +414,9 @@ export default {
                 ban: (userId: string) => `🔨 \`${userId}\` ha sido baneado.`,
                 unban: (userId: string) => `✅ \`${userId}\` ha sido desbaneado.`,
                 raidDetected: (userId: string) => `🚨 Raid detectado — se ha baneado a <@${userId}>.`,
-                antibotsKick: (userId: string) => `🤖 <@${userId}> fue expulsado — no se permite la entrada de bots.`
+                antibotsKick: (userId: string) => `🤖 <@${userId}> fue expulsado — no se permite la entrada de bots.`,
+                antiraidDisabled: () =>
+                    '⚠️ El antiraid se ha desactivado automáticamente: ya no tengo Banear Miembros/Ver Auditoría, o hay otro rol por encima del mío. Corrígelo y vuelve a activarlo.'
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

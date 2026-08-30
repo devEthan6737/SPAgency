@@ -1,7 +1,9 @@
 import { AuditLogEvent, EmbedColors, type UsingClient } from 'seyfert';
+import { GuildRepository } from '../../database/repositories/guild.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache } from '../protection/index.js';
+import { AntiraidPrerequisites } from './AntiraidPrerequisites.js';
 import { BurstTracker } from './BurstTracker.js';
 
 /** How many flagged actions within the window count as a raid. */
@@ -72,6 +74,42 @@ export class AntiraidSystem {
             color: EmbedColors.Red,
             describe: (t) => t.systems.logs.events.raidDetected(targetId).get(),
             targetId
+        });
+    }
+
+    /**
+     * Re-checks {@link AntiraidPrerequisites} for one guild and disables antiraid if it no longer
+     * holds. Call whenever something that could break it happens — a role's position/permissions
+     * change, a role gets deleted, or the bot's own roles change (see `src/events/guildRoleUpdate.ts`,
+     * `guildRoleDelete.ts`, `guildMemberUpdate.ts`) — not on a timer.
+     */
+    static async recheckPrerequisites(client: UsingClient, guildId: string): Promise<void> {
+        const settings = await GuildConfigCache.get(guildId);
+        if (!settings?.antiraidEnable) return;
+
+        const meets = await AntiraidPrerequisites.meets(client, guildId);
+        if (!meets) await AntiraidSystem.disable(client, guildId);
+    }
+
+    /** Re-checks every antiraid-enabled guild — call from `ready` (fires on every fresh gateway session, not just process start) to catch drift from while the bot was offline/disconnected that no event could have told it about. */
+    static async recheckAllPrerequisites(client: UsingClient): Promise<void> {
+        const guildIds = await GuildRepository.listAntiraidEnabledGuildIds();
+        for (const guildId of guildIds) {
+            await AntiraidSystem.recheckPrerequisites(client, guildId);
+        }
+    }
+
+    /** Turns antiraid off because the bot no longer meets its prerequisites, and logs it. */
+    private static async disable(client: UsingClient, guildId: string): Promise<void> {
+        await GuildRepository.updateProtection(guildId, { antiraidEnable: false });
+        void dispatchLog(client, AntiraidSystem.logDisabled(guildId)).catch(() => {});
+    }
+
+    private static logDisabled(guildId: string) {
+        return new ServerEventLog(guildId, {
+            type: ServerEventType.AntiraidDisabled,
+            color: EmbedColors.Red,
+            describe: (t) => t.systems.logs.events.antiraidDisabled().get()
         });
     }
 }

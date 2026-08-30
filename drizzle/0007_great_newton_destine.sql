@@ -1,0 +1,1 @@
+CREATE INDEX "guild_protection_antiraid_enable_idx" ON "guild_protection" USING btree ("antiraid_enable");

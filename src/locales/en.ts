@@ -414,7 +414,9 @@ export default {
                 ban: (userId: string) => `🔨 \`${userId}\` was banned.`,
                 unban: (userId: string) => `✅ \`${userId}\` was unbanned.`,
                 raidDetected: (userId: string) => `🚨 Raid detected — banned <@${userId}>.`,
-                antibotsKick: (userId: string) => `🤖 <@${userId}> was kicked — bots aren't allowed to join.`
+                antibotsKick: (userId: string) => `🤖 <@${userId}> was kicked — bots aren't allowed to join.`,
+                antiraidDisabled: () =>
+                    "⚠️ Antiraid was turned off automatically: I no longer have Ban Members/View Audit Log, or another role sits above mine. Fix that and turn it back on."
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

@@ -19,7 +19,9 @@ export enum ServerEventType {
     /** The antiraid system detected a raid. */
     RaidDetected = 'raidDetected',
     /** The antibots system kicked a bot on join. */
-    AntibotsKick = 'antibotsKick'
+    AntibotsKick = 'antibotsKick',
+    /** Antiraid was auto-disabled because the bot no longer meets its prerequisites (permissions/role position). */
+    AntiraidDisabled = 'antiraidDisabled'
 }
 
 /** One row per server event (memberJoin, channelCreate, ...), never edited. */

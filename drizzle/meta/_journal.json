@@ -50,6 +50,13 @@
       "when": 1787700100000,
       "tag": "0006_wooden_the_call",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788052865806,
+      "tag": "0007_great_newton_destine",
+      "breakpoints": true
     }
   ]
 }
