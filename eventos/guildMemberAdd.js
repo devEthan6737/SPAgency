@@ -13,146 +13,9 @@ module.exports = async (client, member) => {
     let malicious = await client.ubfb.getUser(member.user.id);
     let LANG = require(`../LANG/${_guild.configuration.language}.json`);
     
-    // Logs:
-    try{
-        if(_guild.configuration.logs[0]) {
-            client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` ' + LANG.events.guildMemberAdd.log_memberAdd + '.', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(member.guild.name, member.guild.iconURL()).addField(`${LANG.events.guildMemberAdd.log_person}:`, `\`${member.user.username} (${member.user.id})\``, true) ] }).catch(err => {});
-        }
-    }catch(err) {
-        client.channels.cache.get(_guild.configuration.logs[1]).send({ content: `Logs error (guildMemberAdd): \`${err}\`` }).catch(() => {});
-        _guild.configuration.logs = [];
-    }
-
-    // User is bloqued:
-    if(user && user.isBloqued) {
-        if(member.guild.me.permissions.has('BAN_MEMBERS')) {
-            member.send({ embeds: [ new Discord.MessageEmbed().setDescription(`<:sp_flecha:875788005766492181> \`${member.user.tag}\`, ${`${LANG.events.guildMemberAdd.kickBloqUser}`.replace('<var1>', member.guild.name)}.`).setFooter(member.guild.name, member.guild.iconURL).setColor(0x5c4fff) ] }).then(() => {
-                member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.kickBloqUserReason}.` }).catch(err => {});
-            }).catch(() => {
-                member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.kickBloqUserReason}.` }).catch(err => {});
-            });
-        }
-    }
     
     try{
         let cache = await client.super.cache.get(member.guild.id, true);
-
-        // Antijoins:
-        if(_guild.protection.antijoins.enable == true) {
-
-            if(cache.remember.length > 0 && cache.remember.includes(member.user.id)) {
-                if(member.guild.me.permissions.has('BAN_MEMBERS')) {
-                    member.send({ embeds: [ new Discord.MessageEmbed().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${`${LANG.events.guildMemberAdd.antijoinsMessage}`.replace('<var1>', member.guild.name)}.`).setFooter(member.guild.name, member.guild.iconURL).setColor(0x5c4fff) ] }).then(() => {
-                        member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.antijoinsReason}.` }).catch(err => {});
-                    }).catch(() => {
-                        member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.antijoinsReason}.` }).catch(err => {});
-                    });
-                    return;
-                }
-            }else{
-                if(member.guild.me.permissions.has('KICK_MEMBERS')) {
-                    member.send({ embeds: [ new Discord.MessageEmbed().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${LANG.events.guildMemberAdd.antijoinsMessage1}.`.replace('<var1>', member.guild.name)).setFooter(member.guild.name, member.guild.iconURL).setColor(0x5c4fff) ] }).then(() => {
-                        member.guild.members.kick(member, `${LANG.events.guildMemberAdd.antijoinsReason1}.`).catch(err => {});
-                    }).catch(() => {
-                        member.guild.members.kick(member, `${LANG.events.guildMemberAdd.antijoinsReason}.`).catch(err => {});
-                    });
-                    client.super.cache.push({ id: member.guild.id }, member.user.id);
-                    
-                    setTimeout(async () => {
-                        client.super.cache.extract({ id: member.guild.id }, member.user.id);
-                    }, 60000);
-                    return;
-                }
-            }
-        }
-
-        // warnEntry:
-        if(_guild.protection.warnEntry == true) {
-            if(malicious && malicious.isMalicious) {
-                client.users.cache.get(member.guild.ownerId).send({ embeds: [new Discord.MessageEmbed().setDescription(`${LANG.events.guildMemberAdd.warnEntry_MessagePart1} \`${member.guild.name}\`.\n\n${LANG.events.guildMemberAdd.warnEntry_MessagePart2} <@${member.user.id}> (${member.user.id}) ${LANG.events.guildMemberAdd.warnEntry_MessagePart3} \`${member.guild.name} (${member.guild.id})\`.`).addField(`${LANG.events.guildMemberAdd.warnEntry_MessagePart4}:`, `Tag: **${member.user.tag}**\nID: **${member.user.id}**\n${LANG.events.guildMemberAdd.warnEntry_MessagePart5}: **${malicious.reason}**`).setColor(0x0056ff) ] }).catch(err => {});
-                client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send({ embeds: [ new Discord.MessageEmbed().setDescription(`Usuario Malicioso Detectado En \`${member.guild.name} (${member.guild.id})\``).addField('Usuario:', `<@${member.user.id}> (${member.user.id})`, true).setTimestamp().setColor(0x0056ff) ] }).catch(err => {});
-            }
-        }
-
-        // kickMalicious:
-        if(_guild.protection.kickMalicious.enable == true && malicious && malicious.isMalicious) {
-            if(cache.remember.length > 0 && cache.remember.includes(member.user.id)) {
-                if(member.guild.me.permissions.has('BAN_MEMBERS')) {
-                    member.send({ embeds: [ new Discord.MessageEmbed().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${LANG.events.guildMemberAdd.kickMaliciousBanMessage1} \`${member.guild.name}\`.\n\`${LANG.events.guildMemberAdd.kickMaliciousBanMessage2}(https://discord.gg/RuBvM5r9eM)**.`).setFooter(member.guild.name, member.guild.iconURL).setColor(0x5c4fff) ] }).then(() => {
-                        member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.kickMaliciousBanReason}.` }).catch(err => {});
-                    }).catch(() => {
-                        member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.kickMaliciousBanReason}.` }).catch(err => {});
-                    });
-                }
-            }else{
-                if(member.guild.me.permissions.has('KICK_MEMBERS')) {
-                    member.send({ embeds: [ new Discord.MessageEmbed().setDescription(`<:sp_flecha:875788005766492181> <@${member.user.id}> ${LANG.events.guildMemberAdd.kickMaliciousKickMessage1} \`${member.guild.name}\`.\n\`${LANG.events.guildMemberAdd.kickMaliciousKickMessage1}(https://discord.gg/RuBvM5r9eM)**.`).setFooter(member.guild.name, member.guild.iconURL).setColor(0x5c4fff) ] }).then(() => {
-                        member.guild.members.kick(member, `${LANG.events.guildMemberAdd.kickMaliciousKickReason}.`).catch(err => {});
-                    }).catch(() => {
-                        member.guild.members.kick(member, `${LANG.events.guildMemberAdd.kickMaliciousKickReason}.`).catch(err => {});
-                    });
-                    client.super.cache.push({ id: member.guild.id }, member.user.id);
-                    
-                    setTimeout(async () => {
-                        client.super.cache.extract({ id: member.guild.id }, member.user.id);
-                    }, 60000);
-                    return;
-                }
-            }
-        }
-
-        if(member.user.bot) {
-            
-            // Antibots
-            if(_guild.protection.antibots.enable == true) {
-                if(_guild.protection.antibots._type == 'all') {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS')) {
-                        await member.guild.members.kick(member.user.id, `${LANG.events.guildMemberAdd.antibotsKickReason}.`).catch(err => {});
-                        let embed = new Discord.MessageEmbed()
-                        .setDescription(`${LANG.events.guildMemberAdd.antibotsMessage1} \`${member.user.tag}\` ${LANG.events.guildMemberAdd.antibotsMessage2}.`)
-                        .setColor(0x5c4fff);
-                        client.users.cache.get(member.guild.ownerId).send({ embeds: [ embed ] }).catch(err => {});
-                    }
-                }else if(_guild.protection.antibots._type == 'only_nv' && !member.user.flags.has(65536)) {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS')) {
-                        await member.guild.members.kick(member.user.id, `${LANG.events.guildMemberAdd.antibotsKickReason}.`).catch(err => {});
-                        let embed = new Discord.MessageEmbed()
-                        .setDescription(`${LANG.events.guildMemberAdd.antibotsMessage1} \`${member.user.tag}\` ${LANG.events.guildMemberAdd.antibotsMessage3}.`)
-                        .setColor(0x5c4fff);
-                        client.users.cache.get(member.guild.ownerId).send({ embeds: [ embed ] }).catch(err => {});
-                    }
-                }else if(_guild.protection.antibots._type == 'only_v' && member.user.flags.has(65536)) {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS')) {
-                        await member.guild.members.kick(member.user.id, `${LANG.events.guildMemberAdd.antibotsKickReason}.`).catch(err => {});
-                        let embed = new Discord.MessageEmbed()
-                        .setDescription(`${LANG.events.guildMemberAdd.antibotsMessage1} \`${member.user.tag}\` ${LANG.events.guildMemberAdd.antibotsMessage4}.`)
-                        .setColor(0x5c4fff);
-                        client.users.cache.get(member.guild.ownerId).send({ embeds: [ embed ] }).catch(err => {});
-                    }
-                }
-            }
-            
-            // Save bots entrities:
-            member.guild.fetchAuditLogs({ type: 'ADD_BOT' }).then(async logs => {
-                let persona = logs.entries.first().executor;
-                
-                if(malicious && malicious.isMalicious == member.user.id) {
-
-                    if(member.guild.me.permissions.has('BAN_MEMBERS')) {
-                        await member.guild.members.ban(persona, { reason: `${LANG.events.guildMemberAdd.saveBotsEntrities}.` }).catch(err => {});
-                    }
-                    
-                }else{
-                    
-                    if(!member.user.flags.has(65536)) {                        
-                        _guild.protection.antiraid.saveBotsEntrities.authorOfEntry = persona.id;
-                        _guild.protection.antiraid.saveBotsEntrities._bot = member.user.id;
-                    }
-                    
-                }
-            });
-
-        }else{
             
             // Antitokens:
             if(_guild.protection.antitokens.enable == true) {
@@ -176,25 +39,6 @@ module.exports = async (client, member) => {
 
                 if(_guild.protection.verification.enable == true && _guild.protection.verification._type == '--v4') {
                     member.roles.add(_guild.protection.verification.role).catch(err => {});
-                }
-            }
-
-            // markMalicious:
-            if(_guild.protection.markMalicious.enable == true) {
-                if(malicious && malicious.isMalicious) {
-                    if(_guild.protection.markMalicious._type == 'changeNickname') {
-                        if(member.guild.me.permissions.has('MANAGE_NICKNAMES')) {
-                            member.setNickname(`${malicious.reason}`).catch(err => {});
-                        }
-                    }else if(_guild.protection.markMalicious._type == 'sendLog') {
-                        if(_guild.configuration.logs[0]) {
-                            client.channels.cache.get(_guild.configuration.logs[0]).send({ content: '`LOG:` Detectada entrada de usuario __malicioso__.', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(member.guild.name, member.guild.iconURL()).addField('Persona:', `\`${member.user.username} (${member.user.id})\``, true) ] }).catch(err => {});
-                        }
-                    }else if(_guild.protection.markMalicious._type == 'sendLogToOwner') {
-                        client.channels.cache.get(member.guild.ownerId).send({ content: '`LOG:` Detectada entrada de usuario __malicioso__.', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setAuthor(member.guild.name, member.guild.iconURL()).addField('Persona:', `\`${member.user.username} (${member.user.id})\``, true) ] }).catch(err => {});
-                    }else{
-                        member.roles.add(_guild.protection.markMalicious._type.split(':')[1]).catch(err => {});
-                    }
                 }
             }
 
@@ -243,15 +87,6 @@ module.exports = async (client, member) => {
                 }
             }
 
-            // cannotEnterTwice
-            if(_guild.protection.cannotEnterTwice.enable == true) {
-                if(cache.remember.includes(member.user.id)) {
-                    member.guild.members.kick(member, 'Sistema cannotEnterTwice activo.');
-                }else{
-                    client.super.cache.push({ id: member.guild.id }, member.user.id);
-                }
-            }
-
             // bloqEntritiesByName
             if(_guild.protection.bloqEntritiesByName.names.length > 0) {
                 for(let x of _guild.protection.bloqEntritiesByName.names) {
@@ -278,16 +113,6 @@ module.exports = async (client, member) => {
                 }
             }
 
-            // Add muterole if user is muted
-            let _timers = await Timers.findOne({ });
-            if(_timers.servers.includes(member.guild.id)) {
-                _guild.moderation.dataModeration.timers.forEach(async i => {
-                    if(i.user.id == member.user.id) {
-                        member.roles.add(_guild.moderation.dataModeration.muterole).catch(err => {});
-                    }
-                });
-            }
-        }
 
         updateDataBase(client, member.guild, _guild, true);
 

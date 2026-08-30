@@ -10,62 +10,6 @@ const ms = require('ms');
 const antiIpLogger = require("anti-ip-logger");
 
 module.exports = async (client, message) => {
-    if(message.channel.type === 'DM') {
-        let _support = await Support.findOne({ fetchAutor: message.author.id });
-        if(_support) {
-            if(message.author.id == _support.author.id) {
-                if(message.content.startsWith('sp!close')) {
-                    message.channel.send({ content: 'Has cerrado el chat.' });
-                    message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${_support.staff.tag}\` **se ha desconectado de la conversación**.`) ] }).catch(err => {});
-                    await client.users.fetch(_support.staff.id);
-                    await client.users.cache.get(_support.staff.id).send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${_support.author.tag}\` **ha cerrado el chat, se ha desconectado de la conversación**.`) ] }).catch(err => {});
-                    let dataStaffArray = await dev.get('array');
-                    if(!dataStaffArray.includes(_support.staff.id)) {
-                        dev.push('array', _support.staff.id);
-                    }
-                    await Support.findOneAndDelete({ fetchAutor: message.author.id });
-                    return;
-                }
-                message.channel.send({ content: 'Enviando mensaje...' }).then(async x => {
-                    await client.users.fetch(_support.staff.id);
-                    await client.users.cache.get(_support.staff.id).send({ embeds: [ new Discord.MessageEmbed().setColor('GREEN').setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription(message.content) ] }).catch(async err => {
-                        message.channel.send({ content: 'Error al enviar mensaje, he cerrado la conversación.' });
-                        await Support.findOneAndDelete({ fetchAutor: message.author.id });
-                    });
-                    x.edit({ content: 'Mensaje enviado con éxito.' });
-                });
-            }
-        }
-        let __support = await Support.findOne({ fetchStaff: message.author.id });
-        if(__support) {
-            if(message.author.id == __support.staff.id) {
-                if(message.content.startsWith('sp!close')) {
-                    message.channel.send({ content: 'Has cerrado el chat.' });
-                    message.author.send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${__support.author.tag}\` **se ha desconectado de la conversación**.`) ] }).catch(err => {});
-                    await client.users.fetch(__support.author.id);
-                    await client.users.cache.get(__support.author.id).send({ embeds: [ new Discord.MessageEmbed().setColor('RED').setDescription(`[←] \`${__support.staff.tag}\` **ha cerrado el chat, se ha desconectado de la conversación**.`) ] }).catch(err => {});
-                    let dataStaffArray = await dev.get('array');
-                    if(!dataStaffArray.includes(__support.staff.id)) {
-                        dev.push('array', __support.staff.id);
-                    }
-                    await Support.findOneAndDelete({ fetchAutor: __support.author.id });
-                    return;
-                }
-                message.channel.send({ content: 'Enviando mensaje...' }).then(async x => {
-                    if(message.author.id == __support.staff.id) {
-                        await client.users.fetch(__support.author.id);
-                        await client.users.cache.get(__support.author.id).send({ embeds: [ new Discord.MessageEmbed().setColor('GREEN').setAuthor(message.author.tag, message.author.displayAvatarURL()).setDescription(message.content) ] }).catch(async err => {
-                            message.channel.send({ content: 'Error al enviar mensaje, he cerrado la conversación.' });
-                            await Support.findOneAndDelete({ fetchAutor: __support.author.id });
-                        });
-                        x.edit({ content: 'Mensaje enviado con éxito.' });
-                    }
-                });
-            }
-        }
-        return;
-    }
-
     if(!message.guild)return;
     if(!message.guild.available)return;
     if(!message.author || !message.author.id)return;
@@ -394,22 +338,9 @@ module.exports = async (client, message) => {
             }
         }
 
-        // Disable raidmode:
-        if(_guild.protection.raidmode.enable == true && _guild.protection.raidmode.activedDate + ms(_guild.protection.raidmode.timeToDisable) <= Date.now()) {
-            _guild.protection.raidmode.enable = false;
-            updateDataBase(client, message.guild, _guild);
-            message.reply({ content: '`Raidmode fue desactivado:` Ha expirado el tiempo establecido desde la activación.' });
-        }
-
     }catch(err) {}
 
     if(!message.content.startsWith(_guild.configuration.prefix) || message.author.bot)return;
-
-    if(process.env.TURN_ON_CANARY === 'true' && _guild.configuration.prefix != process.env.DEFAULT_CANARY_PREFIX) {
-        if(process.env.TURN_ON_CANARY === 'true' && _guild.configuration.language != process.env.DEFAULT_LANGUAGE) _guild.configuration.language = process.env.DEFAULT_LANGUAGE;
-        _guild.configuration.prefix = process.env.DEFAULT_CANARY_PREFIX;
-        updateDataBase(client, message.guild, _guild, false);
-    }
 
     if(message.content.length == _guild.configuration.prefix.length)return;
 
@@ -444,12 +375,5 @@ module.exports = async (client, message) => {
             }
         });
         return;
-    }
-
-    if(await ratelimitFilter(message)) {
-        if(_guild.protection.intelligentSOS.cooldown) _guild.protection.intelligentSOS.cooldown = false;
-        if((message.guild.roles.highest.id != message.guild.me.roles.highest.id || !_guild.protection.antiraid.enable) && Math.floor(Math.random() * 100) >= 50) message.channel.send({ content: '**Recordatorio:**', embeds: [ new Discord.MessageEmbed().setColor(0x0056ff).setDescription((message.guild.roles.highest.id != message.guild.me.roles.highest.id? '`> Alerta de seguridad:` El bot no tiene el rol más alto en el servidor.\n' : '') + (!_guild.protection.antiraid.enable? '`> Alerta de seguridad:` El sistema antiraid está desactivado en este servidor (Activar con `' + _guild.configuration.prefix + 'antiraid`).' : '')) ] });
-
-        await cmd.run(client, message, args, _guild, user);
     }
 }
