@@ -1,0 +1,1 @@
+DROP TABLE "malicious_users" CASCADE;
