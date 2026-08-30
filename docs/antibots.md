@@ -13,7 +13,9 @@ Un bot añadido a un servidor tiene, por defecto, todos los permisos que le den 
 
 **Ficheros:** [`src/systems/antibots/AntibotsSystem.ts`](../src/systems/antibots/AntibotsSystem.ts), [`src/events/guildMemberAdd.ts`](../src/events/guildMemberAdd.ts)
 
-`AntibotsSystem.enforce(client, member)` se llama desde `guildMemberAdd` — el evento de gateway que dispara Discord por cada nuevo miembro, humano o bot. La lógica es lineal:
+`AntibotsSystem.enforce(client, member)` se llama desde `guildMemberAdd` — el evento de gateway que dispara Discord por cada nuevo miembro, humano o bot. **No es lo primero que corre**: `guildMemberAdd.ts` llama antes a `MaliciousMemberSystem.enforce()` (ver [`malicious-members.md`](malicious-members.md)) y se salta `AntibotsSystem` por completo si ese ya baneó al que se une — un bot malicioso conocido debe acabar baneado, no solo expulsado, así que no tiene sentido que antibots llegue a actuar sobre alguien que ya no está.
+
+Cuando sí corre, la lógica es lineal:
 
 1. Si quien entra no es un bot, no hay nada que hacer.
 2. Si `antibotsEnable` está desactivado (vía `GuildConfigCache`, sin red — ver `antiraid.md` sección 2), no hay nada que hacer.
@@ -39,4 +41,4 @@ Igual que la detección de ráfagas del antiraid, un kick de antibots es una acc
 
 ## Lo que falta
 
-`guildMemberAdd` es, igual que `guildAuditLogEntryCreate`, un único punto de entrada por la misma restricción de Seyfert (un handler por evento) — cualquier sistema futuro que reaccione a un join (antijoins, verification, markMalicious, kickMalicious, cannotEnterTwice, bloqEntritiesByName, bloqNewCreatedUsers) se añade ahí, no en un fichero aparte. Ninguno de esos está implementado todavía.
+`guildMemberAdd` es, igual que `guildAuditLogEntryCreate`, un único punto de entrada por la misma restricción de Seyfert (un handler por evento) — cualquier sistema futuro que reaccione a un join (antijoins, verification, bloqEntritiesByName, bloqNewCreatedUsers) se añade ahí, no en un fichero aparte. Ninguno de esos está implementado todavía (`antibots` y `maliciousMemberAction` sí lo están, ver [`malicious-members.md`](malicious-members.md) para el segundo).

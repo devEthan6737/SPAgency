@@ -4,12 +4,15 @@ import { MaliciousMemberSystem } from '../systems/malicious-members/index.js';
 
 /**
  * Seyfert only keeps one handler per event name (see `guildAuditLogEntryCreate.ts`) — every future
- * join-time protection system (antijoins, verification...) has to be added here, not in a separate file.
+ * join-time protection system (antijoins, verification...) has to be added here, not in a separate
+ * file. `MaliciousMemberSystem` runs first and short-circuits `AntibotsSystem` when it already
+ * removed the member — see its own doc comment (and docs/malicious-members.md) for why a bot that's
+ * both generically blocked by antibots and known malicious must end up banned, not merely kicked.
  */
 export default createEvent({
     data: { name: 'guildMemberAdd' },
     async run(member, client) {
-        await AntibotsSystem.enforce(client, member);
-        await MaliciousMemberSystem.enforce(client, member);
+        const removed = await MaliciousMemberSystem.enforce(client, member);
+        if (!removed) await AntibotsSystem.enforce(client, member);
     }
 });

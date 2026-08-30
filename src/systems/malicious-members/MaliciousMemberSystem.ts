@@ -10,12 +10,18 @@ import { getUbfb } from '../ubfb/client.js';
  * — see docs/malicious-members.md for the full reasoning behind each case.
  */
 export class MaliciousMemberSystem {
-    static async enforce(client: UsingClient, member: GuildMemberStructure): Promise<void> {
+    /**
+     * @returns Whether this call removed `member` from the guild (only when the resolved action is
+     * `Ban`). `guildMemberAdd.ts` runs this system before `AntibotsSystem` and skips the latter when
+     * this returns `true` — there's nothing left to kick, and a bot that's both generically blocked
+     * by antibots and known malicious must end up banned, not merely kicked (see docs/malicious-members.md).
+     */
+    static async enforce(client: UsingClient, member: GuildMemberStructure): Promise<boolean> {
         const ubfb = getUbfb();
-        if (!ubfb.isBlacklisted(member.id)) return;
+        if (!ubfb.isBlacklisted(member.id)) return false;
 
         const settings = await GuildConfigCache.get(member.guildId);
-        if (!settings) return;
+        if (!settings) return false;
 
         const entry = ubfb.getCachedEntry(member.id) ?? (await ubfb.getBlacklistEntry(member.id).catch(() => null));
         const reason = entry?.reason ?? 'Malicious user';
@@ -35,6 +41,8 @@ export class MaliciousMemberSystem {
         }
 
         void dispatchLog(client, MaliciousMemberSystem.log({ guildId: member.guildId, targetId: member.id, action })).catch(() => {});
+
+        return action === MaliciousMemberAction.Ban;
     }
 
     /** DMs the server owner, if the bot can reach them — never worth failing the rest of the flow over. */

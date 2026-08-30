@@ -20,6 +20,21 @@ Una cosa ocurre **siempre**, incluso con `None`: el join se registra igual (un `
 
 **Excepción que ignora la config por completo: un bot malicioso siempre se banea.** Si el que se une está a la vez en la blacklist de UBFB y es un bot, `maliciousMemberAction` ni se consulta — se fuerza `Ban` sin importar si el servidor tiene `None` o `Mark` configurado. No hay ningún motivo legítimo para "marcar y dejar entrar" o "no hacer nada" con un bot que además de estar en la blacklist global, ha conseguido colarse más allá de `AntibotsSystem`.
 
+## Orden con `AntibotsSystem` — por qué este corre primero
+
+**Fichero:** [`src/events/guildMemberAdd.ts`](../src/events/guildMemberAdd.ts)
+
+`MaliciousMemberSystem.enforce()` se llama **antes** que `AntibotsSystem.enforce()`, y devuelve `true` cuando ha baneado al que se une — en ese caso, `AntibotsSystem` ni se ejecuta:
+
+```ts
+const removed = await MaliciousMemberSystem.enforce(client, member);
+if (!removed) await AntibotsSystem.enforce(client, member);
+```
+
+El orden importa de verdad, no es cosmético. Si fuera al revés (antibots primero, y saltarse el resto si ya expulsó al bot), un bot que estuviera a la vez bloqueado genéricamente por antibots *y* en la blacklist de UBFB se quedaría solo **expulsado** (kick) — `MaliciousMemberSystem` nunca llegaría a correr, y la garantía de "un bot malicioso siempre se banea" de la sección anterior dejaría de cumplirse en la práctica en cuanto el servidor tuviera antibots activo (que cubre justo la mayoría de bots maliciosos, al no estar verificados por Discord).
+
+La comprobación de si merece la pena invertir el orden por rendimiento no se sostiene: `ubfb.isBlacklisted()` es tan local como la comprobación de `antibotsEnable`/tipo de antibots — ninguna de las dos toca la red en el caso común. La única llamada de red de todo el flujo (el fallback de `getBlacklistEntry`) solo ocurre cuando el usuario **ya está confirmado como malicioso**, sea cual sea el orden en que se compruebe.
+
 ## Por qué se podó de 4 variantes a 3 (y `Mark` a 1 sola acción)
 
 El legacy `markmalicious.js` tenía 4 variantes configurables para el caso "marcar": cambiar apodo, añadir un rol, mandar log al canal, o avisar al owner por privado. De esas, solo el cambio de apodo sobrevive como configuración real de `Mark` (el aviso al owner pasó a ser incondicional para `Mark`/`Ban`, no algo que dependa de elegir esa variante):
