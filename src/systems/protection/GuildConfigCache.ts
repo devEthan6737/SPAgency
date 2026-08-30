@@ -1,7 +1,7 @@
 import type { UsingClient } from 'seyfert';
 import { sql } from '../../database/connection.js';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
-import type { AntibotsType } from '../../database/schema/guild-protection.js';
+import type { AntibotsType, MaliciousMemberAction } from '../../database/schema/guild-protection.js';
 
 export interface GuildProtectionSettings {
     language: string;
@@ -9,6 +9,7 @@ export interface GuildProtectionSettings {
     whitelist: string[];
     antibotsEnable: boolean;
     antibotsType: AntibotsType;
+    maliciousMemberAction: MaliciousMemberAction;
 }
 
 /**

@@ -23,7 +23,9 @@ export enum ServerEventType {
     /** Antiraid was auto-disabled because the bot no longer meets its prerequisites (permissions/role position). */
     AntiraidDisabled = 'antiraidDisabled',
     /** The log channel got unset after a failed send (channel deleted, access lost...). */
-    LogsDisabled = 'logsDisabled'
+    LogsDisabled = 'logsDisabled',
+    /** A known malicious user (per UBFB) joined — `data.action` says what `MaliciousMemberSystem` did about it. */
+    MaliciousMemberJoin = 'maliciousMemberJoin'
 }
 
 /** One row per server event (memberJoin, channelCreate, ...), never edited. */

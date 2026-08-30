@@ -400,6 +400,11 @@ export default {
         antibots: {
             kickReason: 'Bots are not allowed to join this server.'
         },
+        maliciousMember: {
+            ownerDmMark: (userId: string, reason: string) =>
+                `⚠️ A known malicious user (<@${userId}>) joined your server. I changed their nickname to \`${reason}\` to flag them.`,
+            ownerDmBan: (userId: string, reason: string) => `⚠️ A known malicious user (<@${userId}>) joined your server. I banned them.\n**Reason:** ${reason}`
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
         },
@@ -419,7 +424,10 @@ export default {
                 antibotsKick: (userId: string) => `🤖 <@${userId}> was kicked — bots aren't allowed to join.`,
                 antiraidDisabled: () =>
                     "⚠️ Antiraid was turned off automatically: I no longer have Ban Members/View Audit Log, or another role sits above mine. Fix that and turn it back on.",
-                logsDisabled: () => '⚠️ The log channel was unset after a failed send. Set a new one to turn logs back on.'
+                logsDisabled: () => '⚠️ The log channel was unset after a failed send. Set a new one to turn logs back on.',
+                maliciousMemberNone: (userId: string) => `👁️ A known malicious user (<@${userId}>) joined — no action taken.`,
+                maliciousMemberMark: (userId: string) => `🚩 A known malicious user (<@${userId}>) joined — nickname changed to flag them.`,
+                maliciousMemberBan: (userId: string) => `🔨 A known malicious user (<@${userId}>) joined — banned.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

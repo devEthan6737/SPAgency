@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../connection.js';
 import { guildConfiguration } from '../schema/guild-configuration.js';
 import { guildModeration } from '../schema/guild-moderation.js';
-import { type AntibotsType, guildProtection } from '../schema/guild-protection.js';
+import { type AntibotsType, type MaliciousMemberAction, guildProtection } from '../schema/guild-protection.js';
 import { guilds } from '../schema/guild.js';
 
 export interface GuildConfig {
@@ -40,6 +40,7 @@ export class GuildRepository {
         whitelist: string[];
         antibotsEnable: boolean;
         antibotsType: AntibotsType;
+        maliciousMemberAction: MaliciousMemberAction;
     } | null> {
         const [row] = await db
             .select({
@@ -47,7 +48,8 @@ export class GuildRepository {
                 antiraidEnable: guildProtection.antiraidEnable,
                 whitelist: guildConfiguration.whitelist,
                 antibotsEnable: guildProtection.antibotsEnable,
-                antibotsType: guildProtection.antibotsType
+                antibotsType: guildProtection.antibotsType,
+                maliciousMemberAction: guildProtection.maliciousMemberAction
             })
             .from(guilds)
             .innerJoin(guildProtection, eq(guildProtection.guildId, guilds.id))

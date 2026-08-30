@@ -1,6 +1,6 @@
-# Miembros maliciosos — diseño (sin implementar)
+# Miembros maliciosos — `MaliciousMemberSystem`
 
-Qué hace el bot cuando un usuario marcado como malicioso en UBFB (la blacklist global, ver `src/systems/ubfb/`) se une al servidor. **Diseñado y documentado, pero todavía sin código** — vive en `guildMemberAdd`, el mismo evento donde ya está `AntibotsSystem` (ver [`antibots.md`](antibots.md)), y es de las piezas pendientes del bundle de protección al unirse.
+Qué hace el bot cuando un usuario marcado como malicioso en UBFB (la blacklist global, ver `src/systems/ubfb/`) se une al servidor. **Fichero:** [`src/systems/malicious-members/MaliciousMemberSystem.ts`](../src/systems/malicious-members/MaliciousMemberSystem.ts) — vive en `guildMemberAdd`, junto a `AntibotsSystem` (ver [`antibots.md`](antibots.md)).
 
 ## El campo — `MaliciousMemberAction`
 
@@ -18,6 +18,8 @@ Una cosa ocurre **siempre**, incluso con `None`: el join se registra igual (un `
 - **`Mark`**: avisa al dueño del servidor por privado y le cambia el apodo al motivo por el que está marcado como malicioso. Sin más configuración — no hay tipo que elegir. Si el bot no tiene permiso de gestionar apodos, o el usuario está por encima en jerarquía, el cambio de apodo se salta en silencio (el log y el DM al owner siguen ocurriendo igual).
 - **`Ban`**: avisa al dueño del servidor por privado y banea directamente. **No es un kick, a propósito** — un kick deja la puerta abierta a que el usuario vuelva a intentar entrar de inmediato, y dejar que eso se repita sin límite abre una ventana de carrera en el propio manejo del evento de join que, con mala suerte, podría acabar dejándolo entrar sin que el sistema se entere. Banear de una quita ese riesgo del todo — no hay una escalera kick→ban que haya que acertar, es una sola acción que funciona a la primera.
 
+**Excepción que ignora la config por completo: un bot malicioso siempre se banea.** Si el que se une está a la vez en la blacklist de UBFB y es un bot, `maliciousMemberAction` ni se consulta — se fuerza `Ban` sin importar si el servidor tiene `None` o `Mark` configurado. No hay ningún motivo legítimo para "marcar y dejar entrar" o "no hacer nada" con un bot que además de estar en la blacklist global, ha conseguido colarse más allá de `AntibotsSystem`.
+
 ## Por qué se podó de 4 variantes a 3 (y `Mark` a 1 sola acción)
 
 El legacy `markmalicious.js` tenía 4 variantes configurables para el caso "marcar": cambiar apodo, añadir un rol, mandar log al canal, o avisar al owner por privado. De esas, solo el cambio de apodo sobrevive como configuración real de `Mark` (el aviso al owner pasó a ser incondicional para `Mark`/`Ban`, no algo que dependa de elegir esa variante):
@@ -28,6 +30,10 @@ El legacy `markmalicious.js` tenía 4 variantes configurables para el caso "marc
 
 Con esas tres fuera, a `Mark` no le queda nada que configurar — siempre cambia el apodo, sin un campo `markMaliciousType` que mantener.
 
-## Lo que falta
+## Cómo se consulta la blacklist — sin red en el caso común
 
-Todo esto vive solo en el schema por ahora — no hay ningún `MaliciousMemberSystem` ni hook en `guildMemberAdd` todavía. Cuando le toque su sesión de diseño, tendrá que resolver como mínimo: cómo se consulta la blacklist de UBFB desde el evento de join (¿caché local, o llamada directa a su API?), y cómo encaja con el resto del bundle de protección al unirse (`antitokens`, `antijoins`, `verification`, `bloqEntritiesByName`, `bloqNewCreatedUsers`) que se ejecuta en el mismo evento.
+`getUbfb().isBlacklisted(userId)` es la primera comprobación, y es local — la caché de UBFB se mantiene sincronizada por WebSocket (`sync`/`add`/`remove`), así que el 99.9% de los joins (gente que no está en ninguna blacklist) no toca la red en absoluto. Solo cuando un usuario **sí** está marcado se intenta conseguir el detalle completo (el motivo): primero de la propia caché (`getCachedEntry`), y si no está cacheado — puede pasar, un `sync` por WebSocket solo trae IDs, no el registro completo — se hace una única llamada REST (`getBlacklistEntry`) para ese usuario en concreto. A diferencia del antiraid, aquí una petición puntual no es un problema: no hay ráfaga que proteger, es un evento que ya de por sí es raro (alguien de la blacklist global uniéndose a este servidor en concreto).
+
+## Qué falta del bundle completo
+
+`MaliciousMemberSystem` es solo una pieza del bundle de protección al unirse. El resto (`antitokens`, `antijoins`, `verification`, `bloqEntritiesByName`, `bloqNewCreatedUsers`) sigue sin implementar, pendiente de su propia sesión de diseño — cada uno se añade a `guildMemberAdd.ts` según le toque, nunca en un fichero de evento aparte.
