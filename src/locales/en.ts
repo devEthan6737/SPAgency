@@ -147,7 +147,9 @@ export default {
                 cannotTargetSelf: "❌ You can't do that to yourself.",
                 hierarchyError: "❌ You can't moderate someone with a role equal to or higher than your own.",
                 defaultReason: 'No reason specified.',
-                dm: (guildName: string, reason: string) => `You received a moderation action in \`${guildName}\`.\n**Reason:** ${reason}`
+                dm: (guildName: string, reason: string) => `You received a moderation action in \`${guildName}\`.\n**Reason:** ${reason}`,
+                forceReasonRequired: (allowed: string[]) =>
+                    `❌ This server requires one of its predefined reasons: ${allowed.map((reason) => `\`${reason}\``).join(', ')}.`
             },
             ban: {
                 name: 'ban',

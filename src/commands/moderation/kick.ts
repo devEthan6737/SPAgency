@@ -1,6 +1,7 @@
 import { Command, createStringOption, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
+import { ForceReasons } from '../../systems/moderation/index.js';
 
 const options = {
     member: createUserOption({
@@ -14,6 +15,7 @@ const options = {
     reason: createStringOption({
         description: 'Kick reason.',
         required: false,
+        autocomplete: ForceReasons.autocomplete,
         locales: {
             name: 'commands.moderation.kick.option.reason.name',
             description: 'commands.moderation.kick.option.reason.description'
@@ -55,7 +57,10 @@ export default class KickCommand extends Command {
             }
         }
 
-        const reason = ctx.options.reason ?? shared.defaultReason.get();
+        const forced = await ForceReasons.resolve(guild.id, ctx.options.reason, shared.defaultReason.get());
+        if (!forced.ok) return await ctx.write({ content: shared.forceReasonRequired(forced.allowed).get() });
+        const reason = forced.reason;
+
         await target.write({ content: shared.dm(guild.name, reason).get() }).catch(() => {});
         await guild.members.kick(targetId, reason);
         

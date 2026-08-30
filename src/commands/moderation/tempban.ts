@@ -2,6 +2,7 @@ import { Command, createIntegerOption, createStringOption, createUserOption, Dec
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { TempbanRepository } from '../../database/repositories/tempban.repository.js';
 import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
+import { ForceReasons } from '../../systems/moderation/index.js';
 
 const options = {
     member: createUserOption({
@@ -24,6 +25,7 @@ const options = {
     reason: createStringOption({
         description: 'Ban reason.',
         required: false,
+        autocomplete: ForceReasons.autocomplete,
         locales: {
             name: 'commands.moderation.tempban.option.reason.name',
             description: 'commands.moderation.tempban.option.reason.description'
@@ -63,7 +65,10 @@ export default class TempbanCommand extends Command {
             }
         }
 
-        const reason = ctx.options.reason ?? shared.defaultReason.get();
+        const forced = await ForceReasons.resolve(guild.id, ctx.options.reason, shared.defaultReason.get());
+        if (!forced.ok) return await ctx.write({ content: shared.forceReasonRequired(forced.allowed).get() });
+        const reason = forced.reason;
+
         const expiresAt = new Date(Date.now() + ctx.options.minutes * 60_000);
 
         await ctx.options.member.write({ content: shared.dm(guild.name, reason).get() }).catch(() => {});

@@ -63,6 +63,12 @@ export class GuildRepository {
         return rows.map((row) => row.guildId);
     }
 
+    /** Single-column lookup for `ForceReasons` — avoids the full joined get(). */
+    static async getForceReasons(id: string): Promise<string[]> {
+        const [row] = await db.select({ forceReasons: guildModeration.forceReasons }).from(guildModeration).where(eq(guildModeration.guildId, id));
+        return row?.forceReasons ?? [];
+    }
+
     static async get(id: string): Promise<GuildConfig | null> {
         const [row] = await db
             .select()

@@ -2,6 +2,7 @@ import { Command, createStringOption, createUserOption, Declare, Embed, EmbedCol
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { WarnRepository } from '../../database/repositories/warn.repository.js';
 import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
+import { ForceReasons } from '../../systems/moderation/index.js';
 
 const options = {
     member: createUserOption({
@@ -15,6 +16,7 @@ const options = {
     reason: createStringOption({
         description: 'Warn reason.',
         required: true,
+        autocomplete: ForceReasons.autocomplete,
         locales: {
             name: 'commands.moderation.warn.option.reason.name',
             description: 'commands.moderation.warn.option.reason.description'
@@ -45,13 +47,17 @@ export default class WarnCommand extends Command {
         if (targetId === ctx.client.botId) return await ctx.write({ content: shared.cannotTargetBot.get() });
         if (targetId === ctx.author.id) return await ctx.write({ content: shared.cannotTargetSelf.get() });
 
-        await WarnRepository.create(ctx.guildId, targetId, ctx.author.id, ctx.options.reason);
+        const forced = await ForceReasons.resolve(ctx.guildId, ctx.options.reason);
+        if (!forced.ok) return await ctx.write({ content: shared.forceReasonRequired(forced.allowed).get() });
+        const reason = forced.reason;
+
+        await WarnRepository.create(ctx.guildId, targetId, ctx.author.id, reason);
         const total = await WarnRepository.list(ctx.guildId, targetId);
 
-        void dispatchLog(ctx.client, WarnCommand.log({ guildId: ctx.guildId, targetId, executorId: ctx.author.id, reason: ctx.options.reason })).catch(() => {});
+        void dispatchLog(ctx.client, WarnCommand.log({ guildId: ctx.guildId, targetId, executorId: ctx.author.id, reason })).catch(() => {});
 
         await ctx.write({ embeds: [
-            new Embed().setColor(EmbedColors.Yellow).setDescription(t.done(targetId, total.length, ctx.options.reason).get())
+            new Embed().setColor(EmbedColors.Yellow).setDescription(t.done(targetId, total.length, reason).get())
         ] });
     }
 

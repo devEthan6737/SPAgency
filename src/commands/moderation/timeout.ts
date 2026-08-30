@@ -1,6 +1,7 @@
 import { Command, createIntegerOption, createStringOption, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
+import { ForceReasons } from '../../systems/moderation/index.js';
 
 const options = {
     member: createUserOption({
@@ -24,6 +25,7 @@ const options = {
     reason: createStringOption({
         description: 'Timeout reason.',
         required: false,
+        autocomplete: ForceReasons.autocomplete,
         locales: {
             name: 'commands.moderation.timeout.option.reason.name',
             description: 'commands.moderation.timeout.option.reason.description'
@@ -66,7 +68,9 @@ export default class TimeoutCommand extends Command {
             }
         }
 
-        const reason = ctx.options.reason ?? shared.defaultReason.get();
+        const forced = await ForceReasons.resolve(guild.id, ctx.options.reason, shared.defaultReason.get());
+        if (!forced.ok) return await ctx.write({ content: shared.forceReasonRequired(forced.allowed).get() });
+        const reason = forced.reason;
 
         try {
             await target.timeout(ctx.options.minutes * 60_000, reason);
