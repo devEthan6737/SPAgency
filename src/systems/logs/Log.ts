@@ -14,7 +14,7 @@ import { db } from '../../database/connection.js';
  * to a guild's log channel, using that guild's configured language.
  */
 export abstract class Log<Type extends string, Table extends PgTable> {
-    /** Discriminant stored in the `type` column, e.g. `ServerEventType.MemberJoin`. */
+    /** Discriminant stored in the `type` column, e.g. `ServerEventType.AntibotsKick`. */
     abstract readonly type: Type;
     /** Embed color used by {@link toEmbed}. */
     protected abstract getColor(): EmbedColors;

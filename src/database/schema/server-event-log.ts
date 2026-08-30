@@ -2,10 +2,6 @@ import { integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { guilds } from './guild.js';
 
 export enum ServerEventType {
-    /** A member joined the guild. */
-    MemberJoin = 'memberJoin',
-    /** A member left the guild. */
-    MemberLeave = 'memberLeave',
     ChannelCreate = 'channelCreate',
     ChannelDelete = 'channelDelete',
     ChannelUpdate = 'channelUpdate',
@@ -34,7 +30,7 @@ export enum ServerEventType {
     RaidmodeExpired = 'raidmodeExpired'
 }
 
-/** One row per server event (memberJoin, channelCreate, ...), never edited. */
+/** One row per server event (channelCreate, raidDetected, ...), never edited. */
 export const serverEventLogs = pgTable('server_event_logs', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     guildId: text('guild_id').notNull().references(() => guilds.id, { onDelete: 'cascade' }),
