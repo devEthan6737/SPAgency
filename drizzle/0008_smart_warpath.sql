@@ -1,0 +1,1 @@
+ALTER TABLE "guild_protection" DROP COLUMN "own_system_enable";

@@ -32,11 +32,7 @@ export enum BotActionType {
     UnnukeRoles = 'unnukeRoles',
     UnnukeEmojis = 'unnukeEmojis',
     MarkMalicious = 'markMalicious',
-    UnmarkMalicious = 'unmarkMalicious',
-    RaidmodeEnable = 'raidmodeEnable',
-    RaidmodeDisable = 'raidmodeDisable',
-    /** Auto-sanction taken by the automoderator/antiraid systems, not a manual command. */
-    AutomodAction = 'automodAction'
+    UnmarkMalicious = 'unmarkMalicious'
 }
 
 /** One row per action requested through the bot (ban, warn, automod...), never edited or deleted. */

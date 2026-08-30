@@ -57,6 +57,13 @@
       "when": 1788052865806,
       "tag": "0007_great_newton_destine",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788054422040,
+      "tag": "0008_smart_warpath",
+      "breakpoints": true
     }
   ]
 }

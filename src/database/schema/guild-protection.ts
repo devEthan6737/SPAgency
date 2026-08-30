@@ -37,9 +37,6 @@ export const guildProtection = pgTable(
         // kicks a known malicious user on join, bans if they keep rejoining (kick-malicious.js)
         kickMaliciousEnable: boolean('kick_malicious_enable').notNull().default(false),
 
-        // fully custom protection system, premium-only (ownsystem.js) — never got real logic beyond this toggle
-        ownSystemEnable: boolean('own_system_enable').notNull().default(false),
-
         // anti-selfbot verification flow (verification.js, variantes --v1..--v4)
         verificationEnable: boolean('verification_enable').notNull().default(false),
         verificationType: text('verification_type'),
