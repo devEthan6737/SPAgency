@@ -6,11 +6,6 @@ import { GuildConfigCache } from '../protection/index.js';
 import { AntiraidPrerequisites } from './AntiraidPrerequisites.js';
 import { BurstTracker } from './BurstTracker.js';
 
-/** How many flagged actions within the window count as a raid. */
-const BURST_THRESHOLD = 3;
-/** Rolling window: each new flagged action resets it, so the threshold is "N actions within this long of each other". */
-const BURST_WINDOW_MS = 10_000;
-
 export interface AntiraidDetectOptions {
     client: UsingClient;
     guildId: string;
@@ -32,6 +27,11 @@ interface WeighableAuditLogEntry {
  * matching the legacy bot's behavior.
  */
 export class AntiraidSystem {
+    /** How many flagged actions within the window count as a raid. */
+    private static readonly BurstThreshold = 3;
+    /** Rolling window: each new flagged action resets it, so the threshold is "N actions within this long of each other". */
+    private static readonly BurstWindowMs = 10_000;
+
     /** Call for a flagged audit log entry (channel/role create-delete, ban add) — `executorId` comes straight off the gateway payload, no REST lookup needed. */
     static async detect({ client, guildId, executorId, weight = 1 }: AntiraidDetectOptions): Promise<void> {
         if (executorId === client.botId) return;
@@ -40,7 +40,12 @@ export class AntiraidSystem {
         if (!settings?.antiraidEnable) return;
         if (settings.whitelist.includes(executorId)) return;
 
-        const tripped = BurstTracker.hit({ key: guildId, threshold: BURST_THRESHOLD, windowMs: BURST_WINDOW_MS, weight });
+        const tripped = BurstTracker.hit({
+            key: guildId,
+            threshold: AntiraidSystem.BurstThreshold,
+            windowMs: AntiraidSystem.BurstWindowMs,
+            weight
+        });
         if (!tripped) return;
 
         const t = client.t(settings.language);
