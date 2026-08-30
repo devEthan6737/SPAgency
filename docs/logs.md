@@ -4,8 +4,10 @@
 
 Hay dos preguntas distintas que un log puede responder, y se modelan como dos tablas separadas:
 
-- **`BotActionLog` → `bot_action_logs`**: "¿qué hizo el bot porque alguien se lo pidió?" (un ban con `/ban`, un warn, restaurar un backup...). Cada comando construye su propio log con su color y descripción — no hay una tabla central ni un switch que traduzca un tipo genérico, el propio comando ya tiene toda esa información para su embed de respuesta.
-- **`ServerEventLog` → `server_event_logs`**: "¿qué pasó en el servidor, lo haya hecho quien lo haya hecho?" (alguien crea un canal a mano desde Discord, un raid detectado). Se alimenta del audit log vía `ServerEventLog.fromAuditLogEntry()`, que resuelve el tipo de acción contra una tabla declarativa (`Record<AuditLogEvent, plantilla>`) — no un switch, porque cada rama solo asigna los mismos tres campos (tipo, color, descripción), no hay comportamiento distinto por rama (ver la regla correspondiente en `CONTRIBUTING.md`).
+- **`BotActionLog` → `bot_action_logs`**: "¿qué hizo el bot porque alguien se lo pidió?" (un ban con `/ban`, un warn, restaurar un backup...). Siempre tiene un `executorId` humano real detrás de un comando. Cada comando construye su propio log con su color y descripción — no hay una tabla central ni un switch que traduzca un tipo genérico, el propio comando ya tiene toda esa información para su embed de respuesta.
+- **`ServerEventLog` → `server_event_logs`**: "¿qué pasó en el servidor, lo haya hecho quien lo haya hecho?" — incluye tanto lo detectado vía audit log (alguien crea un canal a mano desde Discord) como las acciones que el propio bot toma **por su cuenta**, sin que nadie las pidiera con un comando (un raid detectado y baneado por `AntiraidSystem`, un bot expulsado por `AntibotsSystem`). La regla es simple: si no hay un `executorId` humano real detrás, es un `ServerEventLog`, nunca un `BotActionLog` con `executorId: 'system'` — esa alternativa (`BotActionType.AutomodAction`) se probó y se quitó del schema por no aportar nada que `ServerEventLog` no cubriera ya mejor.
+
+  Lo detectado vía audit log se resuelve con `ServerEventLog.fromAuditLogEntry()`, contra una tabla declarativa (`Record<AuditLogEvent, plantilla>`) — no un switch, porque cada rama solo asigna los mismos tres campos (tipo, color, descripción), no hay comportamiento distinto por rama (ver la regla correspondiente en `CONTRIBUTING.md`). Las acciones que el bot decide por su cuenta (antiraid, antibots) no pasan por esa tabla — cada sistema construye su propio `ServerEventLog` con un `private static log(...)` debajo de su método principal, igual que hace un comando con `BotActionLog`.
 
 ## Por qué no se duplican
 
@@ -25,12 +27,13 @@ Ambos tipos de log se guardan siempre en su tabla, pase lo que pase con el toggl
 2. Si `logsEnable` es `false` o no hay `logsChannel` configurado, corta ahí.
 3. Si el envío al canal falla con 403/404 (el bot perdió acceso, o el canal se borró), `logsChannel` se limpia solo en la config del servidor — así no se reintenta contra un canal muerto en cada acción futura.
 
-## Uso desde un comando
+## Uso desde un comando o un sistema
 
-Cada comando con una acción real declara un `private static log(...)` justo debajo de `run()`, con un `LogInput` con nombres (nunca una lista larga de parámetros posicionales), y lo despacha sin bloquear la respuesta al usuario:
+Cada comando con una acción real (para `BotActionLog`) o cada sistema de protección (para `ServerEventLog`, ej. `AntiraidSystem`/`AntibotsSystem`) declara un `private static log(...)` justo debajo de su método principal (`run()` en un comando, `detect()`/`enforce()` en un sistema), con un `LogInput` con nombres (nunca una lista larga de parámetros posicionales), y lo despacha sin bloquear lo que esté haciendo:
 
 ```ts
 void dispatchLog(ctx.client, BanCommand.log({ guildId: guild.id, targetId, executorId: ctx.author.id, reason })).catch(() => {});
+void dispatchLog(client, AntibotsSystem.log({ guildId: member.guildId, targetId: member.user.id })).catch(() => {});
 ```
 
 El `void` es intencional: documenta que la promesa es fire-and-forget a propósito (el log no debe retrasar ni poder tumbar la respuesta del comando), no un olvido de `await`.

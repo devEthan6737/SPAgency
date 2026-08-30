@@ -1,6 +1,6 @@
 # Antiraid — filosofía y sistemas
 
-Este documento explica cómo está pensado el conjunto de sistemas antiraid de SP Agency y cómo funciona cada uno **de los que ya existen** en `src/`. No cubre lo que todavía no está construido (antibots, antijoins, verification, raidmode, etc. — ver `guild_protection` en el schema para la lista completa de lo pendiente).
+Este documento explica cómo está pensado el sistema de detección de ráfagas de SP Agency y cómo funciona cada pieza que ya existe en `src/`. El antibots (kick de bots al unirse) es un sistema hermano — comparte la misma caché de config y el mismo patrón de logging, pero está documentado aparte en [`antibots.md`](antibots.md).
 
 ## Filosofía
 
@@ -28,13 +28,13 @@ Antes de contar nada, dos guards baratos cortan el camino:
 - Si el que ejecutó la acción es **el propio bot** (`executorId === client.botId`), se ignora. Sin este guard, restaurar un backup con varios canales seguidos haría que el bot intentase banearse a sí mismo.
 - Si las `antiraidEnable`/`whitelist` del servidor (vía caché, ver más abajo) descartan la acción, tampoco se cuenta.
 
-Cuando la ráfaga salta, se banea a quien la causó y se registra un `ServerEventLog` de tipo `RaidDetected` (ver sección 4).
+Cuando la ráfaga salta, se banea a quien la causó y se registra el log correspondiente con un `private static log(...)` propio de la clase, debajo de `detect()` — mismo patrón que usa `AntibotsSystem` (ver [`logs.md`](logs.md)).
 
 ## 2. Config sin red — `GuildConfigCache`
 
-**Fichero:** [`src/systems/antiraid/GuildConfigCache.ts`](../src/systems/antiraid/GuildConfigCache.ts)
+**Fichero:** [`src/systems/protection/GuildConfigCache.ts`](../src/systems/protection/GuildConfigCache.ts)
 
-Comprobar `antiraidEnable`/`whitelist` en cada evento del audit log no puede significar una consulta a Postgres por evento — eso rompe la idea 1 de la filosofía. `GuildConfigCache` mantiene un `Map<guildId, AntiraidSettings>` en memoria, con la consulta más barata posible en caso de fallo de caché (`GuildRepository.getAntiraidSettings`, sin joins de más).
+Comprobar `antiraidEnable`/`whitelist` en cada evento del audit log no puede significar una consulta a Postgres por evento — eso rompe la idea 1 de la filosofía. `GuildConfigCache` mantiene un `Map<guildId, GuildProtectionSettings>` en memoria, con la consulta más barata posible en caso de fallo de caché (`GuildRepository.getProtectionSettings`, sin joins de más). Vive en `src/systems/protection/`, no en `src/systems/antiraid/`, porque ya la usa también el antibots — es la caché compartida de toda la config que necesitan los sistemas de protección al unirse/audit log, no algo específico del antiraid.
 
 Lo interesante no es la caché en sí, es cómo se invalida: en vez de que el bot tenga que acordarse de borrar la entrada cada vez que él mismo cambia la config (y fallar en cuanto otra pieza del sistema — o mañana, la dashboard web — toque la misma fila sin pasar por ese código), la invalidación vive **en Postgres**. Las tablas `guild_protection` y `guild_configuration` tienen un trigger que hace `pg_notify('guild_config_changed', guild_id)` en cualquier `UPDATE`, sin importar qué proceso hizo el cambio. El bot simplemente hace `LISTEN` sobre ese canal y borra la entrada correspondiente del `Map` cuando le llega el aviso.
 
@@ -56,7 +56,7 @@ El orden importa: el chequeo de antiraid va primero (o en paralelo) para que nun
 
 ## 4. Logging — `BotActionLog` vs `ServerEventLog`
 
-Cada detección y cada ban genera su correspondiente log (`RaidDetected` en `ServerEventLog`, el propio ban en su `BotActionLog` si viene de un comando). Cómo funcionan esos dos sistemas y por qué no se duplican entre sí está explicado aparte, en [`logs.md`](logs.md) — es un sistema transversal, no específico del antiraid.
+La detección de ráfaga registra un `ServerEventLog` de tipo `RaidDetected` — no un `BotActionLog`, aunque el bot sí ejecuta un ban. La regla es: si nadie pidió la acción mediante un comando, es un `ServerEventLog` (algo que pasó en el servidor), no un `BotActionLog` (algo que el bot hizo porque se lo pidieron). Cómo funcionan esos dos sistemas y por qué no se duplican entre sí está explicado aparte, en [`logs.md`](logs.md) — es un sistema transversal, no específico del antiraid.
 
 ## 5. Recuperación — `/unnuke` y `/backup`
 
@@ -69,22 +69,32 @@ La detección puede fallar (raid coordinado con cuentas nuevas, gente actuando m
 
 Ambos flujos generan su `BotActionLog` correspondiente (`UnnukeBans`, `BackupLoad`, etc.) y ambos pasan por `Confirmation.ask()` antes de ejecutar nada, por ser acciones destructivas o difíciles de revertir.
 
-## 6. Prerrequisitos para activarlo (diseñado, sin implementar)
+## 6. Prerrequisitos para activarlo — `AntiraidPrerequisites`
 
-Un `antiraidEnable: true` en la base de datos no sirve de nada si el bot no puede actuar de verdad. Antes de dejar activar el sistema (desde la futura dashboard, o desde cualquier otro sitio) hace falta comprobar que se cumplen, sin excepción:
+**Ficheros:** [`src/systems/antiraid/AntiraidPrerequisites.ts`](../src/systems/antiraid/AntiraidPrerequisites.ts), [`src/events/guildRoleUpdate.ts`](../src/events/guildRoleUpdate.ts), [`guildRoleDelete.ts`](../src/events/guildRoleDelete.ts), [`guildMemberUpdate.ts`](../src/events/guildMemberUpdate.ts)
+
+Un `antiraidEnable: true` en la base de datos no sirve de nada si el bot no puede actuar de verdad. `AntiraidPrerequisites.meets()` comprueba tres cosas, sin excepción:
 
 - El bot tiene el permiso **Ban Members** — sin él, `client.bans.create()` en `AntiraidSystem.detect()` falla siempre.
 - El bot tiene el permiso **View Audit Log** — sin él, Discord ni siquiera dispara el evento de gateway `guildAuditLogEntryCreate`, así que todo el sistema queda ciego, no solo el ban.
 - El rol del bot ocupa la **posición más alta** de la jerarquía del servidor (no hace falta que esté marcado como "Mostrar rol por separado" — eso es cosmético, la jerarquía real de Discord depende solo de la posición). Sin esto, un atacante con un rol por encima del bot es literalmente imposible de banear vía API, permiso o no.
 
-Si no se cumple **cualquiera** de los tres, no se puede activar. Nada de activarlo a medias ni de dejar que falle en silencio cuando llegue el raid.
+Las tres comprobaciones salen de la caché de gateway (roles + member propio, sincronizados vía `GUILD_CREATE`/`GUILD_ROLE_UPDATE`/`GUILD_MEMBER_UPDATE`) — cero red en el caso normal.
 
-**Dónde vive la comprobación — decisión clave:** no solo al activar el toggle. Los tres requisitos pueden dejar de cumplirse en cualquier momento después (alguien reordena roles, le quita un permiso al bot), y la config en base de datos no se enteraría sola. La validación tiene que ser continua y vivir **en el bot**, no en la dashboard:
+**No es un timer.** Los tres requisitos pueden dejar de cumplirse en cualquier momento (alguien reordena roles, le quita un permiso al bot), así que la validación tiene que ser continua — pero continua no significa "comprobarlo cada X minutos por si acaso": hay eventos reales que avisan exactamente cuándo puede haber cambiado, y `AntiraidSystem.recheckPrerequisites()` se llama desde esos tres, no desde un `setInterval`:
 
-- El bot ya tiene la posición del rol y sus propios permisos en caché de gateway (sincronizados vía `GUILD_CREATE`/`ROLE_UPDATE`/`GUILD_MEMBER_UPDATE`), así que comprobarlo no cuesta ninguna petición de red — sigue cumpliendo la regla de cero red en el hot path.
-- Si en algún momento deja de cumplirse estando ya activado, el bot debe desactivarlo él mismo en la base de datos y avisar al dueño del servidor (DM o vía `STAFF_LOGS_CHANNEL`), en vez de dejarlo activado-pero-inerte.
-- La dashboard **no decide** si el servidor cumple los requisitos — solo refleja lo que diga el bot (o hace la misma comprobación por su cuenta contra la API REST de Discord — roles + member del bot — sin depender de que el proceso del bot esté corriendo en ese instante). Es un espejo, no una segunda fuente de verdad.
+- `guildRoleUpdate` — la posición o los permisos de un rol cambiaron.
+- `guildRoleDelete` — un rol desapareció (podría ser el propio del bot).
+- `guildMemberUpdate`, filtrado a `member.id === client.botId` — los roles del propio bot cambiaron.
+
+El único caso que ningún evento puede avisar es que el cambio ocurriera **mientras el bot estaba desconectado** — para eso, `AntiraidSystem.recheckAllPrerequisites()` se llama desde `ready`. Ojo: `ready` de Discord no es "arrancó el proceso", es "se abrió una sesión de gateway nueva" — y eso pasa tanto al arrancar como cada vez que el bot pierde la sesión y tiene que reidentificarse (no en un simple *resume*, que Discord repone solo reenviando lo perdido). Por eso [`src/events/ready.ts`](../src/events/ready.ts) ya **no** usa `once: true` para todo el handler — la inicialización real de una sola vez (pollers, caché) va detrás de un flag propio, y la recomprobación de prerrequisitos corre en cada `ready`, sea el primero o el número 50. Sigue sin ser un poller: no hay ningún `setInterval`, solo reacciona a la señal exacta de "puede que me haya perdido algo".
+
+Si algún requisito deja de cumplirse, `AntiraidSystem.disable()` desactiva `antiraidEnable` en base de datos y registra un `ServerEventLog` de tipo `AntiraidDisabled` — no se queda activado-pero-inerte.
+
+La dashboard, cuando exista, no decide si el servidor cumple los requisitos — solo refleja lo que diga el bot (o hace la misma comprobación por su cuenta contra la API REST de Discord). Es un espejo, no una segunda fuente de verdad.
 
 ## Lo que falta
 
-Todo lo que sigue existe como columna en `guild_protection` pero no tiene ninguna implementación en Seyfert todavía: `antibots`, `antitokens`, `antijoins`, `markMalicious`, `warnEntry`, `kickMalicious`, `verification`, `cannotEnterTwice`, `purgeWebhooksAttacks`, `intelligentSOS`, `intelligentAntiflood`/`antiflood`, `bloqEntritiesByName`, `bloqNewCreatedUsers`, `raidmode`. La mayoría vive junta en el evento `guildMemberAdd` del bot legacy y está pendiente de una sesión de diseño propia, igual que tuvo `AntiraidSystem`.
+Todo lo que sigue existe como columna en `guild_protection` pero no tiene ninguna implementación en Seyfert todavía: `antitokens`, `antijoins`, `markMalicious`, `warnEntry`, `kickMalicious`, `verification`, `cannotEnterTwice`, `purgeWebhooksAttacks`, `intelligentSOS`, `intelligentAntiflood`/`antiflood`, `bloqEntritiesByName`, `bloqNewCreatedUsers`, `raidmode`. La mayoría vive junta en el evento `guildMemberAdd` del bot legacy y está pendiente de una sesión de diseño propia, igual que tuvo `AntiraidSystem` (`antibots` ya está hecho, ver [`antibots.md`](antibots.md)).
+
+**Idea pendiente, descartada por ahora:** se consideró que `AntiraidSystem` contase también `AuditLogEvent.BotAdd` (alguien añade un bot al servidor) hacia el contador de ráfaga, con más peso si el bot añadido tiene la cuenta recién creada. Se descartó por dos motivos: (1) pesar por el sello de `VerifiedBot` no sirve, porque Discord permite verificar bots sin revisión manual — la verificación nunca fue una garantía real de que el bot no vaya a comportarse mal; (2) comprobar la antigüedad de la cuenta bien hecho (con umbral configurable) es exactamente lo que hará `bloqNewCreatedUsers` cuando se construya — implementarlo ahora solo para esto duplicaría esa lógica. Retomar esta idea cuando `bloqNewCreatedUsers` exista como sistema propio, reutilizando su comprobación en vez de crear una nueva.
