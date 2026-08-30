@@ -2,7 +2,13 @@
 
 **Ficheros:** [`src/systems/logs/actions/BotActionLog.ts`](../src/systems/logs/actions/BotActionLog.ts), [`src/systems/logs/events/ServerEventLog.ts`](../src/systems/logs/events/ServerEventLog.ts), [`src/systems/logs/Log.ts`](../src/systems/logs/Log.ts), [`src/systems/logs/dispatch.ts`](../src/systems/logs/dispatch.ts)
 
-Hay dos preguntas distintas que un log puede responder, y se modelan como dos tablas separadas:
+## Qué es esto, y qué no es
+
+Este sistema de logs es **un registro de seguridad que el propio SPA reutiliza** — no una auditoría general de moderación para que un mod la lea por curiosidad. La pregunta correcta para decidir si algo merece un `ServerEventType`/`BotActionType` nuevo nunca es "¿le interesaría esto a un mod?" — es **"¿hace SPA algo con este registro?"** (incluida la futura dashboard, en tanto que refleja el propio estado de seguridad de SPA — no un visor de eventos genérico).
+
+Ejemplo concreto de esta regla en acción: **SPA no loguea mensajes borrados**, aunque es una función común en bots de moderación y técnicamente posible (cacheando el mensaje mientras existe — Discord no entrega el contenido de un mensaje ya borrado por ningún medio, ni siquiera el audit log). Se descarta no por ser difícil ni por prioridad, sino porque un mensaje borrado no dispara ninguna decisión de SPA — no banea, no reconfigura nada, no alimenta ningún sistema. Si algún día hace falta mostrarlo a un mod, es una función de moderación general (junto a purgar mensajes, etc.), no un log de SPA.
+
+Hay dos preguntas distintas que un log **sí perteneciente a este sistema** puede responder, y se modelan como dos tablas separadas:
 
 - **`BotActionLog` → `bot_action_logs`**: "¿qué hizo el bot porque alguien se lo pidió?" (un ban con `/ban`, un warn, restaurar un backup...). Siempre tiene un `executorId` humano real detrás de un comando. Cada comando construye su propio log con su color y descripción — no hay una tabla central ni un switch que traduzca un tipo genérico, el propio comando ya tiene toda esa información para su embed de respuesta.
 - **`ServerEventLog` → `server_event_logs`**: "¿qué pasó en el servidor, lo haya hecho quien lo haya hecho?" — incluye tanto lo detectado vía audit log (alguien crea un canal a mano desde Discord) como las acciones que el propio bot toma **por su cuenta**, sin que nadie las pidiera con un comando (un raid detectado y baneado por `AntiraidSystem`, un bot expulsado por `AntibotsSystem`). La regla es simple: si no hay un `executorId` humano real detrás, es un `ServerEventLog`, nunca un `BotActionLog` con `executorId: 'system'` — esa alternativa (`BotActionType.AutomodAction`) se probó y se quitó del schema por no aportar nada que `ServerEventLog` no cubriera ya mejor.
