@@ -127,6 +127,13 @@
       "when": 1788120472735,
       "tag": "0017_polite_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788120600000,
+      "tag": "0018_guilds_notify_config_changed",
+      "breakpoints": true
     }
   ]
 }

@@ -12,13 +12,17 @@ export interface GuildProtectionSettings {
     maliciousMemberAction: MaliciousMemberAction;
     raidmodeEnable: boolean;
     raidmodeTimeToDisable: string;
+    logsChannel: string | null;
 }
 
 /**
- * In-memory mirror of the join/audit-log-time guild protection settings (antiraid, antibots...), so
- * their detection hot paths never touch the network. Kept fresh by a Postgres LISTEN — the trigger
- * fires regardless of who wrote the change (this bot, or later the dashboard, a separate process),
- * so the cache stays correct without either side having to remember to invalidate it.
+ * In-memory mirror of the join/audit-log-time guild protection settings (antiraid, antibots...) and
+ * of `dispatchLog`'s own needs (`language`, `logsChannel`), so neither the detection hot paths nor
+ * every single logged action ever touch the network for this. Kept fresh by a Postgres LISTEN — the
+ * trigger fires regardless of who wrote the change (this bot, or later the dashboard, a separate
+ * process), so the cache stays correct without either side having to remember to invalidate it.
+ * Three tables feed this cache (`guild_protection`, `guild_configuration`, and `guilds` for
+ * `language`), each with its own trigger — see their schema files for the exact trigger names.
  */
 export class GuildConfigCache {
     private static entries = new Map<string, GuildProtectionSettings>();

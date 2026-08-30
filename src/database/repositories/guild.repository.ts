@@ -19,21 +19,11 @@ export class GuildRepository {
         return row?.prefix ?? null;
     }
 
-    /** Lean lookup for the log dispatcher — avoids the full joined get(). */
-    static async getLogSettings(id: string): Promise<{ language: string; logsChannel: string | null } | null> {
-        const [row] = await db
-            .select({
-                language: guilds.language,
-                logsChannel: guildConfiguration.logsChannel
-            })
-            .from(guilds)
-            .innerJoin(guildConfiguration, eq(guildConfiguration.guildId, guilds.id))
-            .where(eq(guilds.id, id));
-
-        return row ?? null;
-    }
-
-    /** Lean lookup for the join-time protection systems (antiraid, antibots...) — avoids the full joined get(), and skips guildModeration entirely. */
+    /**
+     * Lean lookup backing `GuildConfigCache` — avoids the full joined get(). Covers both the
+     * join-time protection systems (antiraid, antibots...) and the log dispatcher's needs
+     * (`language`, `logsChannel`), since both are read from the same cached row per guild.
+     */
     static async getProtectionSettings(id: string): Promise<{
         language: string;
         antiraidEnable: boolean;
@@ -43,6 +33,7 @@ export class GuildRepository {
         maliciousMemberAction: MaliciousMemberAction;
         raidmodeEnable: boolean;
         raidmodeTimeToDisable: string;
+        logsChannel: string | null;
     } | null> {
         const [row] = await db
             .select({
@@ -53,7 +44,8 @@ export class GuildRepository {
                 antibotsType: guildProtection.antibotsType,
                 maliciousMemberAction: guildProtection.maliciousMemberAction,
                 raidmodeEnable: guildProtection.raidmodeEnable,
-                raidmodeTimeToDisable: guildProtection.raidmodeTimeToDisable
+                raidmodeTimeToDisable: guildProtection.raidmodeTimeToDisable,
+                logsChannel: guildConfiguration.logsChannel
             })
             .from(guilds)
             .innerJoin(guildProtection, eq(guildProtection.guildId, guilds.id))

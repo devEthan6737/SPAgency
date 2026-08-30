@@ -2,6 +2,7 @@ import { EmbedColors, type Embed, type UsingClient } from 'seyfert';
 import type { PgTable } from 'drizzle-orm/pg-core';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
+import { GuildConfigCache } from '../protection/index.js';
 import { ServerEventLog } from './events/ServerEventLog.js';
 import { LogChannelThrottle } from './LogChannelThrottle.js';
 import type { Log } from './Log.js';
@@ -9,12 +10,14 @@ import type { Log } from './Log.js';
 /**
  * Persists a log and, if the guild has a log channel set, queues its embed to be sent there — see
  * {@link LogChannelThrottle} for why this doesn't just send it straight away. There's no separate
- * on/off flag: an unset channel is what "logs off" means, same as the legacy bot.
+ * on/off flag: an unset channel is what "logs off" means, same as the legacy bot. `language` and
+ * `logsChannel` come from `GuildConfigCache`, not a fresh query — this runs on every single logged
+ * action across every guild, so it's the one place a per-call DB round-trip would actually be felt.
  */
 export async function dispatchLog(client: UsingClient, log: Log<string, PgTable>) {
     await log.save();
 
-    const settings = await GuildRepository.getLogSettings(log.guildId);
+    const settings = await GuildConfigCache.get(log.guildId);
     if (!settings?.logsChannel) return;
 
     const embed = log.toEmbed(client.t(settings.language));
