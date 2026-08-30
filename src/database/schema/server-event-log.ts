@@ -21,7 +21,9 @@ export enum ServerEventType {
     /** The antibots system kicked a bot on join. */
     AntibotsKick = 'antibotsKick',
     /** Antiraid was auto-disabled because the bot no longer meets its prerequisites (permissions/role position). */
-    AntiraidDisabled = 'antiraidDisabled'
+    AntiraidDisabled = 'antiraidDisabled',
+    /** The log channel got unset after a failed send (channel deleted, access lost...). */
+    LogsDisabled = 'logsDisabled'
 }
 
 /** One row per server event (memberJoin, channelCreate, ...), never edited. */

@@ -416,7 +416,8 @@ export default {
                 raidDetected: (userId: string) => `🚨 Raid detected — banned <@${userId}>.`,
                 antibotsKick: (userId: string) => `🤖 <@${userId}> was kicked — bots aren't allowed to join.`,
                 antiraidDisabled: () =>
-                    "⚠️ Antiraid was turned off automatically: I no longer have Ban Members/View Audit Log, or another role sits above mine. Fix that and turn it back on."
+                    "⚠️ Antiraid was turned off automatically: I no longer have Ban Members/View Audit Log, or another role sits above mine. Fix that and turn it back on.",
+                logsDisabled: () => '⚠️ The log channel was unset after a failed send. Set a new one to turn logs back on.'
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

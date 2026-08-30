@@ -20,11 +20,10 @@ export class GuildRepository {
     }
 
     /** Lean lookup for the log dispatcher — avoids the full joined get(). */
-    static async getLogSettings(id: string): Promise<{ language: string; logsEnable: boolean; logsChannel: string | null } | null> {
+    static async getLogSettings(id: string): Promise<{ language: string; logsChannel: string | null } | null> {
         const [row] = await db
             .select({
                 language: guilds.language,
-                logsEnable: guildConfiguration.logsEnable,
                 logsChannel: guildConfiguration.logsChannel
             })
             .from(guilds)

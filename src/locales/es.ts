@@ -416,7 +416,8 @@ export default {
                 raidDetected: (userId: string) => `🚨 Raid detectado — se ha baneado a <@${userId}>.`,
                 antibotsKick: (userId: string) => `🤖 <@${userId}> fue expulsado — no se permite la entrada de bots.`,
                 antiraidDisabled: () =>
-                    '⚠️ El antiraid se ha desactivado automáticamente: ya no tengo Banear Miembros/Ver Auditoría, o hay otro rol por encima del mío. Corrígelo y vuelve a activarlo.'
+                    '⚠️ El antiraid se ha desactivado automáticamente: ya no tengo Banear Miembros/Ver Auditoría, o hay otro rol por encima del mío. Corrígelo y vuelve a activarlo.',
+                logsDisabled: () => '⚠️ El canal de logs se ha desactivado tras un fallo de envío. Configura uno nuevo para reactivarlos.'
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

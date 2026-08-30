@@ -1,0 +1,1 @@
+ALTER TABLE "guild_configuration" DROP COLUMN "logs_enable";

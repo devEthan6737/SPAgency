@@ -21,11 +21,12 @@ Ambas clases heredan de una única base abstracta (`Log<Type, Table>`, sin capas
 
 ## `dispatchLog` — guardado vs canal de logs
 
-Ambos tipos de log se guardan siempre en su tabla, pase lo que pase con el toggle `logsEnable` del servidor — ese toggle solo controla si además se envían como embed al canal de logs configurado. Esto vive en `dispatchLog()` ([`dispatch.ts`](../src/systems/logs/dispatch.ts)):
+Ambos tipos de log se guardan siempre en su tabla, tenga o no tenga el servidor un canal de logs configurado. `guild_configuration` **no tiene** un booleano `logsEnable` separado — ni lo tuvo nunca el bot legacy (`logs.js` fijaba o vaciaba el canal directamente, sin un interruptor aparte). "¿Hay canal configurado?" ya responde por sí solo a "¿están los logs activos?"; añadir un segundo campo solo crearía un estado contradictorio posible (`enable: true` con canal vacío, o viceversa) sin cubrir ningún caso de uso real. Esto vive en `dispatchLog()` ([`dispatch.ts`](../src/systems/logs/dispatch.ts)):
 
 1. `log.save()` — siempre, incondicional.
-2. Si `logsEnable` es `false` o no hay `logsChannel` configurado, corta ahí.
-3. Si el envío al canal falla con 403/404 (el bot perdió acceso, o el canal se borró), `logsChannel` se limpia solo en la config del servidor — así no se reintenta contra un canal muerto en cada acción futura.
+2. Si no hay `logsChannel` configurado, corta ahí.
+3. Si el envío al canal falla por lo que sea (canal borrado, acceso perdido, una caída puntual de Discord...), `logsChannel` se limpia en la config del servidor — así no se reintenta contra un destino roto en cada acción futura. Una sola rama de error para todo: al no haber un interruptor independiente del canal, no hay dos estados distintos que decidir entre sí.
+4. Ese fallo además genera su propio `ServerEventLog` de tipo `LogsDisabled` — no se manda a ningún canal (el que lo recibiría es justo el que se acaba de desactivar), solo queda guardado en `server_event_logs` para que la futura dashboard pueda mostrar "aquí se desactivaron los logs y por qué" sin depender de que alguien mirara la consola del bot en su momento.
 
 ## Sin inundar el canal — `LogChannelThrottle`
 

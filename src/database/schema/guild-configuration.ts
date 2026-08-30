@@ -9,9 +9,9 @@ export const guildConfiguration = pgTable('guild_configuration', {
     // channels ignored by moderation filters
     ignoreChannels: text('ignore_channels').array().notNull().default([]),
 
-    // server event logs (joins, leaves...) sent to logsChannel. Bot action logs
-    // (bans, warns...) are always saved regardless of this toggle.
-    logsEnable: boolean('logs_enable').notNull().default(true),
+    // channel logs are sent to, if any — every log is always saved regardless of this;
+    // it only gates whether a live embed also goes to a channel. No separate on/off flag:
+    // unset the channel to turn it off, same as the legacy bot never had one either.
     logsChannel: text('logs_channel'),
 
     // 2fa: locks bot commands behind a password (2fa.js)

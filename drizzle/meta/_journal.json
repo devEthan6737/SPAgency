@@ -64,6 +64,13 @@
       "when": 1788054422040,
       "tag": "0008_smart_warpath",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788108129855,
+      "tag": "0009_parallel_nemesis",
+      "breakpoints": true
     }
   ]
 }
