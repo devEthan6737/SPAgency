@@ -410,13 +410,14 @@ export default {
             joinBanReason: 'Raidmode está activo — no se permiten entradas ahora mismo.',
             actionBanReason: 'Raidmode está activo — no se permiten cambios de canales/roles/baneos ahora mismo.'
         },
+        selfbot: {
+            actionReason: 'Esta cuenta fue marcada como probable selfbot/cuenta falsa al unirse.'
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Espera un poco — inténtalo de nuevo en \`${seconds}s\`.`
         },
         logs: {
             events: {
-                memberJoin: (userId: string) => `📥 <@${userId}> se ha unido al servidor.`,
-                memberLeave: (userId: string) => `📤 <@${userId}> ha salido del servidor.`,
                 channelCreate: (channelId: string) => `📁 Se ha creado un canal: <#${channelId}>.`,
                 channelDelete: (channelId: string) => `🗑️ Se ha eliminado un canal: \`${channelId}\`.`,
                 channelUpdate: (channelId: string) => `✏️ Se ha editado un canal: <#${channelId}>.`,
@@ -435,7 +436,9 @@ export default {
                 maliciousMemberBan: (userId: string) => `🔨 Un usuario malicioso conocido (<@${userId}>) se ha unido — baneado.`,
                 raidmodeJoinBan: (userId: string) => `🔒 <@${userId}> se unió durante el raidmode — baneo temporal.`,
                 raidmodeActionBan: (userId: string) => `🔒 <@${userId}> hizo un cambio durante el raidmode — baneado.`,
-                raidmodeExpired: () => '🔓 El raidmode expiró y se desactivó automáticamente.'
+                raidmodeExpired: () => '🔓 El raidmode expiró y se desactivó automáticamente.',
+                selfbotKick: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — expulsado.`,
+                selfbotBan: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — baneado.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

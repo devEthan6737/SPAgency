@@ -24,11 +24,13 @@ Una cosa ocurre **siempre**, incluso con `None`: el join se registra igual (un `
 
 **Fichero:** [`src/events/guildMemberAdd.ts`](../src/events/guildMemberAdd.ts)
 
-`MaliciousMemberSystem.enforce()` se llama **antes** que `AntibotsSystem.enforce()`, y devuelve `true` cuando ha baneado al que se une — en ese caso, `AntibotsSystem` ni se ejecuta:
+`MaliciousMemberSystem.enforce()` se llama **antes** que `AntibotsSystem.enforce()`, y ambos devuelven `true` cuando han quitado al que se une — en ese caso, lo que venga después ni se ejecuta:
 
 ```ts
-const removed = await MaliciousMemberSystem.enforce(client, member);
-if (!removed) await AntibotsSystem.enforce(client, member);
+if (await MaliciousMemberSystem.enforce(client, member)) return;
+if (await AntibotsSystem.enforce(client, member)) return;
+
+await SelfbotSystem.enforce(client, member);
 ```
 
 El orden importa de verdad, no es cosmético. Si fuera al revés (antibots primero, y saltarse el resto si ya expulsó al bot), un bot que estuviera a la vez bloqueado genéricamente por antibots *y* en la blacklist de UBFB se quedaría solo **expulsado** (kick) — `MaliciousMemberSystem` nunca llegaría a correr, y la garantía de "un bot malicioso siempre se banea" de la sección anterior dejaría de cumplirse en la práctica en cuanto el servidor tuviera antibots activo (que cubre justo la mayoría de bots maliciosos, al no estar verificados por Discord).
@@ -51,4 +53,4 @@ Con esas tres fuera, a `Mark` no le queda nada que configurar — siempre cambia
 
 ## Qué falta del bundle completo
 
-`MaliciousMemberSystem` es solo una pieza del bundle de protección al unirse. El resto (`antitokens`, `verification`, `bloqNewCreatedUsers`) sigue sin implementar, pendiente de su propia sesión de diseño — cada uno se añade a `guildMemberAdd.ts` según le toque, nunca en un fichero de evento aparte. (`antijoins` se eliminó del schema — `raidmode`, ver [`raidmode.md`](raidmode.md), ya cubre "banear a quien se una" de sobra. `bloqEntritiesByName` también se eliminó — ver `antiraid.md` sección "Lo que falta" para el porqué.)
+`MaliciousMemberSystem` es solo una pieza del bundle de protección al unirse. `verification` sigue sin implementar, pendiente de su propia sesión de diseño — se añadiría a `guildMemberAdd.ts` según le toque, nunca en un fichero de evento aparte. (`antijoins` se eliminó del schema — `raidmode`, ver [`raidmode.md`](raidmode.md), ya cubre "banear a quien se una" de sobra. `bloqEntritiesByName`, `antitokens` y `bloqNewCreatedUsers` también se eliminaron — sustituidos por `SelfbotSystem`, ver [`selfbot.md`](selfbot.md).)

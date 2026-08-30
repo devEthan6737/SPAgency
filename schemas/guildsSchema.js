@@ -19,11 +19,6 @@ const guildsSchema = new mongoose.Schema({
             enable: mongoose.SchemaTypes.Boolean,
             _type: mongoose.SchemaTypes.String
         },
-        antitokens: {
-            enable: mongoose.SchemaTypes.Boolean,
-            usersEntrities: mongoose.SchemaTypes.Array,
-            entritiesCount: mongoose.SchemaTypes.Number
-        },
         antijoins: {
             enable: mongoose.SchemaTypes.Boolean,
             rememberEntrities: mongoose.SchemaTypes.Array
@@ -59,9 +54,6 @@ const guildsSchema = new mongoose.Schema({
         },
         intelligentAntiflood: mongoose.SchemaTypes.Boolean,
         antiflood: mongoose.SchemaTypes.Boolean,
-        bloqNewCreatedUsers: {
-            time: mongoose.SchemaTypes.String
-        },
         raidmode: {
             enable: mongoose.SchemaTypes.Boolean,
             timeToDisable: mongoose.SchemaTypes.String,

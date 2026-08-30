@@ -11,17 +11,19 @@ import { GuildConfigCache } from '../protection/index.js';
  * it wasn't carried over.
  */
 export class AntibotsSystem {
-    static async enforce(client: UsingClient, member: GuildMemberStructure): Promise<void> {
-        if (!member.bot) return;
+    /** @returns Whether this call kicked `member` — `guildMemberAdd.ts` skips `SelfbotSystem` when this is `true`, since a bot that's already gone has nothing left to score. */
+    static async enforce(client: UsingClient, member: GuildMemberStructure): Promise<boolean> {
+        if (!member.bot) return false;
 
         const settings = await GuildConfigCache.get(member.guildId);
-        if (!settings?.antibotsEnable) return;
-        if (settings.antibotsType === AntibotsType.OnlyUnverified && AntibotsSystem.isVerified(member)) return;
+        if (!settings?.antibotsEnable) return false;
+        if (settings.antibotsType === AntibotsType.OnlyUnverified && AntibotsSystem.isVerified(member)) return false;
 
         const t = client.t(settings.language);
         await client.members.kick(member.guildId, member.user.id, t.systems.antibots.kickReason.get()).catch(() => {});
 
         void dispatchLog(client, AntibotsSystem.log({ guildId: member.guildId, targetId: member.user.id })).catch(() => {});
+        return true;
     }
 
     /** Whether Discord has reviewed and verified this bot. */

@@ -39,6 +39,19 @@ export enum MaliciousMemberAction {
 }
 
 /**
+ * What SPA does with a member `SelfbotSystem` scores as likely a selfbot/fake account (account age,
+ * default avatar, suspicious name, simultaneous joins — see docs/selfbot.md). A heuristic, not a
+ * confirmed hit like `MaliciousMemberAction` — false positives are more likely, so `Kick` (reversible)
+ * is the sane default action, with `Ban` available for servers that want maximum aggressiveness.
+ */
+export enum SelfbotAction {
+    /** Nothing beyond the unconditional log. */
+    None = 'none',
+    Kick = 'kick',
+    Ban = 'ban'
+}
+
+/**
  * Any `UPDATE` on this table fires `guild_protection_notify_config_changed` — a Postgres trigger
  * (see `drizzle/0005_thin_madame_hydra.sql`, not represented here since Drizzle's schema builder has
  * no declarative way to express triggers) that does `pg_notify('guild_config_changed', guild_id)`.
@@ -56,8 +69,13 @@ export const guildProtection = pgTable('guild_protection',
         antibotsEnable: boolean('antibots_enable').notNull().default(false),
         antibotsType: text('antibots_type').notNull().$type<AntibotsType>().default(AntibotsType.All),
 
-        // expels "zombie" users (selfbots/fake accounts) on join (antitokens.js)
-        antitokensEnable: boolean('antitokens_enable').notNull().default(false),
+        // what to do with a member SelfbotSystem scores as likely a selfbot/fake account on join —
+        // replaces the old antitokens.js (a broken username/join-count heuristic, see docs/selfbot.md)
+        selfbotAction: text('selfbot_action').notNull().$type<SelfbotAction>().default(SelfbotAction.None),
+        // only the account-age signal is per-guild tunable — the rest of SelfbotSystem's weights are
+        // fixed in code, see docs/selfbot.md for why. '30d' since the duration parser has no month
+        // unit (only s/m/h/d/w) — a real calendar month is a variable length anyway, not worth it here
+        selfbotMinAccountAge: text('selfbot_min_account_age').notNull().default('30d'),
 
         // what to do when a known malicious user (per UBFB) joins — mark.js and kick-malicious.js
         // used to be two independent booleans that could both be on at once, which makes no sense
@@ -82,9 +100,6 @@ export const guildProtection = pgTable('guild_protection',
         intelligentAntiflood: boolean('intelligent_antiflood').notNull().default(false),
         // basic flood protection toggle
         antiflood: boolean('antiflood').notNull().default(true),
-
-        // blocks accounts younger than this on join, e.g. '1h' (bloq-new-created-users.js)
-        bloqNewCreatedUsersTime: text('bloq_new_created_users_time').notNull().default('1h'),
 
         // manual lockdown (raidmode.js) — see docs/raidmode.md. Disabling it goes through the
         // existing 2FA (guild_configuration.password*) instead of a password of its own.

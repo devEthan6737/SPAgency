@@ -3,7 +3,7 @@ import { sql } from '../../database/connection.js';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
-import { RaidmodeSystem } from './RaidmodeSystem.js';
+import { parseDurationMs } from '../shared/Duration.js';
 
 /**
  * Turns raidmode off automatically once its configured duration elapses. A per-guild `setTimeout`,
@@ -55,7 +55,7 @@ export class RaidmodeExpiry {
         const state = await GuildRepository.getRaidmodeState(guildId);
         if (!state?.raidmodeEnable || !state.raidmodeActivatedAt) return;
 
-        const durationMs = RaidmodeSystem.parseDurationMs(state.raidmodeTimeToDisable);
+        const durationMs = parseDurationMs(state.raidmodeTimeToDisable);
         const delay = Math.max(0, state.raidmodeActivatedAt.getTime() + durationMs - Date.now());
 
         const timer = setTimeout(() => {

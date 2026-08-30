@@ -409,13 +409,14 @@ export default {
             joinBanReason: 'Raidmode is active — no joins are allowed right now.',
             actionBanReason: 'Raidmode is active — no channel/role/ban changes are allowed right now.'
         },
+        selfbot: {
+            actionReason: 'This account was flagged as likely a selfbot/fake account on join.'
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
         },
         logs: {
             events: {
-                memberJoin: (userId: string) => `📥 <@${userId}> joined the server.`,
-                memberLeave: (userId: string) => `📤 <@${userId}> left the server.`,
                 channelCreate: (channelId: string) => `📁 A channel was created: <#${channelId}>.`,
                 channelDelete: (channelId: string) => `🗑️ A channel was deleted: \`${channelId}\`.`,
                 channelUpdate: (channelId: string) => `✏️ A channel was updated: <#${channelId}>.`,
@@ -434,7 +435,9 @@ export default {
                 maliciousMemberBan: (userId: string) => `🔨 A known malicious user (<@${userId}>) joined — banned.`,
                 raidmodeJoinBan: (userId: string) => `🔒 <@${userId}> joined during raidmode — temp-banned.`,
                 raidmodeActionBan: (userId: string) => `🔒 <@${userId}> made a change during raidmode — banned.`,
-                raidmodeExpired: () => '🔓 Raidmode expired and was turned off automatically.'
+                raidmodeExpired: () => '🔓 Raidmode expired and was turned off automatically.',
+                selfbotKick: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — kicked.`,
+                selfbotBan: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — banned.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

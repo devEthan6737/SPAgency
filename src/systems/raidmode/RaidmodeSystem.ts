@@ -3,6 +3,7 @@ import { TempbanRepository } from '../../database/repositories/tempban.repositor
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache } from '../protection/index.js';
+import { parseDurationMs } from '../shared/Duration.js';
 
 interface RaidmodeAuditEntry {
     guildId: string;
@@ -41,7 +42,7 @@ export class RaidmodeSystem {
 
         const t = client.t(settings.language);
         const reason = t.systems.raidmode.joinBanReason.get();
-        const expiresAt = new Date(Date.now() + RaidmodeSystem.parseDurationMs(settings.raidmodeTimeToDisable));
+        const expiresAt = new Date(Date.now() + parseDurationMs(settings.raidmodeTimeToDisable));
 
         await client.bans.create(member.guildId, member.id, { reason }).catch(() => {});
         await TempbanRepository.create(member.guildId, member.id, reason, expiresAt);
@@ -65,18 +66,6 @@ export class RaidmodeSystem {
 
         void dispatchLog(client, RaidmodeSystem.logActionBan({ guildId: entry.guildId, targetId: entry.userId })).catch(() => {});
         return true;
-    }
-
-    /**
-     * `'1d'`/`'30m'`/... → ms. Falls back to a day if `value` doesn't parse — better a safe default
-     * than an instant expiry. Also used by `RaidmodeExpiry` to know how long a lockdown should last.
-     */
-    static parseDurationMs(value: string): number {
-        const unitsMs: Record<string, number> = { s: 1_000, m: 60_000, h: 3_600_000, d: 86_400_000, w: 604_800_000 };
-        const match = /^(\d+)\s*(s|m|h|d|w)$/i.exec(value.trim());
-        if (!match) return unitsMs.d;
-
-        return Number(match[1]) * unitsMs[match[2].toLowerCase()];
     }
 
     private static logJoinBan({ guildId, targetId }: LogInput) {

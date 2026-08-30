@@ -1,7 +1,6 @@
 const Guild = require('../schemas/guildsSchema');
 const Timers = require('../schemas/timersSchema');
 const Discord = require('discord.js-light');
-const ms = require('ms');
 const { pulk, fecthDataBase, updateDataBase } = require('../functions');
 const characters = 'qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM1234567890';
 
@@ -16,31 +15,6 @@ module.exports = async (client, member) => {
 
     try{
         let cache = await client.super.cache.get(member.guild.id, true);
-
-            // Antitokens:
-            if(_guild.protection.antitokens.enable == true) {
-
-                if(cache.amount > 3) {
-                    if(member.guild.me.permissions.has('KICK_MEMBERS') && user.isToken == false) {
-                        member.guild.members.kick(member, `${LANG.events.guildMemberAdd.antitokensKickReason}.`).catch(err => {});
-                    }
-                }
-                for(x of `${member.user.username}`.split(' ')) {
-                    if(cache.remember.length > 0 && cache.remember.includes(x) && x != '') {
-                        if(member.guild.me.permissions.has('BAN_MEMBERS') && user.isToken == false) {
-                            client.users.cache.get(member.user.id).send(`${LANG.events.guildMemberAdd.antitokensMessage}.\``).then(() => {
-                                member.guild.members.ban(member, { reason: `${LANG.events.guildMemberAdd.antitokensKickReason}.` }).catch(err => {});
-                            }).catch(err => {});
-                        }
-                    }else{
-                        client.super.cache.push({ id: member.guild.id }, x);
-                    }
-                }
-
-                if(_guild.protection.verification.enable == true && _guild.protection.verification._type == '--v4') {
-                    member.roles.add(_guild.protection.verification.role).catch(err => {});
-                }
-            }
 
             // Verification:
             if(_guild.protection.verification.enable == true) {
@@ -86,18 +60,6 @@ module.exports = async (client, member) => {
                     }).catch(err => {});
                 }
             }
-
-            // bloqNewCreatedUsers
-            if(_guild.protection.bloqNewCreatedUsers && member.user.createdTimestamp > Date.now() - ms(_guild.protection.bloqNewCreatedUsers.time)) {
-                if(member.guild.me.permissions.has('KICK_MEMBERS')) {
-                    client.users.cache.get(member.user.id).send({ content: `Tu cuenta debe llevar activa ${_guild.protection.bloqNewCreatedUsers.time} para entrar al servidor.` }).then(() => {
-                        member.guild.members.kick(member, 'Cuenta nueva.').catch(err => {});
-                    }).catch(() => {
-                        member.guild.members.kick(member, 'Cuenta nueva.').catch(err => {});
-                    });
-                }
-            }
-
 
         updateDataBase(client, member.guild, _guild, true);
 

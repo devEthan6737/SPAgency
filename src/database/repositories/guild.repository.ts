@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../connection.js';
 import { guildConfiguration } from '../schema/guild-configuration.js';
 import { guildModeration } from '../schema/guild-moderation.js';
-import { type AntibotsType, type MaliciousMemberAction, guildProtection } from '../schema/guild-protection.js';
+import { type AntibotsType, type MaliciousMemberAction, type SelfbotAction, guildProtection } from '../schema/guild-protection.js';
 import { guilds } from '../schema/guild.js';
 
 export interface GuildConfig {
@@ -30,6 +30,8 @@ export class GuildRepository {
         whitelist: string[];
         antibotsEnable: boolean;
         antibotsType: AntibotsType;
+        selfbotAction: SelfbotAction;
+        selfbotMinAccountAge: string;
         maliciousMemberAction: MaliciousMemberAction;
         raidmodeEnable: boolean;
         raidmodeTimeToDisable: string;
@@ -42,6 +44,8 @@ export class GuildRepository {
                 whitelist: guildConfiguration.whitelist,
                 antibotsEnable: guildProtection.antibotsEnable,
                 antibotsType: guildProtection.antibotsType,
+                selfbotAction: guildProtection.selfbotAction,
+                selfbotMinAccountAge: guildProtection.selfbotMinAccountAge,
                 maliciousMemberAction: guildProtection.maliciousMemberAction,
                 raidmodeEnable: guildProtection.raidmodeEnable,
                 raidmodeTimeToDisable: guildProtection.raidmodeTimeToDisable,

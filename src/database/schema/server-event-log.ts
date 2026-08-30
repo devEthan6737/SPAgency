@@ -27,7 +27,9 @@ export enum ServerEventType {
     /** Raidmode permanently banned someone for a channel/role/ban/bot-add action while it was active. */
     RaidmodeActionBan = 'raidmodeActionBan',
     /** Raidmode turned itself off automatically once its configured duration elapsed. */
-    RaidmodeExpired = 'raidmodeExpired'
+    RaidmodeExpired = 'raidmodeExpired',
+    /** `SelfbotSystem` scored a join as likely a selfbot/fake account — `data.action`/`data.score`/`data.signals` say what it did and why. */
+    SelfbotDetected = 'selfbotDetected'
 }
 
 /** One row per server event (channelCreate, raidDetected, ...), never edited. */
