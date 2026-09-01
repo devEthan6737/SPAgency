@@ -64,9 +64,21 @@ export class IntelligentSosSystem {
         return 'sent';
     }
 
-    /** Raw cache read — avoids building a full `Guild` structure just to read its name. REST fallback only on a cache miss. */
+    /**
+     * Raw cache read — avoids building a full `Guild` structure just to read its name. REST fallback
+     * only on a cache miss.
+     *
+     * `Promise.resolve(...)`, not a bare `await`, on purpose: this project never declares
+     * `InternalOptions.asyncCache`, so Seyfert types `.raw()` as returning the value directly (`T`,
+     * not `Promise<T>`) — TS then flags a plain `await` here as pointless. The type is wrong, not the
+     * `await`: `BaseResource.get()`/`raw()` always wraps its result through `fakePromise()`, which
+     * returns a thenable (`{ then: cb => cb(value) }`) even for the synchronous in-memory adapter,
+     * never the raw value — skipping the `await` would silently read `.name` off that wrapper object
+     * instead of the guild. `Promise.resolve(...)` unwraps any thenable the same way `await` does, but
+     * its own type is always `Promise<T>`, so it says what it means without the false-positive warning.
+     */
     private static async getGuildName(client: UsingClient, guildId: string): Promise<string> {
-        const cached = await client.cache.guilds?.raw(guildId);
+        const cached = await Promise.resolve(client.cache.guilds?.raw(guildId));
         if (cached) return cached.name;
 
         const guild = await client.guilds.fetch(guildId).catch(() => undefined);
