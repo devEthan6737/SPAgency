@@ -148,6 +148,13 @@
       "when": 1788126200000,
       "tag": "0020_antitokens_to_selfbot",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1788129354968,
+      "tag": "0021_relocate_flood_toggles_to_moderation",
+      "breakpoints": true
     }
   ]
 }

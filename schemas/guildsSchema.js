@@ -52,7 +52,6 @@ const guildsSchema = new mongoose.Schema({
             enable: mongoose.SchemaTypes.Boolean,
             cooldown: mongoose.SchemaTypes.Boolean
         },
-        intelligentAntiflood: mongoose.SchemaTypes.Boolean,
         antiflood: mongoose.SchemaTypes.Boolean,
         raidmode: {
             enable: mongoose.SchemaTypes.Boolean,

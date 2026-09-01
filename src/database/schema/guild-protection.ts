@@ -88,18 +88,9 @@ export const guildProtection = pgTable('guild_protection',
         verificationChannel: text('verification_channel'),
         verificationRole: text('verification_role'),
 
-        // removes malicious webhooks (purge-webhooks-attacks.js)
-        purgeWebhooksAttacksEnable: boolean('purge_webhooks_attacks_enable').notNull().default(false),
-        purgeWebhooksAttacksRememberOwner: text('purge_webhooks_attacks_remember_owner').notNull().default('Nadie'),
-
         // pings SP Agency staff when the bot detects a raid it can't handle alone (intelligentsos.js)
         intelligentSosEnable: boolean('intelligent_sos_enable').notNull().default(false),
         intelligentSosCooldown: boolean('intelligent_sos_cooldown').notNull().default(false),
-
-        // smarter flood detection, checked in eventos/messageCreate.js
-        intelligentAntiflood: boolean('intelligent_antiflood').notNull().default(false),
-        // basic flood protection toggle
-        antiflood: boolean('antiflood').notNull().default(true),
 
         // manual lockdown (raidmode.js) — see docs/raidmode.md. Disabling it goes through the
         // existing 2FA (guild_configuration.password*) instead of a password of its own.

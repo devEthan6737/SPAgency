@@ -296,35 +296,6 @@ module.exports = async (client, message) => {
             }
         }
 
-        // IntelligentAntiflood:
-        if(_guild.protection.intelligentAntiflood == true) {
-            if(message.guild.me.permissions.has('KICK_MEMBERS')) {
-                if(`${message.channel.name}`.includes('flood') || (`${message.channel.topic}`.includes('permite') && `${message.channel.topic}`.includes('flood') && !`${message.channel.topic}`.includes('no')))return;
-                if(message.content == cache.lastContent) {
-                    cache.lastContent = message.content;
-                    client.super.cache.up(message.author.id, cache);
-                    if(cache.amount >= 5) {
-                        client.super.cache.delete(message.author.id);
-
-                        message.guild.members.ban(message.author.id, { reason: 'Flood masivo.' }).then(async () => {
-                            message.channel.send('He baneado al usuario.');
-                            if(_guild.protection.intelligentSOS.enable == true) {
-                                await intelligentSOS(_guild, client, 'Flood masivo');
-                            }
-                        }).catch(err => {});
-                    }
-                    message.delete().catch(err => {});
-
-                    setTimeout(() => {
-                        client.super.cache.delete(message.author.id);
-                    }, 6100);
-                }else{
-                    cache.lastContent = message.content;
-                    client.super.cache.post(message.author.id, cache);
-                }
-            }
-        }
-
         // Infecteds users with antiraid system:
         if(_guild.protection.antiraid.enable == true && message.member.moderatable) {
             let newMessage = `${message.content}`.toLowerCase();
