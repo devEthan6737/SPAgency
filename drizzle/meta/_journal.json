@@ -155,6 +155,13 @@
       "when": 1788129354968,
       "tag": "0021_relocate_flood_toggles_to_moderation",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1788277478493,
+      "tag": "0022_drop_intelligent_sos_cooldown",
+      "breakpoints": true
     }
   ]
 }

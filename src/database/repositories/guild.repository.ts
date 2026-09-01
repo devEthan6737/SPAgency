@@ -33,6 +33,7 @@ export class GuildRepository {
         selfbotAction: SelfbotAction;
         selfbotMinAccountAge: string;
         maliciousMemberAction: MaliciousMemberAction;
+        intelligentSosEnable: boolean;
         raidmodeEnable: boolean;
         raidmodeTimeToDisable: string;
         logsChannel: string | null;
@@ -47,6 +48,7 @@ export class GuildRepository {
                 selfbotAction: guildProtection.selfbotAction,
                 selfbotMinAccountAge: guildProtection.selfbotMinAccountAge,
                 maliciousMemberAction: guildProtection.maliciousMemberAction,
+                intelligentSosEnable: guildProtection.intelligentSosEnable,
                 raidmodeEnable: guildProtection.raidmodeEnable,
                 raidmodeTimeToDisable: guildProtection.raidmodeTimeToDisable,
                 logsChannel: guildConfiguration.logsChannel

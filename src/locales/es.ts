@@ -218,8 +218,6 @@ export default {
                 description: 'Avisa al staff de SPAgency con una invitación nueva a este servidor. Para emergencias.',
                 noStaffChannel: '❌ El canal de alertas del staff no está configurado — contacta directamente con el soporte de SPAgency.',
                 noChannel: '❌ No hay ningún canal de texto disponible para crear la invitación.',
-                alert: (guildName: string, guildId: string, invite: string) =>
-                    `@everyone 🆘 **S.O.S.** de \`${guildName}\` (${guildId})!\n${invite}`,
                 done: '✅ Aviso enviado.'
             },
             baninfo: {
@@ -412,6 +410,11 @@ export default {
         },
         selfbot: {
             actionReason: 'Esta cuenta fue marcada como probable selfbot/cuenta falsa al unirse.'
+        },
+        intelligentSos: {
+            alert: (guildName: string, guildId: string, invite: string) => `@everyone 🆘 **S.O.S.** de \`${guildName}\` (${guildId})!\n${invite}`,
+            automaticAlert: (guildName: string, guildId: string, invite: string, reason: string) =>
+                `@everyone 🆘 **S.O.S. automático** de \`${guildName}\` (${guildId})!\n**Motivo:** ${reason}\n${invite}`
         },
         cooldown: {
             blocked: (seconds: number) => `❌ Espera un poco — inténtalo de nuevo en \`${seconds}s\`.`

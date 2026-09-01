@@ -88,9 +88,10 @@ export const guildProtection = pgTable('guild_protection',
         verificationChannel: text('verification_channel'),
         verificationRole: text('verification_role'),
 
-        // pings SP Agency staff when the bot detects a raid it can't handle alone (intelligentsos.js)
+        // pings SP Agency staff when AntiraidSystem bans someone for a detected raid — see
+        // docs/intelligent-sos.md. The 2-minute cooldown between alerts lives in memory
+        // (IntelligentSosSystem), not here — too short-lived to be worth persisting.
         intelligentSosEnable: boolean('intelligent_sos_enable').notNull().default(false),
-        intelligentSosCooldown: boolean('intelligent_sos_cooldown').notNull().default(false),
 
         // manual lockdown (raidmode.js) — see docs/raidmode.md. Disabling it goes through the
         // existing 2FA (guild_configuration.password*) instead of a password of its own.

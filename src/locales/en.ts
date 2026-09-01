@@ -218,8 +218,6 @@ export default {
                 description: 'Pings SPAgency staff with a fresh invite to this server. For emergencies.',
                 noStaffChannel: "❌ The staff alert channel isn't configured — contact SPAgency support directly.",
                 noChannel: '❌ No text channel is available to create the invite.',
-                alert: (guildName: string, guildId: string, invite: string) =>
-                    `@everyone 🆘 **S.O.S.** from \`${guildName}\` (${guildId})!\n${invite}`,
                 done: '✅ Alert sent.'
             },
             baninfo: {
@@ -411,6 +409,11 @@ export default {
         },
         selfbot: {
             actionReason: 'This account was flagged as likely a selfbot/fake account on join.'
+        },
+        intelligentSos: {
+            alert: (guildName: string, guildId: string, invite: string) => `@everyone 🆘 **S.O.S.** from \`${guildName}\` (${guildId})!\n${invite}`,
+            automaticAlert: (guildName: string, guildId: string, invite: string, reason: string) =>
+                `@everyone 🆘 **Automatic S.O.S.** from \`${guildName}\` (${guildId})!\n**Reason:** ${reason}\n${invite}`
         },
         cooldown: {
             blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`

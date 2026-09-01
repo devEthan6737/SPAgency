@@ -1,6 +1,7 @@
 import { AuditLogEvent, EmbedColors, type UsingClient } from 'seyfert';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
+import { IntelligentSosSystem } from '../intelligent-sos/index.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache } from '../protection/index.js';
 import { AntiraidPrerequisites } from './AntiraidPrerequisites.js';
@@ -49,9 +50,11 @@ export class AntiraidSystem {
         if (!tripped) return;
 
         const t = client.t(settings.language);
-        await client.bans.create(guildId, executorId, { reason: t.systems.antiraid.banReason.get() }).catch(() => {});
+        const reason = t.systems.antiraid.banReason.get();
+        await client.bans.create(guildId, executorId, { reason }).catch(() => {});
 
         void dispatchLog(client, AntiraidSystem.log({ guildId, targetId: executorId })).catch(() => {});
+        void IntelligentSosSystem.trigger(client, guildId, reason).catch(() => {});
     }
 
     /**
