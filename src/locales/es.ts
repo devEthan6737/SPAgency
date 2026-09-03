@@ -388,6 +388,34 @@ export default {
                 success: '✅ Reporte enviado. El equipo de UBFB lo revisará.',
                 alreadyPending: '❌ Ese usuario ya tiene un reporte pendiente de revisión.',
                 invalidProof: '❌ El enlace de la prueba no es válido, debe ser una imagen.'
+            },
+            cache: {
+                name: 'cache',
+                description: 'Inspecciona/calienta/invalida la entrada de GuildConfigCache de un servidor.',
+                usage: 'Usa `/cache info`, `/cache hit`, o `/cache reload`.',
+                noGuild: '❌ No diste un id de servidor, y esto no se ejecutó en un servidor.',
+                notCached: (guildId: string) => `❌ No hay nada cacheado para \`${guildId}\` ahora mismo.`,
+                noRow: (guildId: string) => `❌ \`${guildId}\` no tiene ninguna fila en la base de datos.`,
+                hitResult: (ms: string) => `⏱️ Round-trip del fallo de caché: \`${ms}ms\`.`,
+                reloaded: (guildId: string) => `✅ Recargada la entrada de caché de \`${guildId}\`.`,
+                option: {
+                    guildId: {
+                        name: 'guild_id',
+                        description: 'Id del servidor a comprobar — por defecto, el servidor actual.'
+                    }
+                },
+                info: {
+                    name: 'info',
+                    description: 'Muestra qué hay cacheado ahora mismo para un servidor, sin tocar la base de datos.'
+                },
+                hit: {
+                    name: 'hit',
+                    description: 'Fuerza un fallo de caché para un servidor y reporta cuánto tardó en recargarse.'
+                },
+                reload: {
+                    name: 'reload',
+                    description: 'Fuerza la invalidación y recarga de la entrada de caché de un servidor.'
+                }
             }
         }
     },

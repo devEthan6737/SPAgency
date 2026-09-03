@@ -38,7 +38,7 @@ export class GuildConfigCache {
         if (GuildConfigCache.listening) return;
         GuildConfigCache.listening = true;
 
-        void sql.listen('guild_config_changed', (guildId) => GuildConfigCache.entries.delete(guildId)).catch((error) => {
+        void sql.listen('guild_config_changed', (guildId) => GuildConfigCache.invalidate(guildId)).catch((error) => {
             client.logger.error('[protection] Failed to start the guild_config_changed listener', error);
         });
         setInterval(() => GuildConfigCache.entries.clear(), 10 * 60 * 1000);
@@ -52,5 +52,15 @@ export class GuildConfigCache {
         const settings = await GuildRepository.getProtectionSettings(guildId);
         if (settings) GuildConfigCache.entries.set(guildId, settings);
         return settings;
+    }
+
+    /** Reads whatever is currently cached for `guildId` without ever touching the network — `undefined` on a miss, unlike {@link GuildConfigCache.get}, which would fetch. For `/cache info`. */
+    static peek(guildId: string): GuildProtectionSettings | undefined {
+        return GuildConfigCache.entries.get(guildId);
+    }
+
+    /** Drops `guildId`'s cached entry, if any, so the next {@link GuildConfigCache.get} is a guaranteed miss. For `/cache hit`/`reload`, and reused internally by the `guild_config_changed` listener. */
+    static invalidate(guildId: string): void {
+        GuildConfigCache.entries.delete(guildId);
     }
 }

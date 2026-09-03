@@ -388,6 +388,34 @@ export default {
                 success: "✅ Report sent. UBFB's team will review it.",
                 alreadyPending: '❌ That user already has a pending report.',
                 invalidProof: "❌ That proof link isn't valid, it must be an image."
+            },
+            cache: {
+                name: 'cache',
+                description: "Inspect/warm/invalidate a guild's GuildConfigCache entry.",
+                usage: 'Use `/cache info`, `/cache hit`, or `/cache reload`.',
+                noGuild: '❌ No guild id given, and this was not run in a guild.',
+                notCached: (guildId: string) => `❌ Nothing cached for \`${guildId}\` right now.`,
+                noRow: (guildId: string) => `❌ \`${guildId}\` has no row in the database at all.`,
+                hitResult: (ms: string) => `⏱️ Cache miss round-trip: \`${ms}ms\`.`,
+                reloaded: (guildId: string) => `✅ Reloaded the cache entry for \`${guildId}\`.`,
+                option: {
+                    guildId: {
+                        name: 'guild_id',
+                        description: 'Guild id to check — defaults to the current server.'
+                    }
+                },
+                info: {
+                    name: 'info',
+                    description: "Shows what's currently cached for a guild, without touching the database."
+                },
+                hit: {
+                    name: 'hit',
+                    description: 'Forces a cache miss for a guild and reports how long re-fetching it took.'
+                },
+                reload: {
+                    name: 'reload',
+                    description: "Force-invalidates and re-fetches a guild's cache entry."
+                }
             }
         }
     },
