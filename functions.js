@@ -1,7 +1,6 @@
 // No es recomendable tocar algo de aquí si no sabes lo que haces.
 
 const Discord = require('discord.js-light');
-const process = require('process');
 const Timers = require('./schemas/timersSchema');
 const Warns = require('./schemas/warnsSchema');
 
@@ -108,22 +107,6 @@ async function automoderator(client, mongoose, message, sanctionReason) {
     }
 }
 
-async function intelligentSOS(_guild, client, eventType) {
-    if(_guild.protection.intelligentSOS.cooldown == false) {
-        let guild = await client.guilds.cache.get(_guild.id) || await client.guilds.fetch(_guild.id);
-        let invite = await guild.channels.cache.filter(m => m.type == 'GUILD_TEXT').random().createInvite();
-        if(invite != undefined) client.channels.cache.get(process.env.BOT_PRIVATE_LOGS).send('@everyone SOS de `' + eventType + '`:\nhttps://discord.gg/' + invite);
-
-        _guild.protection.intelligentSOS.cooldown = true;
-        updateDataBase(client, guild, _guild, true);
-
-        setTimeout(() => {
-            _guild.protection.intelligentSOS.cooldown = false;
-            updateDataBase(client, guild, _guild, true);
-        }, 120000);
-    }
-}
-
 module.exports = {
-    automoderator, intelligentSOS
+    automoderator
 }

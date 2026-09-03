@@ -33,12 +33,6 @@ const guildsSchema = new mongoose.Schema({
             enable: mongoose.SchemaTypes.Boolean,
             rememberEntrities: mongoose.SchemaTypes.Array
         },
-        verification: {
-            enable: mongoose.SchemaTypes.Boolean,
-            _type: mongoose.SchemaTypes.String,
-            channel: mongoose.SchemaTypes.String,
-            role: mongoose.SchemaTypes.String
-        },
         cannotEnterTwice: {
             enable: mongoose.SchemaTypes.Boolean,
             users: mongoose.SchemaTypes.Array

@@ -53,4 +53,4 @@ Con esas tres fuera, a `Mark` no le queda nada que configurar — siempre cambia
 
 ## Qué falta del bundle completo
 
-`MaliciousMemberSystem` es solo una pieza del bundle de protección al unirse. `verification` sigue sin implementar, pendiente de su propia sesión de diseño — se añadiría a `guildMemberAdd.ts` según le toque, nunca en un fichero de evento aparte. (`antijoins` se eliminó del schema — `raidmode`, ver [`raidmode.md`](raidmode.md), ya cubre "banear a quien se una" de sobra. `bloqEntritiesByName`, `antitokens` y `bloqNewCreatedUsers` también se eliminaron — sustituidos por `SelfbotSystem`, ver [`selfbot.md`](selfbot.md).)
+`MaliciousMemberSystem` es una pieza más del bundle de protección al unirse, junto a `AntibotsSystem`, `SelfbotSystem` (ver [`selfbot.md`](selfbot.md)) y `VerificationSystem` (ver [`verification.md`](verification.md)) — ya no queda ninguna pieza de ese bundle sin implementar. (`antijoins` se eliminó del schema — `raidmode`, ver [`raidmode.md`](raidmode.md), ya cubre "banear a quien se una" de sobra. `bloqEntritiesByName`, `antitokens` y `bloqNewCreatedUsers` también se eliminaron — sustituidos por `SelfbotSystem`.)

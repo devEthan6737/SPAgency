@@ -82,10 +82,10 @@ export const guildProtection = pgTable('guild_protection',
         // (let them in and flag them, vs. remove them, are mutually exclusive outcomes)
         maliciousMemberAction: text('malicious_member_action').notNull().$type<MaliciousMemberAction>().default(MaliciousMemberAction.Mark),
 
-        // anti-selfbot verification flow (verification.js, variantes --v1..--v4)
+        // web-only verification (OAuth2 + captcha on SPA's own dashboard) — see docs/verification.md.
+        // No channel/type: the legacy bot's 4 in-Discord variants (message collector, buttons...) were
+        // all automatable by a selfbot in a few lines; a real Discord OAuth2 login isn't.
         verificationEnable: boolean('verification_enable').notNull().default(false),
-        verificationType: text('verification_type'),
-        verificationChannel: text('verification_channel'),
         verificationRole: text('verification_role'),
 
         // pings SP Agency staff when AntiraidSystem bans someone for a detected raid — see

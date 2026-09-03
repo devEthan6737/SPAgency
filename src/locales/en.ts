@@ -415,6 +415,9 @@ export default {
             automaticAlert: (guildName: string, guildId: string, invite: string, reason: string) =>
                 `@everyone 🆘 **Automatic S.O.S.** from \`${guildName}\` (${guildId})!\n**Reason:** ${reason}\n${invite}`
         },
+        verification: {
+            dm: (link: string) => `👋 Welcome! To access this server, verify yourself here:\n${link}\n\nThis link expires in 15 minutes.`
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
         },

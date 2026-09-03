@@ -12,6 +12,8 @@ export interface GuildProtectionSettings {
     selfbotAction: SelfbotAction;
     selfbotMinAccountAge: string;
     maliciousMemberAction: MaliciousMemberAction;
+    verificationEnable: boolean;
+    verificationRole: string | null;
     intelligentSosEnable: boolean;
     raidmodeEnable: boolean;
     raidmodeTimeToDisable: string;

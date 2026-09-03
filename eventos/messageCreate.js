@@ -1,10 +1,7 @@
 const Discord = require('discord.js-light');
 const { version } = require('../package.json');
-const Guild = require('../schemas/guildsSchema');
-const Support = require('../schemas/supportSchema');
 const db = require('megadb');
-const dev = new db.crearDB('devsActivos', 'data_users');
-const { automoderator, intelligentSOS, ratelimitFilter, fecthDataBase, updateDataBase, fecthUsersDataBase, updateUsersDataBase, getResponseAndDelete } = require('../functions');
+const { automoderator, fecthDataBase, updateDataBase, getResponseAndDelete } = require('../functions');
 const mayus = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const ms = require('ms');
 const antiIpLogger = require("anti-ip-logger");
@@ -39,9 +36,6 @@ module.exports = async (client, message) => {
                                             if(message.guild.me.permissions.has('BAN_MEMBERS')) {
                                                 message.guild.members.ban(webhook.owner, { reason: 'Raid con webhooks.' }).catch(err => {});
                                                 message.channel.send({ content: 'También lo he baneado por crear dos veces un webhook raider.' });
-                                                if(_guild.protection.intelligentSOS.enable == true) {
-                                                    await intelligentSOS(_guild, client, 'Flood de webhook');
-                                                }
                                             }
                                         }else{
                                             _guild.protection.purgeWebhooksAttacks.rememberOwners = webhook.owner.id;

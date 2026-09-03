@@ -4,6 +4,7 @@ import { GuildConfigCache } from '../systems/protection/index.js';
 import { RaidmodeExpiry } from '../systems/raidmode/index.js';
 import { startTempbanPoller } from '../systems/tempban/poller.js';
 import { initUbfb } from '../systems/ubfb/client.js';
+import { VerificationServer } from '../systems/verification/index.js';
 
 // `ready` fires again on every fresh gateway session (not on a resume — Discord replays whatever a
 // resume missed on its own), which is exactly when a role/permission change could have happened
@@ -20,6 +21,7 @@ export default createEvent({
             initUbfb(user.username, user.avatarURL());
             startTempbanPoller(client);
             GuildConfigCache.start(client);
+            VerificationServer.start(client);
         }
 
         // Catches drift from while the bot was offline/disconnected — everything else runs

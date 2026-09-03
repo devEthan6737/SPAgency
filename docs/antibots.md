@@ -41,6 +41,6 @@ Igual que la detección de ráfagas del antiraid, un kick de antibots es una acc
 
 ## Lo que falta
 
-`guildMemberAdd` es, igual que `guildAuditLogEntryCreate`, un único punto de entrada por la misma restricción de Seyfert (un handler por evento) — cualquier sistema futuro que reaccione a un join (`verification`) se añade ahí, no en un fichero aparte. Ese sigue sin implementar (`antibots`, `maliciousMemberAction`, `raidmode` y `selfbot` sí lo están, ver [`malicious-members.md`](malicious-members.md), [`raidmode.md`](raidmode.md) y [`selfbot.md`](selfbot.md)).
+`guildMemberAdd` es, igual que `guildAuditLogEntryCreate`, un único punto de entrada por la misma restricción de Seyfert (un handler por evento) — cualquier sistema futuro que reaccione a un join se añade ahí, no en un fichero aparte. `antibots`, `maliciousMemberAction`, `raidmode`, `selfbot` y `verification` ya están hechos, ver [`malicious-members.md`](malicious-members.md), [`raidmode.md`](raidmode.md), [`selfbot.md`](selfbot.md) y [`verification.md`](verification.md).
 
 `AntibotsSystem.enforce()` devuelve `boolean` (si expulsó al bot) — `guildMemberAdd.ts` lo usa para saltarse `SelfbotSystem` cuando ya no queda nadie a quien puntuar.
