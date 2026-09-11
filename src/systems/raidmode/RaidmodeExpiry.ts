@@ -3,6 +3,7 @@ import { sql } from '../../database/connection.js';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
+import { ExpiringMap } from '../shared/ExpiringMap.js';
 import { parseDurationMs } from '../shared/Duration.js';
 
 /**
@@ -15,7 +16,7 @@ import { parseDurationMs } from '../shared/Duration.js';
  * was offline/disconnected — same reasoning as `AntiraidSystem.recheckAllPrerequisites`.
  */
 export class RaidmodeExpiry {
-    private static timers = new Map<string, NodeJS.Timeout>();
+    private static timers = new ExpiringMap<string, null>();
     private static listening = false;
 
     /**
@@ -48,8 +49,6 @@ export class RaidmodeExpiry {
 
     /** Re-reads one guild's raidmode state and (re)schedules its timer, or just clears it if raidmode is off. */
     private static async reschedule(client: UsingClient, guildId: string): Promise<void> {
-        const existing = RaidmodeExpiry.timers.get(guildId);
-        if (existing) clearTimeout(existing);
         RaidmodeExpiry.timers.delete(guildId);
 
         const state = await GuildRepository.getRaidmodeState(guildId);
@@ -58,12 +57,9 @@ export class RaidmodeExpiry {
         const durationMs = parseDurationMs(state.raidmodeTimeToDisable);
         const delay = Math.max(0, state.raidmodeActivatedAt.getTime() + durationMs - Date.now());
 
-        const timer = setTimeout(() => {
-            RaidmodeExpiry.timers.delete(guildId);
+        RaidmodeExpiry.timers.set(guildId, null, delay, () => {
             void RaidmodeExpiry.expire(client, guildId).catch((error) => client.logger.error(`[raidmode] Failed to auto-disable guild ${guildId}`, error));
-        }, delay);
-
-        RaidmodeExpiry.timers.set(guildId, timer);
+        });
     }
 
     /** Turns raidmode off and logs it — this UPDATE fires the same trigger that got us here, but `reschedule()` no-ops on an already-disabled guild, so there's no loop. */

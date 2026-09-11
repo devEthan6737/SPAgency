@@ -436,6 +436,9 @@ export default {
             joinBanReason: 'Raidmode está activo — no se permiten entradas ahora mismo.',
             actionBanReason: 'Raidmode está activo — no se permiten cambios de canales/roles/baneos ahora mismo.'
         },
+        raidBotAdder: {
+            banReason: (botId: string) => `Añadió un bot (\`${botId}\`) que fue baneado por raider.`
+        },
         selfbot: {
             actionReason: 'Esta cuenta fue marcada como probable selfbot/cuenta falsa al unirse.'
         },
@@ -446,6 +449,26 @@ export default {
         },
         verification: {
             dm: (link: string) => `👋 ¡Bienvenido! Para acceder a este servidor, verifícate aquí:\n${link}\n\nEste enlace caduca en 15 minutos.`
+        },
+        automod: {
+            reason: {
+                flood: () => 'Enviar mensajes demasiado rápido.',
+                ghostping: () => 'Mencionar a alguien y borrar el mensaje poco después.',
+                capsLock: () => 'Uso excesivo de mayúsculas.',
+                manyEmojis: () => 'Demasiados emojis en un mensaje.',
+                manyWords: () => 'Mensaje demasiado largo.',
+                nativeAutomod: () => 'Marcado por las reglas propias de AutoMod de Discord del servidor.'
+            },
+            announce: {
+                ghostping: (userId: string, mentionedUserId?: string) =>
+                    mentionedUserId
+                        ? `🕵️ <@${userId}> mencionó a <@${mentionedUserId}> y borró el mensaje poco después.`
+                        : `🕵️ <@${userId}> mencionó a alguien y borró el mensaje poco después.`,
+                capsLock: (userId: string) => `🔠 <@${userId}>, baja el tono con las mayúsculas.`,
+                manyEmojis: (userId: string) => `🙂 <@${userId}>, son demasiados emojis para un mensaje.`,
+                manyWords: (userId: string) => `📝 <@${userId}>, ese mensaje era demasiado largo.`
+            },
+            webhookFloodReason: () => 'Flood de webhooks.'
         },
         cooldown: {
             blocked: (seconds: number) => `❌ Espera un poco — inténtalo de nuevo en \`${seconds}s\`.`
@@ -472,7 +495,11 @@ export default {
                 raidmodeActionBan: (userId: string) => `🔒 <@${userId}> hizo un cambio durante el raidmode — baneado.`,
                 raidmodeExpired: () => '🔓 El raidmode expiró y se desactivó automáticamente.',
                 selfbotKick: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — expulsado.`,
-                selfbotBan: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — baneado.`
+                selfbotBan: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — baneado.`,
+                automodViolation: (userId: string, detector: string, sanction: string) =>
+                    `⚠️ <@${userId}> saltó el automod (\`${detector}\`) — \`${sanction}\`.`,
+                webhookFloodPurge: (webhookId: string) => `🪝 Eliminado el webhook \`${webhookId}\` por flood.`,
+                raidBotAdderBan: (userId: string, botId: string) => `🔨 <@${userId}> añadió a \`${botId}\`, baneado por raider — también baneado.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

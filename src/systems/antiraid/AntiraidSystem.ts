@@ -1,6 +1,7 @@
 import { AuditLogEvent, EmbedColors, type UsingClient } from 'seyfert';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
+import { BotAdderSystem, RaidBotSource } from '../bot-adder/index.js';
 import { IntelligentSosSystem } from '../intelligent-sos/index.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache } from '../protection/index.js';
@@ -55,6 +56,9 @@ export class AntiraidSystem {
 
         void dispatchLog(client, AntiraidSystem.log({ guildId, targetId: executorId })).catch(() => {});
         void IntelligentSosSystem.trigger(client, guildId, reason).catch(() => {});
+
+        const executor = await client.users.fetch(executorId).catch(() => undefined);
+        if (executor?.bot) void BotAdderSystem.enforce(client, guildId, executorId, RaidBotSource.Antiraid).catch(() => {});
     }
 
     /**

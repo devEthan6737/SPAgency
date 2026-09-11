@@ -4,6 +4,7 @@ import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache } from '../protection/index.js';
 import { parseDurationMs } from '../shared/Duration.js';
+import { RollingWindowCounter } from '../shared/RollingWindowCounter.js';
 
 /**
  * Scores a join against a handful of cheap, no-extra-permission signals (account age, default
@@ -28,7 +29,7 @@ export class SelfbotSystem {
     /** How many joins within the window counts as "simultaneous". */
     private static readonly JoinBurstMinCount = 3;
 
-    private static recentJoins = new Map<string, { timestamps: number[]; reapTimer: NodeJS.Timeout }>();
+    private static recentJoins = new RollingWindowCounter(SelfbotSystem.JoinBurstWindowMs);
 
     /** @returns Whether this call removed `member` (kick or ban) from the guild. */
     static async enforce(client: UsingClient, member: GuildMemberStructure): Promise<boolean> {
@@ -91,22 +92,12 @@ export class SelfbotSystem {
 
     /**
      * Whether this join is one of at least {@link SelfbotSystem.JoinBurstMinCount} within the last
-     * {@link SelfbotSystem.JoinBurstWindowMs} for this guild. A small rolling counter, not
-     * `BurstTracker` — that one trips once and resets, which would only flag one join per wave instead
-     * of every account in it. The guild's entry reaps itself once nothing joins for a full window.
+     * {@link SelfbotSystem.JoinBurstWindowMs} for this guild — a `RollingWindowCounter`, not
+     * `BurstTracker`, which trips once and resets, and would only flag one join per wave instead of
+     * every account in it.
      */
     private static isJoinBurst(guildId: string): boolean {
-        const now = Date.now();
-        const entry = SelfbotSystem.recentJoins.get(guildId) ?? { timestamps: [], reapTimer: undefined as unknown as NodeJS.Timeout };
-
-        entry.timestamps = entry.timestamps.filter((timestamp) => now - timestamp < SelfbotSystem.JoinBurstWindowMs);
-        entry.timestamps.push(now);
-
-        clearTimeout(entry.reapTimer);
-        entry.reapTimer = setTimeout(() => SelfbotSystem.recentJoins.delete(guildId), SelfbotSystem.JoinBurstWindowMs);
-        SelfbotSystem.recentJoins.set(guildId, entry);
-
-        return entry.timestamps.length >= SelfbotSystem.JoinBurstMinCount;
+        return SelfbotSystem.recentJoins.hit(guildId) >= SelfbotSystem.JoinBurstMinCount;
     }
 
     private static log({ guildId, targetId, action, score, signals }: LogInput) {

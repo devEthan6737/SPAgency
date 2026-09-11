@@ -1,9 +1,10 @@
 import type { UsingClient } from 'seyfert';
 import { sql } from '../../database/connection.js';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
+import type { AutomodFinalAction } from '../../database/schema/guild-moderation.js';
 import type { AntibotsType, MaliciousMemberAction, SelfbotAction } from '../../database/schema/guild-protection.js';
 
-export interface GuildProtectionSettings {
+export interface GuildSettings {
     language: string;
     antiraidEnable: boolean;
     whitelist: string[];
@@ -18,19 +19,32 @@ export interface GuildProtectionSettings {
     raidmodeEnable: boolean;
     raidmodeTimeToDisable: string;
     logsChannel: string | null;
+    antiflood: boolean;
+    antiWebhooksFlood: boolean;
+    ghostpingEnable: boolean;
+    capsLockEnable: boolean;
+    capsLockThreshold: number;
+    manyEmojisEnable: boolean;
+    manyEmojisThreshold: number;
+    manyWordsEnable: boolean;
+    manyWordsThreshold: number;
+    automodMuteAt: number;
+    automodMuteMinutes: number;
+    automodFinalAction: AutomodFinalAction;
+    automodFinalActionAt: number;
 }
 
 /**
- * In-memory mirror of the join/audit-log-time guild protection settings (antiraid, antibots...) and
- * of `dispatchLog`'s own needs (`language`, `logsChannel`), so neither the detection hot paths nor
- * every single logged action ever touch the network for this. Kept fresh by a Postgres LISTEN — the
- * trigger fires regardless of who wrote the change (this bot, or later the dashboard, a separate
- * process), so the cache stays correct without either side having to remember to invalidate it.
- * Three tables feed this cache (`guild_protection`, `guild_configuration`, and `guilds` for
+ * In-memory mirror of every per-guild setting the message/join/audit-log-time systems need — antiraid,
+ * antibots, `AutomodSystem`'s thresholds, `dispatchLog`'s needs (`language`, `logsChannel`) — so none
+ * of those hot paths ever touch the network for this. Kept fresh by a Postgres LISTEN — the trigger
+ * fires regardless of who wrote the change (this bot, or later the dashboard, a separate process), so
+ * the cache stays correct without either side having to remember to invalidate it. Four tables feed
+ * this cache (`guild_protection`, `guild_configuration`, `guild_moderation`, and `guilds` for
  * `language`), each with its own trigger — see their schema files for the exact trigger names.
  */
 export class GuildConfigCache {
-    private static entries = new Map<string, GuildProtectionSettings>();
+    private static entries = new Map<string, GuildSettings>();
     private static listening = false;
 
     /** Starts the LISTEN connection and the periodic safety-net refresh. Call once, from the ready event. */
@@ -45,17 +59,17 @@ export class GuildConfigCache {
     }
 
     /** Cached settings for `guildId`, fetching and caching them on a miss. */
-    static async get(guildId: string): Promise<GuildProtectionSettings | null> {
+    static async get(guildId: string): Promise<GuildSettings | null> {
         const cached = GuildConfigCache.entries.get(guildId);
         if (cached) return cached;
 
-        const settings = await GuildRepository.getProtectionSettings(guildId);
+        const settings = await GuildRepository.getGuildSettings(guildId);
         if (settings) GuildConfigCache.entries.set(guildId, settings);
         return settings;
     }
 
     /** Reads whatever is currently cached for `guildId` without ever touching the network — `undefined` on a miss, unlike {@link GuildConfigCache.get}, which would fetch. For `/cache info`. */
-    static peek(guildId: string): GuildProtectionSettings | undefined {
+    static peek(guildId: string): GuildSettings | undefined {
         return GuildConfigCache.entries.get(guildId);
     }
 

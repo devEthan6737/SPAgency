@@ -41,7 +41,7 @@ El cooldown (`Map.get()`, sin `await`, coste cero) se comprueba **antes** que `G
 
 ## Cooldown en memoria, no en la base de datos
 
-`intelligentSosCooldown` existía como booleano en `guild_protection`, pero un estado que dura 2 minutos no tiene sentido persistido — se sustituyó por un `Map<string, timer>` en la propia clase, con el mismo patrón self-cleaning que `BurstTracker`/`SelfbotSystem`: el timer se borra su propia entrada al expirar, nadie tiene que acordarse de limpiarlo.
+`intelligentSosCooldown` existía como booleano en `guild_protection`, pero un estado que dura 2 minutos no tiene sentido persistido — se sustituyó por un [`ExpiringMap`](../src/systems/shared/ExpiringMap.ts) en la propia clase (ver `moderation.md` para el resto de sistemas que comparten este mismo primitivo): la entrada se borra sola al expirar, nadie tiene que acordarse de limpiarla.
 
 ## Dónde se engancha — solo `AntiraidSystem`, a propósito
 

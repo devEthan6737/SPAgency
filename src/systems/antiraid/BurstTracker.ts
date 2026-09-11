@@ -1,3 +1,5 @@
+import { ExpiringMap } from '../shared/ExpiringMap.js';
+
 export interface BurstHitOptions {
     /** Identifies what's being tracked — e.g. a guild id. */
     key: string;
@@ -11,21 +13,17 @@ export interface BurstHitOptions {
 
 /** Generic rolling-window burst counter, keyed by an arbitrary string. Not specific to antiraid. */
 export class BurstTracker {
-    private static entries = new Map<string, { count: number; timer: NodeJS.Timeout }>();
+    private static entries = new ExpiringMap<string, number>();
 
     /** Registers a hit (worth `weight`, default 1) for `key`. Returns true once `threshold` is reached within `windowMs` of the last hit, and resets the counter. */
     static hit({ key, threshold, windowMs, weight = 1 }: BurstHitOptions): boolean {
-        const existing = BurstTracker.entries.get(key);
-        if (existing) clearTimeout(existing.timer);
-
-        const count = (existing?.count ?? 0) + weight;
+        const count = (BurstTracker.entries.get(key) ?? 0) + weight;
         if (count >= threshold) {
             BurstTracker.entries.delete(key);
             return true;
         }
 
-        const timer = setTimeout(() => BurstTracker.entries.delete(key), windowMs);
-        BurstTracker.entries.set(key, { count, timer });
+        BurstTracker.entries.set(key, count, windowMs);
         return false;
     }
 }

@@ -1,6 +1,7 @@
 import { EmbedColors, type GuildMemberStructure, type SeyfertLocale, type UsingClient } from 'seyfert';
 import { MaliciousMemberAction } from '../../database/schema/guild-protection.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
+import { BotAdderSystem, RaidBotSource } from '../bot-adder/index.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache } from '../protection/index.js';
 import { getUbfb } from '../ubfb/client.js';
@@ -38,6 +39,7 @@ export class MaliciousMemberSystem {
         } else if (action === MaliciousMemberAction.Ban) {
             await MaliciousMemberSystem.notifyOwner(client, member.guildId, t.systems.maliciousMember.ownerDmBan(member.id, reason).get());
             await client.bans.create(member.guildId, member.id, { reason }).catch(() => {});
+            if (member.bot) void BotAdderSystem.enforce(client, member.guildId, member.id, RaidBotSource.MaliciousMember).catch(() => {});
         }
 
         void dispatchLog(client, MaliciousMemberSystem.log({ guildId: member.guildId, targetId: member.id, action })).catch(() => {});

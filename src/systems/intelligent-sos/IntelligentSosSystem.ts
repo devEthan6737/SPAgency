@@ -1,5 +1,6 @@
 import { ChannelType, type TextGuildChannelStructure, type UsingClient } from 'seyfert';
 import { GuildConfigCache } from '../protection/index.js';
+import { ExpiringMap } from '../shared/ExpiringMap.js';
 
 /** @see IntelligentSosSystem.sendAlert */
 export type SendAlertResult = 'sent' | 'noStaffChannel' | 'noInviteChannel';
@@ -10,14 +11,14 @@ export type SendAlertResult = 'sent' | 'noStaffChannel' | 'noInviteChannel';
  */
 export class IntelligentSosSystem {
     /** Cooldown between automatic alerts for the same guild, so a repeating trigger doesn't flood the staff channel. */
-    private static cooldowns = new Map<string, NodeJS.Timeout>();
+    private static cooldowns = new ExpiringMap<string, true>();
 
     /**
      * The automatic entry point — call this from a detection system when something serious enough
      * happens that staff should know. Gated by `intelligentSosEnable` and a per-guild cooldown, both
-     * checked before anything that touches the network: the cooldown is a plain `Map.get()` (checked
-     * first, zero cost), `GuildConfigCache.get()` is a cache hit in the common case but still an
-     * `async` call, so it only runs once the cheaper check has already passed.
+     * checked before anything that touches the network: the cooldown is a plain `ExpiringMap.has()`
+     * (checked first, zero cost), `GuildConfigCache.get()` is a cache hit in the common case but still
+     * an `async` call, so it only runs once the cheaper check has already passed.
      */
     static async trigger(client: UsingClient, guildId: string, reason: string): Promise<void> {
         if (IntelligentSosSystem.cooldowns.has(guildId)) return;
@@ -25,10 +26,7 @@ export class IntelligentSosSystem {
         const settings = await GuildConfigCache.get(guildId);
         if (!settings?.intelligentSosEnable) return;
 
-        IntelligentSosSystem.cooldowns.set(
-            guildId,
-            setTimeout(() => IntelligentSosSystem.cooldowns.delete(guildId), 120_000)
-        );
+        IntelligentSosSystem.cooldowns.set(guildId, true, 120_000);
 
         await IntelligentSosSystem.sendAlert(client, guildId, reason);
     }
