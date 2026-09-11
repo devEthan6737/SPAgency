@@ -10,7 +10,11 @@ Detecta y sanciona conducta de chat que el AutoMod nativo de Discord no puede cu
 
 ## Qué se queda en el AutoMod nativo de Discord, y por qué no se reimplementa
 
-`badwords` (`KEYWORD`/`KEYWORD_PRESET`) y `manyPings` (`MENTION_SPAM`) del automod legacy tienen equivalente nativo en Discord — configurable desde los propios ajustes del servidor, sin que SPA tenga que guardar ni sincronizar nada. `guild_moderation` no tiene ninguna columna para esto a propósito: si algún día el dashboard quiere ofrecer una UI para gestionarlo, hablaría directo contra la API de Discord (`client.guilds.moderation.*`), no contra una copia espejo en Postgres — la fuente de verdad ya es Discord, duplicarla solo introduciría la posibilidad de que se desincronicen.
+`badwords` (`KEYWORD`/`KEYWORD_PRESET`) y `manyPings` (`MENTION_SPAM`) del automod legacy tienen equivalente nativo en Discord — configurable desde los propios ajustes del servidor, sin que SPA tenga que guardar ni sincronizar nada. `guild_moderation` no tiene ninguna columna para esto a propósito: la fuente de verdad ya es Discord, duplicarla solo introduciría la posibilidad de que se desincronicen.
+
+**Cuando la dashboard ofrezca una UI para gestionar esto, habla directo contra la API de Discord — sin pasar por el bot.** A diferencia de `VerificationSystem` (ver `verification.md`), que sí necesita un pequeño proxy en el propio proceso del bot (`VerificationServer`) porque la acción depende de estado que solo el bot tiene resuelto (su caché de config, la jerarquía de roles ya cargada), gestionar una regla de AutoMod es una llamada REST autocontenida (`GET/POST/PATCH/DELETE /guilds/{id}/auto-moderation/rules`) que no necesita nada del proceso del bot — la dashboard ya tiene acceso directo al token del bot, así que la hace ella misma. Nada de esto se guarda en ninguna base de datos, ni la del bot ni la de la dashboard: se lee en vivo de Discord cada vez que se abre esa pantalla, y se actualiza al instante en el momento en que la propia llamada a Discord se resuelve — no hay paso de sincronización porque no hay copia que sincronizar.
+
+**Riesgo a vigilar, no a resolver ahora:** la dashboard y el propio bot comparten el mismo token para hablar con Discord, cada uno con su propio conteo de rate limit sin coordinarse entre sí. Un pico de llamadas de AutoMod desde la dashboard justo cuando el bot está baneando/kickeando en paralelo podría toparse con un `429` que ninguno de los dos ve venir.
 
 `linkDetect`/`iploggerFilter` y `nsfwFilter` tampoco se portan — el primero queda pendiente (dudoso solape con AutoMod nativo vía `KEYWORD` con lista de dominios), el segundo directamente fuera de alcance (Discord no da a los bots ningún clasificador de imágenes vía API).
 
@@ -22,7 +26,7 @@ Detecta y sanciona conducta de chat que el AutoMod nativo de Discord no puede cu
 
 Aunque SPA no gestiona las reglas nativas, sí escucha `AUTO_MODERATION_ACTION_EXECUTION` — el evento que Discord dispara cada vez que una regla de AutoMod del propio servidor actúa (badwords, mass-pings...) — y hace que esa infracción **sume a la misma escalada** que los cinco detectores propios (`AutomodSystem.handleNativeAction`). Sin esto, alguien podría spamear palabras prohibidas todo el día, Discord se lo bloquearía siempre, pero nunca se acercaría a un kick/ban por parte de SPA porque el bot nunca se enteraba.
 
-No borra nada (Discord ya bloqueó el mensaje) ni avisa por canal (el propio `BLOCK_MESSAGE` de Discord ya le mostró al usuario por qué, un segundo aviso sería redundante) — solo inserta el warn con `moderatorId: 'SPA'` y corre la misma comprobación de umbrales que todo lo demás.
+No borra nada (Discord ya bloqueó el mensaje) ni avisa por canal (el propio `BLOCK_MESSAGE` de Discord ya le mostró al usuario por qué, un segundo aviso sería redundante) — solo inserta el warn con `moderatorId: WarnRepository.AutomodModeratorId` (`'SP Agency'`) y corre la misma comprobación de umbrales que todo lo demás.
 
 Requiere el intent `AutoModerationExecution` (no privilegiado, sin nada que activar en el Developer Portal) — añadido en `seyfert.config.mjs`.
 
