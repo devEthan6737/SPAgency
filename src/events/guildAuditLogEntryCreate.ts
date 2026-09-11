@@ -1,5 +1,6 @@
 import { AuditLogEvent, createEvent } from 'seyfert';
 import { AntiraidSystem } from '../systems/antiraid/index.js';
+import { BotAdderSystem } from '../systems/bot-adder/index.js';
 import { dispatchLog, ServerEventLog } from '../systems/logs/index.js';
 import { RaidmodeSystem } from '../systems/raidmode/index.js';
 
@@ -24,6 +25,10 @@ const FLAGGED_ACTIONS = new Set<AuditLogEvent>([
 export default createEvent({
     data: { name: 'guildAuditLogEntryCreate' },
     async run(entry, client) {
+        if (entry.actionType === AuditLogEvent.BotAdd && entry.userId && entry.targetId) {
+            void BotAdderSystem.track(entry.guildId, entry.targetId, entry.userId).catch(() => {});
+        }
+
         if (entry.userId &&
             (
                 await RaidmodeSystem.enforceAuditEntry(client, {

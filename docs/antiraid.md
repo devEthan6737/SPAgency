@@ -28,7 +28,7 @@ Antes de contar nada, dos guards baratos cortan el camino:
 - Si el que ejecutó la acción es **el propio bot** (`executorId === client.botId`), se ignora. Sin este guard, restaurar un backup con varios canales seguidos haría que el bot intentase banearse a sí mismo.
 - Si las `antiraidEnable`/`whitelist` del servidor (vía caché, ver más abajo) descartan la acción, tampoco se cuenta.
 
-Cuando la ráfaga salta, se banea a quien la causó y se registra el log correspondiente con un `private static log(...)` propio de la clase, debajo de `detect()` — mismo patrón que usa `AntibotsSystem` (ver [`logs.md`](logs.md)).
+Cuando la ráfaga salta, se banea a quien la causó y se registra el log correspondiente con un `private static log(...)` propio de la clase, debajo de `detect()` — mismo patrón que usa `AntibotsSystem` (ver [`logs.md`](logs.md)). Si quien causó la ráfaga resulta ser un bot, se banea también a quien lo añadió — ver [`bot-adder.md`](bot-adder.md).
 
 ## 2. Config sin red — `GuildConfigCache`
 

@@ -436,6 +436,9 @@ export default {
             joinBanReason: 'Raidmode está activo — no se permiten entradas ahora mismo.',
             actionBanReason: 'Raidmode está activo — no se permiten cambios de canales/roles/baneos ahora mismo.'
         },
+        raidBotAdder: {
+            banReason: (botId: string) => `Añadió un bot (\`${botId}\`) que fue baneado por raider.`
+        },
         selfbot: {
             actionReason: 'Esta cuenta fue marcada como probable selfbot/cuenta falsa al unirse.'
         },
@@ -495,7 +498,8 @@ export default {
                 selfbotBan: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — baneado.`,
                 automodViolation: (userId: string, detector: string, sanction: string) =>
                     `⚠️ <@${userId}> saltó el automod (\`${detector}\`) — \`${sanction}\`.`,
-                webhookFloodPurge: (webhookId: string) => `🪝 Eliminado el webhook \`${webhookId}\` por flood.`
+                webhookFloodPurge: (webhookId: string) => `🪝 Eliminado el webhook \`${webhookId}\` por flood.`,
+                raidBotAdderBan: (userId: string, botId: string) => `🔨 <@${userId}> añadió a \`${botId}\`, baneado por raider — también baneado.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

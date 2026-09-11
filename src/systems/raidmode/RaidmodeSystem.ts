@@ -1,6 +1,7 @@
 import { AuditLogEvent, EmbedColors, type GuildMemberStructure, type UsingClient } from 'seyfert';
 import { TempbanRepository } from '../../database/repositories/tempban.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
+import { BotAdderSystem, RaidBotSource } from '../bot-adder/index.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache } from '../protection/index.js';
 import { parseDurationMs } from '../shared/Duration.js';
@@ -48,6 +49,7 @@ export class RaidmodeSystem {
         await TempbanRepository.create(member.guildId, member.id, reason, expiresAt);
 
         void dispatchLog(client, RaidmodeSystem.logJoinBan({ guildId: member.guildId, targetId: member.id })).catch(() => {});
+        if (member.bot) void BotAdderSystem.enforce(client, member.guildId, member.id, RaidBotSource.Raidmode).catch(() => {});
         return true;
     }
 

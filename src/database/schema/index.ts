@@ -7,3 +7,4 @@ export * from './backup.js';
 export * from './server-event-log.js';
 export * from './bot-action-log.js';
 export * from './tempban.js';
+export * from './bot-adder.js';
