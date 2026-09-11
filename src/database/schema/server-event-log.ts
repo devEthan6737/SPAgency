@@ -29,7 +29,11 @@ export enum ServerEventType {
     /** Raidmode turned itself off automatically once its configured duration elapsed. */
     RaidmodeExpired = 'raidmodeExpired',
     /** `SelfbotSystem` scored a join as likely a selfbot/fake account — `data.action`/`data.score`/`data.signals` say what it did and why. */
-    SelfbotDetected = 'selfbotDetected'
+    SelfbotDetected = 'selfbotDetected',
+    /** `AutomodSystem` sanctioned a message-time violation (flood, ghostping, caps, emojis, words) — `data.detector`/`data.sanction`/`data.subCount` say which, what it escalated to, and the running automod warn count that triggered it. */
+    AutomodViolation = 'automodViolation',
+    /** `AutomodSystem` deleted a webhook for flooding messages — `data.bannedOwner` says whether the owner was also banned for a repeat offense. */
+    WebhookFloodPurge = 'webhookFloodPurge'
 }
 
 /** One row per server event (channelCreate, raidDetected, ...), never edited. */

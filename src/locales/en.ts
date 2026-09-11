@@ -446,6 +446,17 @@ export default {
         verification: {
             dm: (link: string) => `👋 Welcome! To access this server, verify yourself here:\n${link}\n\nThis link expires in 15 minutes.`
         },
+        automod: {
+            reason: {
+                flood: () => 'Sending messages too quickly.',
+                ghostping: () => 'Mentioning someone and deleting the message shortly after.',
+                capsLock: () => 'Excessive use of capital letters.',
+                manyEmojis: () => 'Too many emojis in one message.',
+                manyWords: () => 'Message too long.'
+            },
+            webhookFloodReason: () => 'Webhook flood.',
+            webhookFloodRepeatReason: () => 'Repeat webhook flood offense.'
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
         },
@@ -471,7 +482,13 @@ export default {
                 raidmodeActionBan: (userId: string) => `🔒 <@${userId}> made a change during raidmode — banned.`,
                 raidmodeExpired: () => '🔓 Raidmode expired and was turned off automatically.',
                 selfbotKick: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — kicked.`,
-                selfbotBan: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — banned.`
+                selfbotBan: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — banned.`,
+                automodViolation: (userId: string, detector: string, sanction: string) =>
+                    `⚠️ <@${userId}> tripped automod (\`${detector}\`) — \`${sanction}\`.`,
+                webhookFloodPurge: (webhookId: string, bannedOwner: boolean) =>
+                    bannedOwner
+                        ? `🪝 Deleted webhook \`${webhookId}\` for flooding — its owner was also banned for a repeat offense.`
+                        : `🪝 Deleted webhook \`${webhookId}\` for flooding.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

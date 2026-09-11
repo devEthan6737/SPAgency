@@ -447,6 +447,17 @@ export default {
         verification: {
             dm: (link: string) => `👋 ¡Bienvenido! Para acceder a este servidor, verifícate aquí:\n${link}\n\nEste enlace caduca en 15 minutos.`
         },
+        automod: {
+            reason: {
+                flood: () => 'Enviar mensajes demasiado rápido.',
+                ghostping: () => 'Mencionar a alguien y borrar el mensaje poco después.',
+                capsLock: () => 'Uso excesivo de mayúsculas.',
+                manyEmojis: () => 'Demasiados emojis en un mensaje.',
+                manyWords: () => 'Mensaje demasiado largo.'
+            },
+            webhookFloodReason: () => 'Flood de webhooks.',
+            webhookFloodRepeatReason: () => 'Reincidencia en flood de webhooks.'
+        },
         cooldown: {
             blocked: (seconds: number) => `❌ Espera un poco — inténtalo de nuevo en \`${seconds}s\`.`
         },
@@ -472,7 +483,13 @@ export default {
                 raidmodeActionBan: (userId: string) => `🔒 <@${userId}> hizo un cambio durante el raidmode — baneado.`,
                 raidmodeExpired: () => '🔓 El raidmode expiró y se desactivó automáticamente.',
                 selfbotKick: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — expulsado.`,
-                selfbotBan: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — baneado.`
+                selfbotBan: (userId: string) => `🕵️ <@${userId}> fue marcado como probable selfbot/cuenta falsa — baneado.`,
+                automodViolation: (userId: string, detector: string, sanction: string) =>
+                    `⚠️ <@${userId}> saltó el automod (\`${detector}\`) — \`${sanction}\`.`,
+                webhookFloodPurge: (webhookId: string, bannedOwner: boolean) =>
+                    bannedOwner
+                        ? `🪝 Eliminado el webhook \`${webhookId}\` por flood — su dueño también fue baneado por reincidencia.`
+                        : `🪝 Eliminado el webhook \`${webhookId}\` por flood.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>

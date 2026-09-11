@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../connection.js';
 import { guildConfiguration } from '../schema/guild-configuration.js';
-import { guildModeration } from '../schema/guild-moderation.js';
+import { AutomodFinalAction, guildModeration } from '../schema/guild-moderation.js';
 import { type AntibotsType, type MaliciousMemberAction, type SelfbotAction, guildProtection } from '../schema/guild-protection.js';
 import { guilds } from '../schema/guild.js';
 
@@ -20,11 +20,11 @@ export class GuildRepository {
     }
 
     /**
-     * Lean lookup backing `GuildConfigCache` — avoids the full joined get(). Covers both the
-     * join-time protection systems (antiraid, antibots...) and the log dispatcher's needs
-     * (`language`, `logsChannel`), since both are read from the same cached row per guild.
+     * Lean lookup backing `GuildConfigCache` — avoids the full joined get(). Covers the join/audit-log
+     * protection systems (antiraid, antibots...), `AutomodSystem`'s message-time settings, and the log
+     * dispatcher's needs (`language`, `logsChannel`) — all read from the same cached row per guild.
      */
-    static async getProtectionSettings(id: string): Promise<{
+    static async getGuildSettings(id: string): Promise<{
         language: string;
         antiraidEnable: boolean;
         whitelist: string[];
@@ -39,6 +39,20 @@ export class GuildRepository {
         raidmodeEnable: boolean;
         raidmodeTimeToDisable: string;
         logsChannel: string | null;
+        antiflood: boolean;
+        antiWebhooksFlood: boolean;
+        antiWebhooksFloodRememberOwner: string;
+        ghostpingEnable: boolean;
+        capsLockEnable: boolean;
+        capsLockThreshold: number;
+        manyEmojisEnable: boolean;
+        manyEmojisThreshold: number;
+        manyWordsEnable: boolean;
+        manyWordsThreshold: number;
+        automodMuteAt: number;
+        automodMuteMinutes: number;
+        automodFinalAction: AutomodFinalAction;
+        automodFinalActionAt: number;
     } | null> {
         const [row] = await db
             .select({
@@ -55,11 +69,26 @@ export class GuildRepository {
                 intelligentSosEnable: guildProtection.intelligentSosEnable,
                 raidmodeEnable: guildProtection.raidmodeEnable,
                 raidmodeTimeToDisable: guildProtection.raidmodeTimeToDisable,
-                logsChannel: guildConfiguration.logsChannel
+                logsChannel: guildConfiguration.logsChannel,
+                antiflood: guildModeration.antiflood,
+                antiWebhooksFlood: guildModeration.antiWebhooksFlood,
+                antiWebhooksFloodRememberOwner: guildModeration.antiWebhooksFloodRememberOwner,
+                ghostpingEnable: guildModeration.ghostpingEnable,
+                capsLockEnable: guildModeration.capsLockEnable,
+                capsLockThreshold: guildModeration.capsLockThreshold,
+                manyEmojisEnable: guildModeration.manyEmojisEnable,
+                manyEmojisThreshold: guildModeration.manyEmojisThreshold,
+                manyWordsEnable: guildModeration.manyWordsEnable,
+                manyWordsThreshold: guildModeration.manyWordsThreshold,
+                automodMuteAt: guildModeration.automodMuteAt,
+                automodMuteMinutes: guildModeration.automodMuteMinutes,
+                automodFinalAction: guildModeration.automodFinalAction,
+                automodFinalActionAt: guildModeration.automodFinalActionAt
             })
             .from(guilds)
             .innerJoin(guildProtection, eq(guildProtection.guildId, guilds.id))
             .innerJoin(guildConfiguration, eq(guildConfiguration.guildId, guilds.id))
+            .innerJoin(guildModeration, eq(guildModeration.guildId, guilds.id))
             .where(eq(guilds.id, id));
 
         return row ?? null;
