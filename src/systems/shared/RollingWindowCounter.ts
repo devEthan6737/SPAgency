@@ -1,8 +1,4 @@
-interface Entry {
-    timestamps: number[];
-    /** Unset only for a brand-new entry, before its first `hit()` schedules one. */
-    reapTimer?: NodeJS.Timeout;
-}
+import { ExpiringMap } from './ExpiringMap.js';
 
 /**
  * "How many hits for `key` in the last `windowMs`?" — a continuous rolling count, not a trip-once
@@ -13,26 +9,21 @@ interface Entry {
  * join-burst signal — a second real use (message/webhook flood in `AutomodSystem`) made it worth
  * extracting instead of copy-pasting a third time.
  *
- * Each key's entry reaps itself once nothing hits it for a full window — same self-cleaning pattern as
- * `BurstTracker`/`LogChannelThrottle`, nothing sits in the `Map` forever just for having been touched once.
+ * Each key's entry reaps itself once nothing hits it for a full window, via `ExpiringMap` — same
+ * self-cleaning guarantee as before, just without hand-rolling the timer dance here too.
  */
 export class RollingWindowCounter {
-    private entries = new Map<string, Entry>();
+    private entries = new ExpiringMap<string, number[]>();
 
     constructor(private readonly windowMs: number) {}
 
     /** Registers a hit for `key` and returns how many hits it has within the window, including this one. */
     hit(key: string): number {
         const now = Date.now();
-        const entry = this.entries.get(key) ?? { timestamps: [] };
+        const timestamps = (this.entries.get(key) ?? []).filter((timestamp) => now - timestamp < this.windowMs);
+        timestamps.push(now);
 
-        entry.timestamps = entry.timestamps.filter((timestamp) => now - timestamp < this.windowMs);
-        entry.timestamps.push(now);
-
-        if (entry.reapTimer) clearTimeout(entry.reapTimer);
-        entry.reapTimer = setTimeout(() => this.entries.delete(key), this.windowMs);
-        this.entries.set(key, entry);
-
-        return entry.timestamps.length;
+        this.entries.set(key, timestamps, this.windowMs);
+        return timestamps.length;
     }
 }

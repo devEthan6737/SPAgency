@@ -24,13 +24,23 @@ Cada uno tiene su propio enable + umbral en `guild_moderation`, salvo `antiflood
 
 **Fichero:** [`src/systems/shared/RollingWindowCounter.ts`](../src/systems/shared/RollingWindowCounter.ts)
 
-`BurstTracker` (antiraid) dispara una vez y **resetea el contador** — correcto para "banea a quien lo disparó", incorrecto para "marca cada mensaje de una ráfaga en curso", donde cada mensaje adicional por encima del umbral debe seguir contando como un hit, no reiniciar desde cero. Ya se había resuelto esto una vez a mano dentro de `SelfbotSystem` (su señal de entradas simultáneas); con un segundo uso real (flood de mensajes/webhooks aquí), mereció la pena extraerlo en vez de copiarlo una tercera vez. Mismo patrón de auto-limpieza que el resto: cada entrada se borra sola si no recibe ningún hit durante una ventana entera.
+`BurstTracker` (antiraid) dispara una vez y **resetea el contador** — correcto para "banea a quien lo disparó", incorrecto para "marca cada mensaje de una ráfaga en curso", donde cada mensaje adicional por encima del umbral debe seguir contando como un hit, no reiniciar desde cero. Ya se había resuelto esto una vez a mano dentro de `SelfbotSystem` (su señal de entradas simultáneas); con un segundo uso real (flood de mensajes/webhooks aquí), mereció la pena extraerlo en vez de copiarlo una tercera vez.
+
+## `ExpiringMap` — el primitivo detrás de casi todo lo que "se limpia solo"
+
+**Fichero:** [`src/systems/shared/ExpiringMap.ts`](../src/systems/shared/ExpiringMap.ts)
+
+`RollingWindowCounter` y `BurstTracker` no gestionan su propio temporizador de limpieza — delegan en `ExpiringMap`, un `Map` genérico donde cada entrada se borra sola pasado un `ttlMs` salvo que se refresque antes con otro `set()`. No es exclusivo de estos dos: `AutomodSystem` (candidatos a ghostping), `IntelligentSosSystem` (cooldown de alertas) y `RaidmodeExpiry` (temporizador de expiración por servidor) también lo usan — los cinco tenían, cada uno por su cuenta, el mismo puñado de líneas escritas a mano (cancela el timer anterior si había, programa uno nuevo, bórrate al disparar). Un primitivo compartido en vez de una sexta copia ligeramente distinta de lo mismo.
+
+`ExpiringMap` soporta un `onExpire` opcional para cuando expirar de verdad tiene que *hacer* algo (no solo desaparecer calladamente) — `RaidmodeExpiry` es el caso que lo necesita: al vencer el plazo, tiene que desactivar el raidmode, no solo olvidar que lo estaba vigilando.
+
+**Por qué `LogChannelThrottle` (ver [`logs.md`](logs.md)) sigue sin usarlo:** necesita dos temporizadores independientes por servidor (uno para el próximo *flush*, otro para saber si lleva una ventana entera inactivo) y, al vencer este último, a veces la respuesta correcta es "todavía no, reprograma" en vez de "bórrate ya" — no encaja en el contrato de `ExpiringMap` (una entrada, un timer, se borra siempre al vencer). Forzarlo ahí habría cambiado código simple por una indirección más difícil de seguir, no al revés.
 
 ## Ghostping — por qué necesita dos eventos
 
 **Ficheros:** [`src/events/messageCreate.ts`](../src/events/messageCreate.ts), [`src/events/messageDelete.ts`](../src/events/messageDelete.ts)
 
-`messageCreate.ts` registra **todo** mensaje con mención (`AutomodSystem.trackForGhostping`) en un `Map` de candidatos con auto-limpieza a los 60s — sin comprobar si `ghostpingEnable` está activo, a propósito: eso costaría un `await` a `GuildConfigCache` en el mensaje más transitado de todo el bot, para casi siempre no hacer nada con el resultado. La comprobación real de `ghostpingEnable` se hace una sola vez, en `messageDelete.ts` (`AutomodSystem.handleDelete`), que es un evento mucho más raro por comparación — ahí sí compensa el `await`.
+`messageCreate.ts` registra **todo** mensaje con mención (`AutomodSystem.trackForGhostping`) en un [`ExpiringMap`](../src/systems/shared/ExpiringMap.ts) de candidatos, con auto-limpieza a los 60s — sin comprobar si `ghostpingEnable` está activo, a propósito: eso costaría un `await` a `GuildConfigCache` en el mensaje más transitado de todo el bot, para casi siempre no hacer nada con el resultado. La comprobación real de `ghostpingEnable` se hace una sola vez, en `messageDelete.ts` (`AutomodSystem.handleDelete`), que es un evento mucho más raro por comparación — ahí sí compensa el `await`.
 
 ## `AntiWebhooksFloodSystem` — por qué no es un detector más de `AutomodSystem`
 

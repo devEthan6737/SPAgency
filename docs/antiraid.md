@@ -16,7 +16,7 @@ Todo lo que sigue es la implementación de estas tres ideas.
 
 **Ficheros:** [`src/systems/antiraid/AntiraidSystem.ts`](../src/systems/antiraid/AntiraidSystem.ts), [`BurstTracker.ts`](../src/systems/antiraid/BurstTracker.ts)
 
-La idea de un raid no es "una acción sospechosa", es "muchas acciones sospechosas seguidas". `BurstTracker` es un contador de ráfaga genérico (no sabe nada de antiraid, podría usarse para cualquier otra cosa): cada `hit()` con la misma `key` suma uno a un contador en memoria con un `setTimeout` que lo resetea si no llegan más hits a tiempo. Si el contador llega al `threshold` dentro de `windowMs`, devuelve `true` una única vez y se resetea.
+La idea de un raid no es "una acción sospechosa", es "muchas acciones sospechosas seguidas". `BurstTracker` es un contador de ráfaga genérico (no sabe nada de antiraid, podría usarse para cualquier otra cosa): cada `hit()` con la misma `key` suma uno a un contador guardado en un [`ExpiringMap`](../src/systems/shared/ExpiringMap.ts) (ver `moderation.md`), que lo borra solo si no llegan más hits a tiempo. Si el contador llega al `threshold` dentro de `windowMs`, devuelve `true` una única vez y se resetea explícitamente (borrando la entrada antes de que el `ExpiringMap` lo haga por su cuenta).
 
 `AntiraidSystem.detect()` usa un único contador **por servidor** (no por tipo de acción) con `threshold = 3` y `windowMs = 10_000`. Esto es deliberado: un raid que mezcla creación de canales y borrado de roles debe seguir contando como una sola ráfaga, no dos ráfagas de 1-2 hits que nunca llegan al umbral por separado.
 

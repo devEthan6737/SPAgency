@@ -4,6 +4,7 @@ import { AutomodFinalAction } from '../../database/schema/guild-moderation.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { dispatchLog, ServerEventLog } from '../logs/index.js';
 import { GuildConfigCache, type GuildSettings } from '../protection/index.js';
+import { ExpiringMap } from '../shared/ExpiringMap.js';
 import { RollingWindowCounter } from '../shared/RollingWindowCounter.js';
 
 /** Which check tripped — see docs/moderation.md for what each one actually looks at. */
@@ -29,7 +30,7 @@ export class AutomodSystem {
 
     /** How long a mention-carrying message stays a ghostping candidate — deleted any later than this and it no longer counts as "shortly after". */
     private static readonly GhostpingWindowMs = 60_000;
-    private static ghostpingCandidates = new Map<string, { guildId: string; authorId: string; reapTimer: NodeJS.Timeout }>();
+    private static ghostpingCandidates = new ExpiringMap<string, { guildId: string; authorId: string }>();
 
     /** Called from `guildMemberAdd`'s sibling event, `messageCreate.ts` — never for webhook messages, see `AntiWebhooksFloodSystem` for those. */
     static async enforce(client: UsingClient, message: MessageStructure): Promise<void> {
@@ -79,8 +80,7 @@ export class AutomodSystem {
         if (!hasMention) return;
 
         const { id: messageId, guildId, author } = message;
-        const reapTimer = setTimeout(() => AutomodSystem.ghostpingCandidates.delete(messageId), AutomodSystem.GhostpingWindowMs);
-        AutomodSystem.ghostpingCandidates.set(messageId, { guildId, authorId: author.id, reapTimer });
+        AutomodSystem.ghostpingCandidates.set(messageId, { guildId, authorId: author.id }, AutomodSystem.GhostpingWindowMs);
     }
 
     /** Called from `messageDelete.ts` for every deletion — a no-op unless `messageId` was tracked by {@link AutomodSystem.trackForGhostping} and is still within its window. */
@@ -88,7 +88,6 @@ export class AutomodSystem {
         const candidate = AutomodSystem.ghostpingCandidates.get(messageId);
         if (!candidate) return;
 
-        clearTimeout(candidate.reapTimer);
         AutomodSystem.ghostpingCandidates.delete(messageId);
 
         const settings = await GuildConfigCache.get(candidate.guildId);
