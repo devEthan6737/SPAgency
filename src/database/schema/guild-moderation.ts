@@ -32,11 +32,11 @@ export const guildModeration = pgTable('guild_moderation', {
     // message frequency, so this stays bot-side even once AutoMod handles keywords/mention-spam.
     antiflood: boolean('antiflood').notNull().default(true),
 
-    // deletes webhooks that flood messages, banning the owner on repeat offense (was
-    // purge-webhooks-attacks.js) — renamed from purgeWebhooksAttacks* for consistency with antiflood,
-    // now that both live together as moderation's two flood responses
+    // deletes webhooks that flood messages (was purge-webhooks-attacks.js) — renamed from
+    // purgeWebhooksAttacks* for consistency with antiflood, now that both live together as
+    // moderation's two flood responses. No "remember the creator" column: see docs/moderation.md for
+    // why banning a webhook's creator on repeat offense punishes the wrong person more often than not.
     antiWebhooksFlood: boolean('anti_webhooks_flood').notNull().default(false),
-    antiWebhooksFloodRememberOwner: text('anti_webhooks_flood_remember_owner').notNull().default('Nadie'),
 
     // deletes the message and warns when someone @mentions and deletes it shortly after
     ghostpingEnable: boolean('ghostping_enable').notNull().default(false),

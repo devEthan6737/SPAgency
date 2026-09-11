@@ -32,7 +32,7 @@ export enum ServerEventType {
     SelfbotDetected = 'selfbotDetected',
     /** `AutomodSystem` sanctioned a message-time violation (flood, ghostping, caps, emojis, words) — `data.detector`/`data.sanction`/`data.subCount` say which, what it escalated to, and the running automod warn count that triggered it. */
     AutomodViolation = 'automodViolation',
-    /** `AutomodSystem` deleted a webhook for flooding messages — `data.bannedOwner` says whether the owner was also banned for a repeat offense. */
+    /** `AntiWebhooksFloodSystem` deleted a webhook for flooding messages — no ban, the creator is never assumed to be the attacker, see docs/moderation.md. */
     WebhookFloodPurge = 'webhookFloodPurge'
 }
 

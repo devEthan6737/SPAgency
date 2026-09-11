@@ -21,7 +21,6 @@ export interface GuildSettings {
     logsChannel: string | null;
     antiflood: boolean;
     antiWebhooksFlood: boolean;
-    antiWebhooksFloodRememberOwner: string;
     ghostpingEnable: boolean;
     capsLockEnable: boolean;
     capsLockThreshold: number;

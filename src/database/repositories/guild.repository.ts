@@ -41,7 +41,6 @@ export class GuildRepository {
         logsChannel: string | null;
         antiflood: boolean;
         antiWebhooksFlood: boolean;
-        antiWebhooksFloodRememberOwner: string;
         ghostpingEnable: boolean;
         capsLockEnable: boolean;
         capsLockThreshold: number;
@@ -72,7 +71,6 @@ export class GuildRepository {
                 logsChannel: guildConfiguration.logsChannel,
                 antiflood: guildModeration.antiflood,
                 antiWebhooksFlood: guildModeration.antiWebhooksFlood,
-                antiWebhooksFloodRememberOwner: guildModeration.antiWebhooksFloodRememberOwner,
                 ghostpingEnable: guildModeration.ghostpingEnable,
                 capsLockEnable: guildModeration.capsLockEnable,
                 capsLockThreshold: guildModeration.capsLockThreshold,

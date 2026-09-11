@@ -183,6 +183,13 @@
       "when": 1788528300000,
       "tag": "0025_guild_moderation_notify_config_changed",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1789134734251,
+      "tag": "0026_drop_webhook_flood_remember_owner",
+      "breakpoints": true
     }
   ]
 }

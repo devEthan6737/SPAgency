@@ -464,8 +464,7 @@ export default {
                 manyEmojis: (userId: string) => `🙂 <@${userId}>, that's a lot of emojis for one message.`,
                 manyWords: (userId: string) => `📝 <@${userId}>, that message was too long.`
             },
-            webhookFloodReason: () => 'Webhook flood.',
-            webhookFloodRepeatReason: () => 'Repeat webhook flood offense.'
+            webhookFloodReason: () => 'Webhook flood.'
         },
         cooldown: {
             blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
@@ -495,10 +494,7 @@ export default {
                 selfbotBan: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — banned.`,
                 automodViolation: (userId: string, detector: string, sanction: string) =>
                     `⚠️ <@${userId}> tripped automod (\`${detector}\`) — \`${sanction}\`.`,
-                webhookFloodPurge: (webhookId: string, bannedOwner: boolean) =>
-                    bannedOwner
-                        ? `🪝 Deleted webhook \`${webhookId}\` for flooding — its owner was also banned for a repeat offense.`
-                        : `🪝 Deleted webhook \`${webhookId}\` for flooding.`
+                webhookFloodPurge: (webhookId: string) => `🪝 Deleted webhook \`${webhookId}\` for flooding.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>
