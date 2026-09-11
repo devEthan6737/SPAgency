@@ -453,7 +453,17 @@ export default {
                 ghostping: () => 'Mencionar a alguien y borrar el mensaje poco después.',
                 capsLock: () => 'Uso excesivo de mayúsculas.',
                 manyEmojis: () => 'Demasiados emojis en un mensaje.',
-                manyWords: () => 'Mensaje demasiado largo.'
+                manyWords: () => 'Mensaje demasiado largo.',
+                nativeAutomod: () => 'Marcado por las reglas propias de AutoMod de Discord del servidor.'
+            },
+            announce: {
+                ghostping: (userId: string, mentionedUserId?: string) =>
+                    mentionedUserId
+                        ? `🕵️ <@${userId}> mencionó a <@${mentionedUserId}> y borró el mensaje poco después.`
+                        : `🕵️ <@${userId}> mencionó a alguien y borró el mensaje poco después.`,
+                capsLock: (userId: string) => `🔠 <@${userId}>, baja el tono con las mayúsculas.`,
+                manyEmojis: (userId: string) => `🙂 <@${userId}>, son demasiados emojis para un mensaje.`,
+                manyWords: (userId: string) => `📝 <@${userId}>, ese mensaje era demasiado largo.`
             },
             webhookFloodReason: () => 'Flood de webhooks.',
             webhookFloodRepeatReason: () => 'Reincidencia en flood de webhooks.'

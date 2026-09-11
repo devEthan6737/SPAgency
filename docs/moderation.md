@@ -1,14 +1,28 @@
 # Automod — `AutomodSystem` / `AntiWebhooksFloodSystem`
 
-**Ficheros:** [`src/systems/automod/AutomodSystem.ts`](../src/systems/automod/AutomodSystem.ts), [`src/systems/automod/AntiWebhooksFloodSystem.ts`](../src/systems/automod/AntiWebhooksFloodSystem.ts), [`src/events/messageCreate.ts`](../src/events/messageCreate.ts), [`src/events/messageDelete.ts`](../src/events/messageDelete.ts)
+**Ficheros:** [`src/systems/automod/AutomodSystem.ts`](../src/systems/automod/AutomodSystem.ts), [`src/systems/automod/AntiWebhooksFloodSystem.ts`](../src/systems/automod/AntiWebhooksFloodSystem.ts), [`src/events/messageCreate.ts`](../src/events/messageCreate.ts), [`src/events/messageDelete.ts`](../src/events/messageDelete.ts), [`src/events/autoModerationActionExecution.ts`](../src/events/autoModerationActionExecution.ts)
 
-Detecta y sanciona conducta de chat que el AutoMod nativo de Discord no puede cubrir — analiza contenido mensaje a mensaje, nunca frecuencia a lo largo del tiempo ni la forma/proporción de un mensaje. Lo que sí cubre nativamente (palabras prohibidas, spam de menciones) queda deliberadamente fuera de aquí — ver la sección siguiente.
+Detecta y sanciona conducta de chat que el AutoMod nativo de Discord no puede cubrir — analiza contenido mensaje a mensaje, nunca frecuencia a lo largo del tiempo ni la forma/proporción de un mensaje. Lo que sí cubre nativamente (palabras prohibidas, spam de menciones) queda deliberadamente fuera de aquí — ver la sección siguiente — pero sí se escucha cuando esas reglas nativas actúan, para que cuenten hacia la misma escalada (`nativeAutomod`, más abajo).
 
 ## Qué se queda en el AutoMod nativo de Discord, y por qué no se reimplementa
 
 `badwords` (`KEYWORD`/`KEYWORD_PRESET`) y `manyPings` (`MENTION_SPAM`) del automod legacy tienen equivalente nativo en Discord — configurable desde los propios ajustes del servidor, sin que SPA tenga que guardar ni sincronizar nada. `guild_moderation` no tiene ninguna columna para esto a propósito: si algún día el dashboard quiere ofrecer una UI para gestionarlo, hablaría directo contra la API de Discord (`client.guilds.moderation.*`), no contra una copia espejo en Postgres — la fuente de verdad ya es Discord, duplicarla solo introduciría la posibilidad de que se desincronicen.
 
 `linkDetect`/`iploggerFilter` y `nsfwFilter` tampoco se portan — el primero queda pendiente (dudoso solape con AutoMod nativo vía `KEYWORD` con lista de dominios), el segundo directamente fuera de alcance (Discord no da a los bots ningún clasificador de imágenes vía API).
+
+**Se consideró, y se descartó, aproximar `capsLock`/`manyEmojis`/`manyWords` con reglas nativas.** Un `KEYWORD` con `regex_patterns` podría acercarse (ej. `[A-Z]{10,}` para mayúsculas seguidas), pero un regex no puede expresar "70% de las letras son mayúsculas" — solo patrones fijos, no proporciones. Para que el umbral siguiera siendo configurable por servidor, SPA tendría que generar y sincronizar un regex por servidor vía API, reabriendo exactamente el problema de "quién es la fuente de verdad" que se descartó para badwords/mass-pings. Y perderíamos la integración con la escalada propia (`warns`/subcount), porque el `TIMEOUT` de una regla de AutoMod es una acción fija, sin memoria de infracciones previas. Se quedan como detectores propios.
+
+## `nativeAutomod` — cuando Discord decide, pero SPA se entera igual
+
+**Fichero:** [`src/events/autoModerationActionExecution.ts`](../src/events/autoModerationActionExecution.ts)
+
+Aunque SPA no gestiona las reglas nativas, sí escucha `AUTO_MODERATION_ACTION_EXECUTION` — el evento que Discord dispara cada vez que una regla de AutoMod del propio servidor actúa (badwords, mass-pings...) — y hace que esa infracción **sume a la misma escalada** que los cinco detectores propios (`AutomodSystem.handleNativeAction`). Sin esto, alguien podría spamear palabras prohibidas todo el día, Discord se lo bloquearía siempre, pero nunca se acercaría a un kick/ban por parte de SPA porque el bot nunca se enteraba.
+
+No borra nada (Discord ya bloqueó el mensaje) ni avisa por canal (el propio `BLOCK_MESSAGE` de Discord ya le mostró al usuario por qué, un segundo aviso sería redundante) — solo inserta el warn con `moderatorId: 'SPA'` y corre la misma comprobación de umbrales que todo lo demás.
+
+Requiere el intent `AutoModerationExecution` (no privilegiado, sin nada que activar en el Developer Portal) — añadido en `seyfert.config.mjs`.
+
+**Limitación conocida, aceptada a propósito:** si la regla del servidor tiene configuradas varias acciones a la vez (ej. `BLOCK_MESSAGE` + `SEND_ALERT_MESSAGE`), Discord dispara el evento una vez por acción — una sola infracción real podría sumar más de un punto a la escalada. Deduplicar esto con precisión pediría trackear `message_id`/ventanas de tiempo por poco beneficio real; se acepta la imprecisión, igual que `SelfbotSystem` acepta falsos positivos en su heurística de nombre — el peso es bajo (un punto más en la escalada, no una sanción directa) y el caso (una regla con múltiples acciones) no es el configurado por defecto.
 
 ## Los cinco detectores propios
 
@@ -19,6 +33,21 @@ Detecta y sanciona conducta de chat que el AutoMod nativo de Discord no puede cu
 - **`manyWords`**: cuenta palabras (split por espacios) en un mensaje.
 
 Cada uno tiene su propio enable + umbral en `guild_moderation`, salvo `antiflood` (umbral fijo, ver arriba) y `ghostping` (solo enable, no hay umbral que ajustar).
+
+## Qué pasa con el mensaje, y quién se entera — no es lo mismo para todos
+
+No todos los detectores reaccionan igual, a propósito:
+
+| Detector | ¿Borra el mensaje? | ¿Acción inmediata? | ¿Aviso en el canal? |
+|---|---|---|---|
+| `flood` | **No** — 15 mensajes seguidos son la prueba de lo que pasó, no algo que borrar | **Sí** — timeout fijo de 15s (`FloodTimeoutMs`) al instante, aparte de la escalada normal | No |
+| `ghostping` | N/A — ya lo borró el propio usuario | No | Sí — aviso público, mencionando también a quién había mencionado si se sabe |
+| `capsLock` / `manyEmojis` / `manyWords` | Sí — el mensaje en sí es la infracción | No | Sí — breve, autoborrable |
+| `nativeAutomod` (ver más abajo) | N/A — Discord ya lo bloqueó | No | No — el propio `BLOCK_MESSAGE` de Discord ya le explicó al usuario por qué |
+
+`flood` prioriza actuar sobre explicar — parar el flood ya, sin ruido de chat, y que la persona se aguante la sanción, no que se le dé conversación mientras sigue mandando mensajes. El resto sí explica, porque no hay una urgencia equivalente que priorizar por encima de que la persona entienda qué pasó.
+
+Los avisos en canal son mensajes normales que se autoborran a los 8s (`AnnouncementLifetimeMs`) — mismo criterio que el legacy usaba para badwords (mandar, esperar, borrar), con un margen de lectura algo mayor.
 
 ## `RollingWindowCounter` — por qué no reutiliza `BurstTracker`
 
@@ -50,7 +79,7 @@ Un webhook no es un miembro con historial de warns, y su respuesta no pasa por l
 
 **Ficheros:** [`src/database/repositories/warn.repository.ts`](../src/database/repositories/warn.repository.ts), [`src/database/schema/guild-moderation.ts`](../src/database/schema/guild-moderation.ts)
 
-Cada violación de los cinco detectores (nunca del webhook flood, que no pasa por aquí) inserta una fila en `warns` con `moderatorId: AutomodModeratorId` (`'SPA'`) — visible en `/warns` igual que un aviso humano, con esa autoría. **No usa `BotActionLog`**: eso sigue reservado a acciones que un humano pidió con un comando (ver [`logs.md`](logs.md)); esto lo decide el propio bot, así que cada violación también emite su `ServerEventLog` (`AutomodViolation`, con `data.detector`/`data.sanction`/`data.subCount`) — el registro de seguridad que SPA puede reutilizar, separado de la ficha de cara al usuario que es `warns`.
+Cada violación de los cinco detectores propios, más `nativeAutomod` (ver más arriba) — nunca del webhook flood, que no pasa por aquí — inserta una fila en `warns` con `moderatorId: AutomodModeratorId` (`'SPA'`) — visible en `/warns` igual que un aviso humano, con esa autoría. **No usa `BotActionLog`**: eso sigue reservado a acciones que un humano pidió con un comando (ver [`logs.md`](logs.md)); esto lo decide el propio bot, así que cada violación también emite su `ServerEventLog` (`AutomodViolation`, con `data.detector`/`data.sanction`/`data.subCount`) — el registro de seguridad que SPA puede reutilizar, separado de la ficha de cara al usuario que es `warns`.
 
 **El "subcount" no es una columna aparte.** `WarnRepository.countAutomod(guildId, userId)` cuenta `warns` filtrando por `moderatorId = 'SPA'` — nunca un contador guardado y mutado a mano. Toda la base de datos de este proyecto sigue el mismo principio (`warns`, `server_event_logs`, `bot_action_logs`: una fila por evento, nunca un contador editable), así que el subcount nunca puede desincronizarse del historial real — siempre es exactamente lo que dice la tabla.
 

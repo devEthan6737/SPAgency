@@ -19,6 +19,9 @@ export default config.bot({
         GatewayIntentBits.GuildWebhooks,
         GatewayIntentBits.GuildIntegrations,
         GatewayIntentBits.GuildVoiceStates,
+        // Not privileged, no Developer Portal toggle needed — required for AUTO_MODERATION_ACTION_EXECUTION
+        // (AutomodSystem.handleNativeAction), so native badword/mass-ping hits feed our warn ladder too.
+        GatewayIntentBits.AutoModerationExecution,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageTyping,
         GatewayIntentBits.GuildMessageTyping,

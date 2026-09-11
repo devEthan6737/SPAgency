@@ -452,7 +452,17 @@ export default {
                 ghostping: () => 'Mentioning someone and deleting the message shortly after.',
                 capsLock: () => 'Excessive use of capital letters.',
                 manyEmojis: () => 'Too many emojis in one message.',
-                manyWords: () => 'Message too long.'
+                manyWords: () => 'Message too long.',
+                nativeAutomod: () => "Flagged by the server's own Discord AutoMod rules."
+            },
+            announce: {
+                ghostping: (userId: string, mentionedUserId?: string) =>
+                    mentionedUserId
+                        ? `🕵️ <@${userId}> mentioned <@${mentionedUserId}> and deleted the message shortly after.`
+                        : `🕵️ <@${userId}> mentioned someone and deleted the message shortly after.`,
+                capsLock: (userId: string) => `🔠 <@${userId}>, ease up on the caps lock.`,
+                manyEmojis: (userId: string) => `🙂 <@${userId}>, that's a lot of emojis for one message.`,
+                manyWords: (userId: string) => `📝 <@${userId}>, that message was too long.`
             },
             webhookFloodReason: () => 'Webhook flood.',
             webhookFloodRepeatReason: () => 'Repeat webhook flood offense.'
