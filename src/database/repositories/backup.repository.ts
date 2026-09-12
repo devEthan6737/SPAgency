@@ -22,12 +22,9 @@ export class BackupRepository {
      * @param guildId Guild to look up.
      * @returns The backup row, or `undefined` if the guild has none.
      */
-    static get(guildId: string) {
-        return db
-            .select()
-            .from(backups)
-            .where(eq(backups.guildId, guildId))
-            .then(([row]) => row);
+    static async get(guildId: string) {
+        const [row] = await db.select().from(backups).where(eq(backups.guildId, guildId));
+        return row;
     }
 
     /** Replaces any existing snapshot for the guild — there's only ever one per server. */

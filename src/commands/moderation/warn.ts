@@ -27,7 +27,6 @@ const options = {
 @Declare({
     name: 'warn',
     description: 'Adds a warning to a member.',
-    botPermissions: ['ManageRoles'],
     defaultMemberPermissions: ['ManageMessages'],
     props: { category: 'moderation' }
 })

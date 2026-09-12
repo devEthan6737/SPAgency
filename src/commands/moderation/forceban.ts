@@ -58,6 +58,8 @@ export default class ForcebanCommand extends Command {
         let banned = 0;
 
         for (const entry of entries) {
+            if (entry.id === ctx.client.botId || entry.id === ctx.author.id) continue;
+
             const ok = await guild.bans.create(entry.id, { reason: entry.reason }).then(
                 () => true,
                 () => false

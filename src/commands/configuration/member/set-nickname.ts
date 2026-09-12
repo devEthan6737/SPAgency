@@ -38,18 +38,19 @@ const options = {
  * the server owner or to outrank the target's highest role.
  */
 export default class SetNicknameSubCommand extends SubCommand {
-    /** Checks the invoker/target role hierarchy (skipped for self-edits), then applies the nickname and logs the action. */
+    /** Checks the invoker/target role hierarchy (skipped for self-edits or a target that isn't a member), then applies the nickname and logs the action. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const guild = await ctx.guild();
 
         if (ctx.options.member.id !== ctx.member.id && ctx.member.id !== guild.ownerId) {
-            const highest = await ctx.member.roles.highest();
-            const target = await guild.members.fetch(ctx.options.member.id);
-            const targetHighest = await target.roles.highest();
-            if ((highest?.position ?? 0) <= (targetHighest?.position ?? 0)) {
-                await ctx.write({ content: ctx.t.commands.configuration.member.role.hierarchyError.get() });
-                return;
+            const target = await guild.members.fetch(ctx.options.member.id).catch(() => undefined);
+            if (target) {
+                const [highest, targetHighest] = await Promise.all([ctx.member.roles.highest(), target.roles.highest()]);
+                if ((highest?.position ?? 0) <= (targetHighest?.position ?? 0)) {
+                    await ctx.write({ content: ctx.t.commands.configuration.member.role.hierarchyError.get() });
+                    return;
+                }
             }
         }
 

@@ -52,7 +52,11 @@ export default class UnwarnCommand extends Command {
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.moderation.unwarn;
+        const shared = ctx.t.commands.moderation.shared;
         const targetId = ctx.options.member.id;
+
+        if (targetId === ctx.client.botId) return await ctx.write({ content: shared.cannotTargetBot.get() });
+        if (targetId === ctx.author.id) return await ctx.write({ content: shared.cannotTargetSelf.get() });
 
         if (ctx.options.all) {
             const removed = await WarnRepository.deleteAll(ctx.guildId, targetId);
