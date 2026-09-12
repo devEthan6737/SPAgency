@@ -1,1 +1,0 @@
-ALTER TABLE "guild_protection" DROP COLUMN "mark_malicious_type";

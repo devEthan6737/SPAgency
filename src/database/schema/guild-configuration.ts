@@ -3,8 +3,8 @@ import { guilds } from './guild.js';
 
 /**
  * Any `UPDATE` on this table fires `guild_configuration_notify_config_changed` — a Postgres trigger
- * (see `drizzle/0005_thin_madame_hydra.sql`, not represented here since Drizzle's schema builder has
- * no declarative way to express triggers) that does `pg_notify('guild_config_changed', guild_id)`.
+ * (see `drizzle/0000_baseline.sql`, not represented here since Drizzle's schema builder has no
+ * declarative way to express triggers) that does `pg_notify('guild_config_changed', guild_id)`.
  * `GuildConfigCache` and `RaidmodeExpiry` both `LISTEN` on that channel to invalidate/reschedule
  * without polling — see docs/antiraid.md section 2.
  */

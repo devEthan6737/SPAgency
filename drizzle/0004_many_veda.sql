@@ -1,1 +1,0 @@
-CREATE INDEX "tempbans_expires_at_idx" ON "tempbans" USING btree ("expires_at");

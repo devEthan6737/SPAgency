@@ -1,1 +1,0 @@
-ALTER TABLE "guild_configuration" DROP COLUMN "ignore_channels";

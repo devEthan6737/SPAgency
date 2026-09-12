@@ -15,11 +15,10 @@ export enum AutomodFinalAction {
 
 /**
  * Any `UPDATE` on this table fires `guild_moderation_notify_config_changed` — a Postgres trigger (see
- * `drizzle/0025_guild_moderation_notify_config_changed.sql`, not represented here since Drizzle's
- * schema builder has no declarative way to express triggers) that does `pg_notify('guild_config_changed',
- * guild_id)`. Added later than `guild_protection`/`guild_configuration`'s own triggers — this table's
- * columns only started feeding `GuildConfigCache` once `AutomodSystem` needed them; before that,
- * nothing read `guild_moderation` on a hot path, so staleness here didn't matter.
+ * `drizzle/0000_baseline.sql`, not represented here since Drizzle's schema builder has no
+ * declarative way to express triggers) that does `pg_notify('guild_config_changed', guild_id)`. This
+ * table's columns only started feeding `GuildConfigCache` once `AutomodSystem` needed them; before
+ * that, nothing read `guild_moderation` on a hot path, so staleness here didn't matter.
  */
 export const guildModeration = pgTable('guild_moderation', {
     guildId: text('guild_id').primaryKey().references(() => guilds.id, { onDelete: 'cascade' }),

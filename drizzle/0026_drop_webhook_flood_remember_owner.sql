@@ -1,1 +1,0 @@
-ALTER TABLE "guild_moderation" DROP COLUMN "anti_webhooks_flood_remember_owner";

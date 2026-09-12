@@ -1,5 +1,5 @@
 {
-  "id": "f7949a38-fced-4861-a6ec-dfff01a6e253",
+  "id": "fa5784fc-a947-467e-ba74-f92ce0021f7b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -74,54 +74,26 @@
           "notNull": true,
           "default": "'all'"
         },
-        "antitokens_enable": {
-          "name": "antitokens_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "antijoins_enable": {
-          "name": "antijoins_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "mark_malicious_enable": {
-          "name": "mark_malicious_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "mark_malicious_type": {
-          "name": "mark_malicious_type",
+        "selfbot_action": {
+          "name": "selfbot_action",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'changeNickname'"
+          "default": "'none'"
         },
-        "warn_entry": {
-          "name": "warn_entry",
-          "type": "boolean",
+        "selfbot_min_account_age": {
+          "name": "selfbot_min_account_age",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": true
+          "default": "'30d'"
         },
-        "kick_malicious_enable": {
-          "name": "kick_malicious_enable",
-          "type": "boolean",
+        "malicious_member_action": {
+          "name": "malicious_member_action",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": false
-        },
-        "own_system_enable": {
-          "name": "own_system_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
+          "default": "'mark'"
         },
         "verification_enable": {
           "name": "verification_enable",
@@ -130,51 +102,11 @@
           "notNull": true,
           "default": false
         },
-        "verification_type": {
-          "name": "verification_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verification_channel": {
-          "name": "verification_channel",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "verification_role": {
           "name": "verification_role",
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "cannot_enter_twice_enable": {
-          "name": "cannot_enter_twice_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "cannot_enter_twice_users": {
-          "name": "cannot_enter_twice_users",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "purge_webhooks_attacks_enable": {
-          "name": "purge_webhooks_attacks_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "purge_webhooks_attacks_remember_owner": {
-          "name": "purge_webhooks_attacks_remember_owner",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'Nadie'"
         },
         "intelligent_sos_enable": {
           "name": "intelligent_sos_enable",
@@ -182,48 +114,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
-        },
-        "intelligent_sos_cooldown": {
-          "name": "intelligent_sos_cooldown",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "intelligent_antiflood": {
-          "name": "intelligent_antiflood",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "antiflood": {
-          "name": "antiflood",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "bloq_entrities_by_name_enable": {
-          "name": "bloq_entrities_by_name_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "bloq_entrities_by_name_names": {
-          "name": "bloq_entrities_by_name_names",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{\"raider\",\"doxer\",\"hacker\",\"infecter\"}'"
-        },
-        "bloq_new_created_users_time": {
-          "name": "bloq_new_created_users_time",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'1h'"
         },
         "raidmode_enable": {
           "name": "raidmode_enable",
@@ -239,22 +129,30 @@
           "notNull": true,
           "default": "'1d'"
         },
-        "raidmode_password": {
-          "name": "raidmode_password",
-          "type": "text",
+        "raidmode_activated_at": {
+          "name": "raidmode_activated_at",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'Nothing'"
-        },
-        "raidmode_actived_date": {
-          "name": "raidmode_actived_date",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
+          "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "guild_protection_antiraid_enable_idx": {
+          "name": "guild_protection_antiraid_enable_idx",
+          "columns": [
+            {
+              "expression": "antiraid_enable",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "guild_protection_guild_id_guilds_id_fk": {
           "name": "guild_protection_guild_id_guilds_id_fk",
@@ -292,6 +190,97 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'"
+        },
+        "antiflood": {
+          "name": "antiflood",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "anti_webhooks_flood": {
+          "name": "anti_webhooks_flood",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "ghostping_enable": {
+          "name": "ghostping_enable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "caps_lock_enable": {
+          "name": "caps_lock_enable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "caps_lock_threshold": {
+          "name": "caps_lock_threshold",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 70
+        },
+        "many_emojis_enable": {
+          "name": "many_emojis_enable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "many_emojis_threshold": {
+          "name": "many_emojis_threshold",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 8
+        },
+        "many_words_enable": {
+          "name": "many_words_enable",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "many_words_threshold": {
+          "name": "many_words_threshold",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 150
+        },
+        "automod_mute_at": {
+          "name": "automod_mute_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 3
+        },
+        "automod_mute_minutes": {
+          "name": "automod_mute_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 10
+        },
+        "automod_final_action": {
+          "name": "automod_final_action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'none'"
+        },
+        "automod_final_action_at": {
+          "name": "automod_final_action_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 6
         }
       },
       "indexes": {},
@@ -333,54 +322,11 @@
           "notNull": true,
           "default": "'{}'"
         },
-        "logs": {
-          "name": "logs",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "ignore_channels": {
-          "name": "ignore_channels",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "password_enable": {
-          "name": "password_enable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "password": {
-          "name": "password",
+        "logs_channel": {
+          "name": "logs_channel",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "password_users_with_access": {
-          "name": "password_users_with_access",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'"
-        },
-        "show_details_in_cmds_command": {
-          "name": "show_details_in_cmds_command",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'lessDetails'"
-        },
-        "ping_message": {
-          "name": "ping_message",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'allDetails'"
+          "notNull": false
         }
       },
       "indexes": {},
@@ -490,18 +436,12 @@
           "primaryKey": true,
           "notNull": true
         },
-        "enable": {
-          "name": "enable",
-          "type": "boolean",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": true
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "default": "now()"
         },
         "name": {
           "name": "name",
@@ -549,6 +489,20 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'[]'::jsonb"
+        },
+        "emojis": {
+          "name": "emojis",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "stickers": {
+          "name": "stickers",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
         }
       },
       "indexes": {},
@@ -573,22 +527,125 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.malicious_users": {
-      "name": "malicious_users",
+    "public.server_event_logs": {
+      "name": "server_event_logs",
       "schema": "",
       "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
+        "id": {
+          "name": "id",
+          "type": "integer",
           "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "server_event_logs_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "guild_id": {
+          "name": "guild_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
-        "is_malicious": {
-          "name": "is_malicious",
-          "type": "boolean",
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": true
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "server_event_logs_guild_id_guilds_id_fk": {
+          "name": "server_event_logs_guild_id_guilds_id_fk",
+          "tableFrom": "server_event_logs",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "guild_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bot_action_logs": {
+      "name": "bot_action_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "bot_action_logs_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "guild_id": {
+          "name": "guild_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "executor_id": {
+          "name": "executor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "reason": {
           "name": "reason",
@@ -596,34 +653,188 @@
           "primaryKey": false,
           "notNull": false
         },
-        "proof": {
-          "name": "proof",
-          "type": "text",
+        "data": {
+          "name": "data",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
-        "punishment": {
-          "name": "punishment",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
-        },
-        "appeal_status": {
-          "name": "appeal_status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "record": {
-          "name": "record",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "bot_action_logs_guild_id_guilds_id_fk": {
+          "name": "bot_action_logs_guild_id_guilds_id_fk",
+          "tableFrom": "bot_action_logs",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "guild_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tempbans": {
+      "name": "tempbans",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "tempbans_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "guild_id": {
+          "name": "guild_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "tempbans_expires_at_idx": {
+          "name": "tempbans_expires_at_idx",
+          "columns": [
+            {
+              "expression": "expires_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tempbans_guild_id_guilds_id_fk": {
+          "name": "tempbans_guild_id_guilds_id_fk",
+          "tableFrom": "tempbans",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "guild_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bot_adders": {
+      "name": "bot_adders",
+      "schema": "",
+      "columns": {
+        "guild_id": {
+          "name": "guild_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bot_id": {
+          "name": "bot_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "executor_id": {
+          "name": "executor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "added_at": {
+          "name": "added_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bot_adders_guild_id_guilds_id_fk": {
+          "name": "bot_adders_guild_id_guilds_id_fk",
+          "tableFrom": "bot_adders",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "guild_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "bot_adders_guild_id_bot_id_pk": {
+          "name": "bot_adders_guild_id_bot_id_pk",
+          "columns": [
+            "guild_id",
+            "bot_id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
