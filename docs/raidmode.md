@@ -1,48 +1,48 @@
 # Raidmode — `RaidmodeSystem`
 
-Bloqueo manual, "modo dictador": el dueño del servidor lo activa a propósito porque ya sabe que hay un problema, así que no hay umbral, no hay ráfaga que contar, no hay beneficio de la duda salvo el mínimo indispensable. **Fichero:** [`src/systems/raidmode/RaidmodeSystem.ts`](../src/systems/raidmode/RaidmodeSystem.ts).
+Bloqueo manual: el dueño lo activa porque ya sabe que hay un problema. Cero umbral, cero beneficio de la duda salvo el mínimo indispensable. **Fichero:** [`src/systems/raidmode/RaidmodeSystem.ts`](../src/systems/raidmode/RaidmodeSystem.ts).
 
 ## Filosofía
 
-Antiraid y antibots están pensados para funcionar siempre, en segundo plano, con el mínimo de falsos positivos posible — por eso antiraid exige una ráfaga de 3 acciones antes de banear, y antibots deja pasar bots verificados por defecto. Raidmode es lo contrario a propósito: es una decisión humana explícita ("activo esto porque ahora mismo no confío en nadie"), así que el sistema puede permitirse ser mucho más agresivo de lo que sería aceptable como comportamiento por defecto. Dos ideas:
+Antiraid/antibots funcionan siempre en segundo plano con mínimos falsos positivos (antiraid exige ráfaga de 3, antibots deja pasar verificados). Raidmode es lo contrario porque es una decisión humana explícita:
 
-1. **Cero umbral.** Una sola acción sospechosa basta — no hay contador que rellenar primero.
-2. **Sustituye, no complementa.** Mientras está activo, reemplaza por completo a antiraid/antibots/`MaliciousMemberSystem`/el logging normal de eventos para esa acción concreta — no corren en paralelo. Si raidmode ya actuó, no hay nada más que comprobar.
+1. **Cero umbral** — una sola acción sospechosa basta.
+2. **Sustituye, no complementa** — mientras está activo, reemplaza a antiraid/antibots/`MaliciousMemberSystem`/logging normal para esa acción, no corren en paralelo.
 
-## Excepciones — solo dos, y por motivos distintos
+## Excepciones — solo dos
 
-- **El dueño del servidor.** Discord ya bloquea banear al propietario a nivel de API, así que esto nunca fallaría por sí solo — pero se comprueba explícitamente de todas formas, para no malgastar una llamada que sabemos que va a fallar y no generar un log confuso de "baneado" cuando no ha pasado nada.
-- **El propio bot.** Mismo motivo que ya tiene `AntiraidSystem`: sin esto, restaurar un backup durante un raidmode activo (o cualquier acción legítima del propio bot) se autobanearía.
+- **El dueño del servidor** — Discord ya bloquea banearlo, pero se comprueba explícitamente para no gastar una llamada condenada a fallar ni generar un log confuso.
+- **El propio bot** — igual que `AntiraidSystem`: sin esto, restaurar un backup se autobanearía.
 
-**Sin whitelist.** A propósito, no por omisión: `guild_configuration.whitelist` no se consulta durante raidmode. Una whitelist es una puerta que alguien puede intentar abrir (ingeniería social, un token robado) — durante un lockdown que activaste porque ya sospechas de algo, esa puerta se cierra también. (Nota aparte: existe la idea de eliminar la whitelist también de `AntiraidSystem`, que sí la usa hoy — eso es una decisión distinta, sobre código ya en producción, no algo que se cuele aquí de rebote.)
+**Sin whitelist, a propósito.** Es una puerta que alguien podría abrir con ingeniería social o un token robado — durante un lockdown, se cierra también.
 
 ## Qué pasa en cada disparador
 
-Todo lo de abajo reutiliza los mismos dos puntos de entrada que ya existen — `guildMemberAdd.ts` y `guildAuditLogEntryCreate.ts` — con raidmode comprobándose **primero**, antes que cualquier otro sistema, y cortando con `return` si actúa.
+Mismos dos puntos de entrada que ya existen (`guildMemberAdd.ts`, `guildAuditLogEntryCreate.ts`), con raidmode comprobándose primero y cortando con `return` si actúa.
 
-- **Alguien se une** — **da igual que sea humano o bot, el trato es idéntico**: baneo **temporal**, con la misma duración configurada para el raidmode (`raidmodeTimeToDisable`) — reutilizando el sistema de `tempban` que ya existe (mismo poller de auto-desbaneo, cero infraestructura nueva). Se le da el beneficio de la duda mínimo: quien se une no ha hecho nada todavía, solo entrar durante una ventana mala. Si el que se une es un bot, sí hay un trato extra aparte de este tempban — ver más abajo y [`bot-adder.md`](bot-adder.md).
-- **Se crea/borra un canal, se crea/borra un rol, se banea/desbanea a alguien** (mismo conjunto de acciones que ya vigila `AntiraidSystem`): baneo **permanente** para quien ejecutó la acción. A diferencia de simplemente unirse, esto ya es una acción con permisos reales detrás — no hay beneficio de la duda que dar.
-- **Alguien añade un bot** (`AuditLogEvent.BotAdd`): baneo permanente para **quien lo autorizó** (no para el bot en sí, ese ya recibe su propio tempban por el primer punto, en cuanto entra como miembro) — a diferencia del antiraid normal (donde esto se descarta por ser una acción de configuración habitual y no vale la pena el riesgo de falso positivo), en raidmode el umbral cero ya asume que cualquier acción es sospechosa, así que sí cuenta. Esto ya banea directamente a quien añadió el bot, así que `BotAdderSystem` (ver [`bot-adder.md`](bot-adder.md)) no interviene aquí — solo lo hace en el punto anterior, cuando el bot recién unido acaba baneado y hace falta ir a buscar quién lo trajo.
+- **Alguien se une** (humano o bot, igual): baneo **temporal** con la duración de `raidmodeTimeToDisable`, vía el sistema de `tempban` ya existente. Si es un bot, hay trato extra — ver [`bot-adder.md`](bot-adder.md).
+- **Crear/borrar canal o rol, banear/desbanear** (mismo set que vigila `AntiraidSystem`): baneo **permanente** al ejecutor — ya es una acción con permisos reales detrás.
+- **Añadir un bot** (`BotAdd`): baneo permanente a quien lo autorizó (el bot en sí ya recibe su tempban al entrar como miembro). A diferencia del antiraid normal (donde esto no cuenta, por ser configuración habitual), aquí el umbral cero ya asume que todo es sospechoso. Como esto ya banea al adder directamente, `BotAdderSystem` no interviene aquí — solo en el punto anterior.
 
-Ninguna de estas acciones manda DM al dueño del servidor — a diferencia de `MaliciousMemberSystem`, aquí el dueño ya sabe que hay un problema (él activó el raidmode), así que un DM por cada baneo durante lo que puede ser una ráfaga real de intentos sería puro ruido. Todo se registra igual como `ServerEventLog` — y como ya vimos con `LogChannelThrottle`, el canal de logs no se satura aunque lleguen muchos de golpe.
+Sin DM al owner (ya sabe que hay un problema — sería ruido). Todo se registra como `ServerEventLog`; `LogChannelThrottle` evita que el canal se sature aunque lleguen muchos de golpe.
 
-## Lo que se descarta y por qué
+## Descartado
 
-- **Contraseña propia (`raidmodePassword`)**: eliminada del schema. Se pensó reutilizar para esto el 2FA general (`guild_configuration.passwordEnable`/`password`) que bloquearía comandos sensibles, en vez de inventar una segunda contraseña específica de raidmode — pero ese 2FA nunca llegó a implementarse (era del bot legacy, atado a comandos de prefijo; no encajaba igual con slash commands, y se descartó por ahora, ver el commit que quitó esas columnas). Hoy activar/desactivar raidmode es un simple toggle vía dashboard, sin contraseña de ningún tipo — si en el futuro se retoma algún mecanismo de doble verificación, sería el momento de revisar esto también.
-- **Activación/duración**: eso es pura configuración (`raidmodeEnable`, `raidmodeTimeToDisable`) — va a la dashboard, no a un comando de Seyfert, mismo criterio que el resto de toggles de configuración pura de esta sesión.
+- **Contraseña propia (`raidmodePassword`)**: se pensó reutilizar el 2FA general (`guild_configuration.passwordEnable`/`password`), pero ese 2FA nunca se implementó (atado a comandos de prefijo del legacy, no portado a slash commands, columnas eliminadas). Hoy activar/desactivar raidmode es un simple toggle vía dashboard, sin contraseña.
+- **Activación/duración**: config pura → dashboard, no comando de Seyfert.
 
-## Parseo de duración — `RaidmodeSystem.parseDurationMs`
+## Parseo de duración — `Duration.ts`
 
-`raidmodeTimeToDisable` se guarda como texto tipo `'1d'`/`'30m'` (igual que `selfbotMinAccountAge`, ver [`selfbot.md`](selfbot.md), que tiene el mismo problema). No hay ninguna librería de parseo de duraciones en las dependencias (`ms`, que usaba el legacy, no está instalado) — en vez de añadir una dependencia para un formato tan simple, hay un parser propio (`/^(\d+)\s*(s|m|h|d|w)$/i`) en [`src/systems/shared/Duration.ts`](../src/systems/shared/Duration.ts), con un día como valor por defecto si el texto no encaja con el patrón (mejor un valor seguro que una expiración instantánea). Vivía como método `static` en `RaidmodeSystem` mientras `RaidmodeExpiry` era su único consumidor además de aquí; en cuanto `SelfbotSystem` lo necesitó también, se extrajo a un módulo compartido — exactamente el momento que ya se anticipaba aquí.
+`raidmodeTimeToDisable` (`'1d'`/`'30m'`) usa el mismo parser que `selfbotMinAccountAge` (ver [`selfbot.md`](selfbot.md)): regex propio (`/^(\d+)\s*(s|m|h|d|w)$/i`) en [`src/systems/shared/Duration.ts`](../src/systems/shared/Duration.ts) en vez de instalar `ms` — default de 1 día si no matchea. Extraído de `RaidmodeSystem` a un módulo compartido en cuanto `SelfbotSystem` lo necesitó también.
 
-## Auto-desactivación por tiempo — `RaidmodeExpiry`
+## Auto-desactivación — `RaidmodeExpiry`
 
 **Fichero:** [`src/systems/raidmode/RaidmodeExpiry.ts`](../src/systems/raidmode/RaidmodeExpiry.ts)
 
-La dashboard no puede "esperar" a que venza el plazo por sí sola — hace falta algo en el bot. **Deliberadamente no es un poller tipo `tempban`**: un barrido periódico de toda la tabla (cada 60s, escaneando todos los servidores) tiene sentido para tempbans porque son relativamente frecuentes — para raidmode, activo en un puñado de servidores como mucho en un momento dado, escanear la tabla entera todo el rato desperdiciaría ciclos por una feature casi siempre inactiva. En su lugar, un `setTimeout` por servidor (vía [`ExpiringMap`](../src/systems/shared/ExpiringMap.ts), ver `moderation.md`), dirigido por eventos, reutilizando la infraestructura que ya existe:
+Deliberadamente no es un poller tipo `tempban` (raidmode está activo en un puñado de servidores como mucho — barrer la tabla entera desperdiciaría ciclos). En su lugar, un `setTimeout` por servidor vía [`ExpiringMap`](../src/systems/shared/ExpiringMap.ts):
 
-- **Un segundo listener en el mismo canal.** `sql.listen('guild_config_changed', ...)` admite más de un listener por canal (cada `.listen()` añade el suyo, todos se disparan) — así que `RaidmodeExpiry` engancha su propio callback al mismo canal que ya usa `GuildConfigCache`, sin tocar su código. Cada vez que cambia cualquier config de un servidor, se releen `raidmodeEnable`/`raidmodeTimeToDisable`/`raidmodeActivatedAt` y se reprograma (o se limpia) el temporizador de ese servidor concreto — el `onExpire` del `ExpiringMap` es lo que de verdad desactiva el raidmode al vencer, no un simple borrado silencioso.
-- **Una pasada al arrancar.** En `ready` — en cada sesión de gateway nueva, no solo la primera, mismo motivo que `AntiraidSystem.recheckAllPrerequisites()` — se listan los servidores con `raidmodeEnable: true` y se reprograma el temporizador de cada uno, para cubrir el hueco de "esto pudo activarse o casi vencer mientras el bot estaba desconectado".
-- **Al vencer, se desactiva y se loguea** (`ServerEventType.RaidmodeExpired`). Ese propio `UPDATE` dispara otra vez el mismo trigger de Postgres — pero como `reschedule()` no hace nada si `raidmodeEnable` ya está a `false`, no hay bucle.
+- Un segundo `LISTEN` en el mismo canal `guild_config_changed` que `GuildConfigCache` — reprograma/limpia el temporizador del servidor en cada cambio de config.
+- Una pasada en `ready` (cada sesión de gateway nueva) para cubrir huecos de desconexión.
+- Al vencer, desactiva y loguea (`RaidmodeExpired`); el `UPDATE` resultante redispara el mismo trigger pero `reschedule()` no hace nada si ya está `false`, sin bucle.
 
-Con 2-3 servidores activos a la vez como mucho, esto es unos pocos temporizadores en memoria, cero consultas periódicas a la base de datos.
+Con 2-3 servidores activos a la vez, esto es unos pocos timers en memoria, cero polling.
