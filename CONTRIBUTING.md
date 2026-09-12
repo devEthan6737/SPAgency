@@ -1,31 +1,23 @@
 # ¡Bienvenido/a!
 
-¡Gracias por su interés en contribuir a este proyecto!
-
-Antes que todo, le pido amablemente que lea con atención y detenimiento la [licencia](LICENSE) y el [código de conducta](code_of_conduct.md), ya que es escencial que conozca las pautas y condiciones antes de contribuir.
+Gracias por su interés en contribuir. Lea antes la [licencia](LICENSE) y el [código de conducta](code_of_conduct.md).
 
 ## Principiantes
 
-Si usted es principiante, pero desea contribuir con **código**, ha de tomar en cuenta que debe contar con los siguientes conocimientos principales:
+Para contribuir con código hace falta:
 
 * Git y GitHub ([crash course](https://youtu.be/HiXLkL42tMU))
-* TypeScript (con [node.js](https://nodejs.org/))
-* [Seyfert](https://seyfert.dev/) — el framework de Discord que usa el bot
-* [Drizzle ORM](https://orm.drizzle.team/) sobre PostgreSQL, para todo lo que sea persistencia
+* TypeScript con [Node.js](https://nodejs.org/)
+* [Seyfert](https://seyfert.dev/) — framework de Discord del bot
+* [Drizzle ORM](https://orm.drizzle.team/) sobre PostgreSQL, para persistencia
 
 ## Empezando
 
-Lea el [README](README.md) para obtener una vista rápida del proyecto.
+Lea el [README](README.md) primero.
 
 ### Configuración
 
-El proyecto usa **pnpm**, no npm. Copie [`.env.example`](.env.example) a `.env` y rellene:
-
-```yaml
-BOT_TOKEN     # token del bot de Discord
-PREFIX        # prefix de los comandos de texto, ej. "sp!"
-DATABASE_URL  # cadena de conexión a Postgres
-```
+El proyecto usa **pnpm**, no npm. Copie [`.env.example`](.env.example) a `.env` y rellene `BOT_TOKEN`, `PREFIX`, `DATABASE_URL`.
 
 ```bash
 pnpm install
@@ -35,83 +27,79 @@ pnpm run dev          # tsc --watch
 
 ## Estilo de código
 
-Esto no son sugerencias sueltas — es cómo está escrito todo el código nuevo del proyecto (`src/`). Si va a tocar algo ahí, sígalo; si va a portar algo del bot legacy (`comandos/`, `eventos/`, `schemas/`), esto es lo que reemplaza a ese estilo, no lo que convive con él.
+Así está escrito todo `src/`. Si porta algo del bot legacy (`comandos/`, `eventos/`, `schemas/`), esto reemplaza ese estilo, no convive con él.
 
 ### Idioma
 
-- El `@Declare({ name, description })` de **todo** comando o subcomando va **en inglés**. Es la base/fallback que registra Discord.
-- El español (y cualquier otro idioma) se cubre con `@LocalesT(...)` apuntando a claves de `src/locales/es.ts` / `en.ts` — nunca hardcodeado en el `@Declare`.
-- Los ficheros de comandos, las claves de opciones (`createStringOption`, etc.) y los nombres de clase van en inglés. El nombre de fichero, la carpeta de categoría y la clave del locale coinciden siempre (`report.ts` → `commands.others.report`).
-- Dentro de un mismo fichero de locale no se mezcla idioma — todo lo que hay en `es.ts` está en español, todo en `en.ts` en inglés. Si algo se repite entre comandos hermanos (mensajes de error compartidos, p. ej.), va en un namespace `shared` dentro de esa categoría en vez de duplicarse.
+- `@Declare({ name, description })` siempre en inglés (fallback que registra Discord). El resto de idiomas van por `@LocalesT(...)` a claves de `src/locales/es.ts`/`en.ts`, nunca hardcodeado.
+- Ficheros de comando, claves de opciones y nombres de clase en inglés. Fichero, carpeta de categoría y clave de locale coinciden siempre (`report.ts` → `commands.others.report`).
+- Un fichero de locale no mezcla idiomas. Texto repetido entre comandos hermanos va en un namespace `shared` de esa categoría, no duplicado.
 
 ### Estructura de comandos
 
-- Un comando simple (sin subcomandos) es un único fichero en `src/commands/<categoria>/`.
-- Un comando con subcomandos es una **carpeta** con su mismo nombre: un fichero por subcomando + un fichero "padre" (mismo nombre que la carpeta) decorado con `@AutoLoad()`. Seyfert recoge automáticamente cualquier fichero hermano cuyo `export default` sea un `SubCommand` — no hace falta `@Options([Sub1, Sub2])` a mano.
-- Todo comando lleva `props: { category: '<carpeta>' }` para que aparezca agrupado en `/commands`. Una categoría solo se lista ahí si tiene una etiqueta en `commands.others.commands.categories` del locale — así se puede tener una categoría "oculta" (p. ej. `staff`) sin excluirla a mano en el código.
-- Las claves de las opciones (`const options = { member: createUserOption(...) }`) van siempre en minúscula e inglés — Discord lo exige para el nombre registrado.
+- Comando simple: un fichero en `src/commands/<categoria>/`. Con subcomandos: una carpeta con un fichero por subcomando + un "padre" (`@AutoLoad()`) — Seyfert recoge solo los `export default` que sean `SubCommand`, sin `@Options([...])` a mano.
+- Todo comando lleva `props: { category: '<carpeta>' }`. Solo aparece en `/commands` si esa categoría tiene etiqueta en `commands.others.commands.categories` — así una categoría (`staff`) puede quedar oculta sin excluirla en código.
+- Claves de opciones en minúscula e inglés (lo exige Discord).
 
 ### Permisos y seguridad
 
-- Los permisos se declaran con `botPermissions`/`defaultMemberPermissions` en `@Declare`. Nunca comprobaciones manuales de `ctx.member.permissions.has(...)` — Seyfert las aplica en runtime igual, y además Discord oculta/gatea el comando de forma nativa cuando puede.
-- Cualquier comando que actúe sobre un miembro concreto (ban, kick, timeout, roles, apodo...) comprueba, por este orden: que no sea el propio bot, que no sea uno mismo, y la **jerarquía de roles del invocador contra el objetivo** (dueño del servidor exento). Discord solo valida la jerarquía del *bot*, nunca la de quien invoca el comando — sin este check, cualquiera con el permiso adecuado podría actuar sobre alguien por encima de su propio rango.
-- Restricciones por identidad (p. ej. "solo el dueño del servidor") no se pueden expresar con un bit de permiso de Discord — usan un middleware (`src/middlewares/<nombre>.middleware.ts`), no un `if` suelto en el comando.
-- Cualquier comando que descargue una URL dada por el usuario (p. ej. un icono) debe protegerse contra SSRF: solo `http`/`https`, resolver el host y bloquear IPs privadas/loopback/link-local, `redirect: 'error'` (si no, el check de host se salta con un 302), timeout, y limitar el tamaño leyendo el stream real — nunca fiarse del header `Content-Length`.
-- Toda acción destructiva o difícil de revertir (nuke de un canal, ban masivo...) pasa por `Confirmation.ask(ctx, {...})` (`src/systems/confirmation/`) antes de ejecutar nada.
+- Permisos vía `botPermissions`/`defaultMemberPermissions` en `@Declare`, nunca `ctx.member.permissions.has(...)` a mano.
+- Todo comando sobre un miembro concreto comprueba, en este orden: no es el bot → no es uno mismo → jerarquía del invocador vs. objetivo (dueño exento). Discord solo valida la jerarquía del *bot*, nunca la de quien invoca.
+- Restricciones por identidad ("solo el dueño") van por middleware (`src/middlewares/<nombre>.middleware.ts`), no por `if` suelto.
+- Descargar una URL dada por el usuario exige protección SSRF: solo `http`/`https`, bloquear IPs privadas/loopback/link-local, `redirect: 'error'`, timeout, y límite de tamaño leyendo el stream real (nunca fiarse de `Content-Length`).
+- Toda acción destructiva pasa por `Confirmation.ask(ctx, {...})` (`src/systems/confirmation/`) antes de ejecutar.
 
 ### Internacionalización
 
-- `ctx.t` se usa para responder a quien invocó el comando — resuelve el idioma de **su** cliente de Discord.
-- Para mensajes que se mandan sin que haya un invocador directo delante (p. ej. un log al canal configurado del servidor), no se usa `ctx.t` — se resuelve el idioma guardado del servidor (`guild.language`) explícitamente con `client.t(idioma)`, porque quien lo lee es el staff del servidor, no quien disparó la acción.
-- La estructura de los locales es un espejo del árbol de comandos: `commands.<categoria>.<comando>.<clave>`. Los textos dinámicos son funciones `(args) => string`; los fijos, strings planos.
+- `ctx.t` solo para responder a quien invocó el comando. Sin invocador directo (log a un canal, p. ej.), se usa `client.t(guild.language)` explícito — lo lee el staff del servidor, no quien disparó la acción.
+- Locales en espejo del árbol de comandos: `commands.<categoria>.<comando>.<clave>`. Texto dinámico = función `(args) => string`; fijo = string plano.
 
 ### Base de datos (Drizzle)
 
-- Un fichero por tabla en `src/database/schema/`. Los enums/tipos específicos de una tabla (p. ej. `BlacklistReason`, `ServerEventType`) se definen en el mismo fichero que la tabla, no aparte.
-- Un repositorio por agregado en `src/database/repositories/`, siempre como clase con métodos **estáticos** (nunca se instancia) — ver `GuildRepository`, `WarnRepository`, `TempbanRepository`.
-- Si un método de repositorio se va a llamar en un camino caliente (cada mensaje, cada minuto...), que sea una consulta específica y ligera (columnas concretas, mínimos joins) en vez de reutilizar un `get()` genérico — ver `getPrefix`, `getLogSettings`.
-- Si una columna se consulta sin condiciones de forma recurrente (un poller, p. ej.), lleva índice.
-- `drizzle-kit generate` necesita una TTY interactiva para desambiguar un rename de un drop+add, y este entorno no la tiene. Cuando pase, se escribe la migración SQL y el snapshot a mano (a partir del snapshot anterior) y se verifica volviendo a correr `generate` — debe reportar "no hay cambios pendientes".
+- Un fichero por tabla en `src/database/schema/`, con sus enums propios en el mismo fichero.
+- Un repositorio por agregado en `src/database/repositories/`, clase con métodos **estáticos** (nunca instanciada).
+- Un método en camino caliente (cada mensaje, cada minuto...) usa consulta específica y ligera, no un `get()` genérico.
+- Columna consultada sin condiciones de forma recurrente (un poller) lleva índice.
+- `drizzle-kit generate` necesita TTY para desambiguar rename de drop+add, y este entorno no la tiene — cuando pase, se escribe la migración y el snapshot a mano y se verifica con `generate` de nuevo (debe reportar "no hay cambios pendientes").
 
-### Clases y organización del código
+### Clases y organización
 
-- Nada de cadenas de herencia (`A extends B extends C`). Como mucho, una clase base abstracta + clases concretas como hermanas — nunca una capa intermedia por categoría.
-- El contrato de una clase abstracta se expresa con **métodos** abstractos (`protected abstract getColor(): ...`), no con propiedades sobreescritas.
-- Si una función solo se usa dentro de un fichero/comando, es un método `private static` de esa clase, no una función suelta a nivel de módulo.
-- Si de verdad se comparte entre varios ficheros hermanos (varios subcomandos de una misma carpeta, p. ej.), se extrae a un fichero compartido en esa misma carpeta como una clase con métodos estáticos (ver `unnuke/shared.ts` → `UnnukeHelpers`), no se duplica.
-- `src/systems/` es para subsistemas transversales reutilizables (`logs/`, `confirmation/`, `ubfb/`, `tempban/`...). `src/middlewares/` es aparte, un fichero por middleware, nombrado `<nombre>.middleware.ts`.
-- Sin comentarios que expliquen *qué* hace el código. Solo cuándo el *por qué* no es obvio (una restricción externa, un bug que se está esquivando, una decisión no evidente). La documentación de una clase/método pensada para verse en el hover del editor es JSDoc (`/** */`), no `//`.
-- Nada de `switch` para traducir un enum externo (una acción de audit log, un tipo de evento de Discord) a nuestra propia forma de dato. Si cada rama solo asigna los mismos campos con valores distintos, eso es una tabla, no control de flujo: se declara como `Record<Enum, Forma>` (o `Partial<...>` si no cubre todos los valores) junto al tipo que construye, y se resuelve con un lookup + guard clause (`const x = TABLA[valor]; if (!x) return;`). Un `switch`/`if` encadenado se reserva para cuando de verdad hay *comportamiento* distinto por rama, no una asignación de campos repetida seis veces.
-- Una constante/límite que solo usa una clase (un umbral, una ventana en ms, un máximo) es una propiedad `private static readonly` de esa clase, **en PascalCase** (`MaxRetries`, `WindowMs`), no una constante suelta a nivel de módulo en `SCREAMING_SNAKE_CASE`. `SCREAMING_SNAKE_CASE` se reserva para constantes de módulo genuinamente sueltas, sin una clase a la que pertenezcan (p. ej. un `Set` de configuración en un fichero de evento, que no es una clase).
+- Sin cadenas de herencia (`A extends B extends C`) — como mucho una base abstracta + hermanas concretas.
+- Contrato de clase abstracta con **métodos** abstractos, no propiedades sobreescritas.
+- Función usada en un solo fichero → `private static` de esa clase, no función suelta. Compartida entre hermanos → clase de métodos estáticos en un fichero compartido de esa carpeta (ver `unnuke/shared.ts`), nunca duplicada.
+- `src/systems/` para subsistemas transversales; `src/middlewares/` aparte, un fichero por middleware.
+- Sin comentarios de *qué* hace el código — solo de *por qué* cuando no es obvio. Documentación de hover = JSDoc, no `//`.
+- Sin `switch` para traducir un enum externo a forma propia cuando cada rama solo asigna los mismos campos: eso es una tabla (`Record<Enum, Forma>` o `Partial<...>`) + lookup y guard clause, no control de flujo. `switch`/`if` encadenado solo cuando hay comportamiento distinto de verdad.
+- Constante usada por una sola clase → `private static readonly` en PascalCase (`MaxRetries`), no módulo suelto en `SCREAMING_SNAKE_CASE`. Ese formato se reserva para constantes de módulo sin clase dueña.
 
 ### Returns y guard clauses
 
-- Todo `run()` de un comando empieza con `if (!ctx.inGuild()) return;` como primerísima línea, antes de leer nada de `ctx`.
-- Las validaciones se escriben como guard clauses en una sola línea, no como `if/else` anidado: `if (targetId === ctx.author.id) return await ctx.write({ content: shared.cannotTargetSelf.get() });`. Se sale lo antes posible; el cuerpo del método no se anida.
-- Ese `return await ...` (con `await` delante, aunque el valor no se use) es el patrón fijo para cortar la ejecución devolviendo directamente la respuesta al usuario — no se separa en dos líneas (`await ctx.write(...); return;`).
-- El orden de los guards en comandos que apuntan a un miembro es siempre el mismo: bot → uno mismo → jerarquía de roles → recién ahí la lógica del comando.
-- La respuesta "de éxito" (el resultado real de la acción) va al final del método, sin `return` delante — es la última instrucción, no hace falta cortar nada después de ella.
+- Todo `run()` de comando empieza con `if (!ctx.inGuild()) return;`.
+- Guard clauses en una línea, sin `if/else` anidado: `if (targetId === ctx.author.id) return await ctx.write({ content: shared.cannotTargetSelf.get() });`.
+- `return await ...` es el patrón fijo para cortar devolviendo la respuesta — nunca separado en dos líneas.
+- Orden fijo en comandos sobre miembro: bot → uno mismo → jerarquía → lógica del comando.
+- La respuesta de éxito va al final del método, sin `return` delante.
 
 ### Embeds y respuestas
 
-- Un embed (`new Embed().setColor(...).setDescription(...)`) es solo para el resultado final de una acción que tuvo éxito. Los errores de validación (guard clauses) van como `ctx.write({ content: '...' })` en texto plano, nunca como embed — un embed para "no puedes hacer esto" es ruido innecesario.
-- El color del embed se elige por semántica de la acción, siempre con `EmbedColors` (`EmbedColors.Red` para algo destructivo tipo ban/nuke, etc.), nunca un hex a mano.
-- No se decora un embed con campos que no aportan (footer, thumbnail, author) si el mensaje cabe en una descripción — un embed con `setDescription` solo es preferible a uno sobrecargado de campos.
+- Embed solo para el resultado final de una acción exitosa. Errores de validación → `ctx.write({ content: '...' })` en texto plano, nunca embed.
+- Color siempre con `EmbedColors` por semántica (`Red` para destructivo), nunca hex a mano.
+- Sin campos decorativos (footer, thumbnail, author) si el mensaje cabe en `setDescription`.
 
 ### Fallos no críticos
 
-- Si una operación puede fallar y ese fallo no debe interrumpir el comando (mandar un DM al usuario afectado, resolver un miembro que puede que ya no esté en el servidor), se usa `.catch(() => {})` o `.catch(() => undefined)` en la propia promesa, no un `try/catch` alrededor de todo el bloque. Mantiene el guard clause siguiente en la misma línea de lectura.
-- Un `try/catch` completo solo aparece cuando de verdad hay que reaccionar de forma distinta al error (loggear, hacer cleanup, distinguir códigos de estado) — no como salvavidas genérico "por si acaso".
+- Operación que puede fallar sin interrumpir el comando (DM, resolver un miembro que ya no está) → `.catch(() => {})`/`.catch(() => undefined)` en la propia promesa, no `try/catch` alrededor de todo.
+- `try/catch` completo solo si hay que reaccionar distinto al error (loggear, cleanup, distinguir códigos) — no como salvavidas genérico.
 
 ### Accesores de locale
 
-- Al principio del `run()`, si el comando va a usar varias claves del mismo namespace, se saca a una constante corta: `const t = ctx.t.commands.moderation.tempban;`. Si además usa el namespace `shared`, otra constante aparte: `const shared = ctx.t.commands.moderation.shared;`. No se repite la ruta completa (`ctx.t.commands.moderation.tempban.foo.get()`) en cada línea.
+- Si el comando usa varias claves del mismo namespace, se saca a constante: `const t = ctx.t.commands.moderation.tempban;` (y otra para `shared` si aplica). Nunca repetir la ruta completa en cada línea.
 
 ### Commits
 
-- Mensajes en inglés, sin ningún trailer de co-autoría ni crédito a ninguna herramienta o IA.
-- Un commit por asunto — si un cambio toca dos cosas sin relación, son dos commits.
+- Inglés, sin trailer de co-autoría ni crédito a herramienta/IA.
+- Un commit por asunto — dos cambios sin relación son dos commits.
 
 ### Antes de dar nada por terminado
 
-`pnpm exec tsc --noEmit` tiene que pasar limpio. Si toca UI/comandos, probarlos contra un bot real cuando sea posible — la compilación no garantiza que el comando haga lo correcto en Discord.
+`pnpm exec tsc --noEmit` limpio. Si toca UI/comandos, probarlo contra un bot real — compilar no garantiza que el comando haga lo correcto en Discord.
