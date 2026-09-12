@@ -204,6 +204,13 @@
       "when": 1789219915183,
       "tag": "0028_drop_unimplemented_2fa",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1789220115727,
+      "tag": "0029_drop_unimplemented_ignore_channels",
+      "breakpoints": true
     }
   ]
 }

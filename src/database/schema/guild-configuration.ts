@@ -13,8 +13,6 @@ export const guildConfiguration = pgTable('guild_configuration', {
 
     // users/bots exempt from the protection systems
     whitelist: text('whitelist').array().notNull().default([]),
-    // channels ignored by moderation filters
-    ignoreChannels: text('ignore_channels').array().notNull().default([]),
 
     // channel logs are sent to, if any — every log is always saved regardless of this;
     // it only gates whether a live embed also goes to a channel. No separate on/off flag:
