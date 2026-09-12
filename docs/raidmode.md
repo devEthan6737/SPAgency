@@ -28,7 +28,7 @@ Ninguna de estas acciones manda DM al dueño del servidor — a diferencia de `M
 
 ## Lo que se descarta y por qué
 
-- **Contraseña propia (`raidmodePassword`)**: eliminada del schema. SP Agency ya tiene un sistema de 2FA (`guild_configuration.passwordEnable`/`password`) que bloquea comandos sensibles — inventar una segunda contraseña específica de raidmode duplicaría esa misma lógica sin aportar nada. Desactivar raidmode pasa por ese mismo 2FA, no por una contraseña aparte.
+- **Contraseña propia (`raidmodePassword`)**: eliminada del schema. Se pensó reutilizar para esto el 2FA general (`guild_configuration.passwordEnable`/`password`) que bloquearía comandos sensibles, en vez de inventar una segunda contraseña específica de raidmode — pero ese 2FA nunca llegó a implementarse (era del bot legacy, atado a comandos de prefijo; no encajaba igual con slash commands, y se descartó por ahora, ver el commit que quitó esas columnas). Hoy activar/desactivar raidmode es un simple toggle vía dashboard, sin contraseña de ningún tipo — si en el futuro se retoma algún mecanismo de doble verificación, sería el momento de revisar esto también.
 - **Activación/duración**: eso es pura configuración (`raidmodeEnable`, `raidmodeTimeToDisable`) — va a la dashboard, no a un comando de Seyfert, mismo criterio que el resto de toggles de configuración pura de esta sesión.
 
 ## Parseo de duración — `RaidmodeSystem.parseDurationMs`

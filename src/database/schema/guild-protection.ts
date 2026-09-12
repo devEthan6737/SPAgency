@@ -93,8 +93,9 @@ export const guildProtection = pgTable('guild_protection',
         // (IntelligentSosSystem), not here — too short-lived to be worth persisting.
         intelligentSosEnable: boolean('intelligent_sos_enable').notNull().default(false),
 
-        // manual lockdown (raidmode.js) — see docs/raidmode.md. Disabling it goes through the
-        // existing 2FA (guild_configuration.password*) instead of a password of its own.
+        // manual lockdown (raidmode.js) — see docs/raidmode.md. Enable/disable is a plain toggle via
+        // the dashboard, no password of its own — the legacy bot's per-server raidmode password never
+        // got a real replacement (its 2FA command was never ported, see docs/raidmode.md).
         raidmodeEnable: boolean('raidmode_enable').notNull().default(false),
         // duration new joins get temp-banned for while active, e.g. '1d' — also how long raidmode
         // itself stays on before RaidmodeExpiry turns it off automatically
