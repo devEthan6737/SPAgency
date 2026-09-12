@@ -45,7 +45,17 @@ const options = {
 
 @Options(options)
 
+/**
+ * Bans a member for a fixed duration and schedules an automatic unban.
+ * Follows the same bot/self/hierarchy checks and force-reason flow as {@link BanCommand},
+ * then persists the expiry via {@link TempbanRepository} for the background job to unban later.
+ */
 export default class TempbanCommand extends Command {
+    /**
+     * Validates the target, enforces role hierarchy (owner exempt — Discord only
+     * validates the bot's own hierarchy, never the invoker's), bans the member, and
+     * records the temp-ban expiry before confirming.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 

@@ -32,7 +32,12 @@ const options = {
 
 @Options(options)
 
+/**
+ * Removes a role from a member. Requires `ManageRoles`.
+ * Unless the invoker is the server owner, the role must sit below the invoker's highest role.
+ */
 export default class RemoveRoleSubCommand extends SubCommand {
+    /** Checks the invoker's role hierarchy against the target role, then removes it and logs the action. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const guild = await ctx.guild();
@@ -46,11 +51,12 @@ export default class RemoveRoleSubCommand extends SubCommand {
         }
 
         await guild.members.removeRole(ctx.options.member.id, ctx.options.role.id);
-        
+
         void dispatchLog(ctx.client, RemoveRoleSubCommand.log({ guildId: guild.id, targetId: ctx.options.member.id, executorId: ctx.author.id, roleId: ctx.options.role.id })).catch(() => {});
         await ctx.write({ content: ctx.t.commands.configuration.member.removeRole.done.get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording the role removal. */
     private static log({ guildId, targetId, executorId, roleId }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.RemoveRole,
@@ -63,6 +69,7 @@ export default class RemoveRoleSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link RemoveRoleSubCommand.log}. */
 interface LogInput {
     guildId: string;
     targetId: string;

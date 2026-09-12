@@ -22,7 +22,9 @@ const options = {
 
 @Options(options)
 
+/** Checks whether the invoker (or a given user) is on the UBFB blacklist and shows the entry's reason/status if so. Read-only. */
 export default class MeCommand extends Command {
+    /** Looks up the target's blacklist status and replies with either a clean message or a detail embed. */
     async run(ctx: CommandContext<typeof options>) {
         const t = ctx.t.commands.others.me;
         const targetId = ctx.options.user?.id ?? ctx.author.id;

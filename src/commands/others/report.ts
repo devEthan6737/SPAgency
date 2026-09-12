@@ -59,7 +59,9 @@ const options = {
 
 @Options(options)
 
+/** Files a UBFB blacklist report against a user with a reason and 1-3 proof links. */
 export default class ReportCommand extends Command {
+    /** Submits the report to UBFB, translating known conflict/invalid-proof API errors into user-facing messages and rethrowing anything else. */
     async run(ctx: CommandContext<typeof options>) {
         const t = ctx.t.commands.others.report;
         const { user, reason, proof, proof2, proof3 } = ctx.options;

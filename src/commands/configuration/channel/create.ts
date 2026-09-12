@@ -24,17 +24,19 @@ const options = {
 
 @Options(options)
 
+/** Creates a new text channel in the guild and logs the action. Requires `ManageChannels`. */
 export default class CreateSubCommand extends SubCommand {
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 
         const guild = await ctx.guild();
         const channel = await guild.channels.create({ name: ctx.options.name, type: ChannelType.GuildText });
-        
+
         void dispatchLog(ctx.client, CreateSubCommand.log({ guildId: guild.id, channelId: channel.id, executorId: ctx.author.id })).catch(() => {});
         await ctx.write({ content: ctx.t.commands.configuration.channel.created.get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording the channel creation. */
     private static log({ guildId, channelId, executorId }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.ChannelCreate,
@@ -46,6 +48,7 @@ export default class CreateSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link CreateSubCommand.log}. */
 interface LogInput {
     guildId: string;
     channelId: string;

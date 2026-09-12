@@ -25,7 +25,9 @@ const options = {
 
 @Options(options)
 
+/** Locks the invoking channel so only staff can send messages, by denying `SendMessages` for a role (defaults to @everyone). */
 export default class LockCommand extends Command {
+    /** Applies the `SendMessages` deny overwrite for the target role on the invoking channel and logs the action. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const guild = await ctx.guild();
@@ -39,6 +41,7 @@ export default class LockCommand extends Command {
         await ctx.write({ content: ctx.t.commands.moderation.lock.done.get() });
     }
 
+    /** Builds the `BotActionLog` entry recording the lock. */
     private static log({ guildId, roleId, executorId, channelId }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.Lock,

@@ -26,7 +26,14 @@ const options = {
 
 @Options(options)
 
+/**
+ * Unbans a user from the server by ID. No hierarchy check applies since the target
+ * isn't a guild member.
+ */
 export default class UnbanCommand extends Command {
+    /**
+     * Validates the ID looks like a snowflake, then removes the ban if one exists.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 

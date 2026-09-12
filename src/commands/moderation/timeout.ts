@@ -46,7 +46,15 @@ const options = {
 
 @Options(options)
 
+/**
+ * Times out a member for a set duration using Discord's native timeout.
+ */
 export default class TimeoutCommand extends Command {
+    /**
+     * Validates the target is a member of the guild, enforces role hierarchy (owner
+     * exempt — Discord only validates the bot's own hierarchy, never the invoker's),
+     * then applies the timeout.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 

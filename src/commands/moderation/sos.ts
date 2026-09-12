@@ -11,7 +11,16 @@ import { IntelligentSosSystem } from '../../systems/intelligent-sos/index.js';
 
 @LocalesT('commands.moderation.sos.name', 'commands.moderation.sos.description')
 
+/**
+ * Pings SPAgency staff with a fresh invite to this server, for emergencies.
+ * Manual counterpart to {@link IntelligentSosSystem.trigger} — unlike the automatic
+ * path, this has no gate or cooldown, since an admin invoking it is already a deliberate signal.
+ */
 export default class SosCommand extends Command {
+    /**
+     * Delegates to {@link IntelligentSosSystem.sendAlert} and reports which of its
+     * discriminated results occurred: sent, no staff channel configured, or no channel to invite from.
+     */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 

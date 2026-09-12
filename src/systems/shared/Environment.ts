@@ -17,6 +17,7 @@ export function getBotEnvironment(): BotEnvironment {
     return value === BotEnvironment.Testing || value === BotEnvironment.Developing ? value : BotEnvironment.Production;
 }
 
+/** Shorthand for `getBotEnvironment() === BotEnvironment.Production`. */
 export function isProduction(): boolean {
     return getBotEnvironment() === BotEnvironment.Production;
 }

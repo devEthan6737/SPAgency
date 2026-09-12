@@ -57,6 +57,7 @@ const AUDIT_LOG_EVENT_TEMPLATES: Partial<Record<AuditLogEvent, AuditLogEventTemp
     }
 };
 
+/** Input for {@link ServerEventLog}'s constructor — everything the caller already knows about the event it just detected or caused. */
 export interface ServerEventLogInput {
     type: ServerEventType;
     color: EmbedColors;
@@ -76,6 +77,10 @@ export interface ServerEventLogInput {
 export class ServerEventLog extends Log<ServerEventType, typeof serverEventLogs> {
     readonly type: ServerEventType;
 
+    /**
+     * @param guildId Server the event happened in.
+     * @param input Everything the caller already knows about the event — see {@link ServerEventLogInput}.
+     */
     constructor(
         guildId: string,
         private readonly input: ServerEventLogInput

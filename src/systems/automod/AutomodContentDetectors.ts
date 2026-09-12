@@ -3,6 +3,7 @@ export class AutomodContentDetectors {
     /** Below this many non-space characters, `isMostlyCaps` never trips — "OK", "LOL" etc. would otherwise trip it constantly on pure noise. */
     private static readonly CapsLockMinLength = 10;
 
+    /** Counts whitespace-separated words in `content`. */
     static countWords(content: string): number {
         return content.split(/\s+/).filter(Boolean).length;
     }
@@ -14,6 +15,7 @@ export class AutomodContentDetectors {
         return custom.length + unicode.length;
     }
 
+    /** Whether at least `thresholdPercent` of `content`'s letters are uppercase — always `false` under {@link AutomodContentDetectors.CapsLockMinLength} letters. */
     static isMostlyCaps(content: string, thresholdPercent: number): boolean {
         const letters = content.replace(/[^a-zA-Z]/g, '');
         if (letters.length < AutomodContentDetectors.CapsLockMinLength) return false;

@@ -12,7 +12,9 @@ import { getUbfb } from '../../systems/ubfb/client.js';
 
 @LocalesT('commands.moderation.detect.name', 'commands.moderation.detect.description')
 
+/** Scans every member of the server against the UBFB blacklist and reports matches. Read-only — bans nobody. */
 export default class DetectCommand extends Command {
+    /** Pages through the full member list (1000 at a time), checks each against the UBFB cache, and replies with matches, if any. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 

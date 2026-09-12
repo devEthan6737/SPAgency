@@ -24,6 +24,7 @@ const options = {
 
 @Options(options)
 
+/** Deletes a channel from the guild and logs the action. Requires `ManageChannels`. */
 export default class DeleteSubCommand extends SubCommand {
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
@@ -31,11 +32,12 @@ export default class DeleteSubCommand extends SubCommand {
         const guild = await ctx.guild();
         const channelId = ctx.options.channel.id;
         await guild.channels.delete(channelId);
-        
+
         void dispatchLog(ctx.client, DeleteSubCommand.log({ guildId: guild.id, channelId, executorId: ctx.author.id })).catch(() => {});
         await ctx.write({ content: ctx.t.commands.configuration.channel.deleted.get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording the channel deletion. */
     private static log({ guildId, channelId, executorId }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.ChannelDelete,
@@ -47,6 +49,7 @@ export default class DeleteSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link DeleteSubCommand.log}. */
 interface LogInput {
     guildId: string;
     channelId: string;

@@ -36,7 +36,13 @@ const options = {
 
 @Options(options)
 
+/** Bans a user by id, whether or not they are a member of the server. */
 export default class HackbanCommand extends Command {
+    /**
+     * Validates the id looks like a snowflake, rejects the bot or self, resolves a reason via
+     * `ForceReasons`, then bans by id. No invoker-vs-target hierarchy check applies here since
+     * the target need not be a member.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.moderation.hackban;
@@ -63,6 +69,7 @@ export default class HackbanCommand extends Command {
         ] });
     }
 
+    /** Builds the `BotActionLog` entry recording the ban. */
     private static log({ guildId, targetId, executorId, reason }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.Hackban,

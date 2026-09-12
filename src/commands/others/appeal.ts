@@ -9,7 +9,9 @@ import { Command, Declare, LocalesT, type CommandContext } from 'seyfert';
 
 @LocalesT('commands.others.appeal.name', 'commands.others.appeal.description')
 
+/** Tells the invoker where to go to appeal a UBFB blacklist entry. Purely informational, no side effects. */
 export default class AppealCommand extends Command {
+    /** Replies with the appeal instructions text. */
     async run(ctx: CommandContext) {
         await ctx.write({ content: ctx.t.commands.others.appeal.message.get() });
     }

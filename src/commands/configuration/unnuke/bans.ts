@@ -14,7 +14,9 @@ import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 @Cooldown.user(15 * 60_000, { group: 'unnuke' })
 
+/** Unbans every currently banned member of the guild, one by one, to undo a mass-ban raid. Logs the number removed via {@link BotActionLog}. */
 export default class BansSubCommand extends SubCommand {
+    /** Lists all current bans and removes them, then reports how many were lifted. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 
@@ -31,6 +33,7 @@ export default class BansSubCommand extends SubCommand {
         await ctx.editOrReply({ content: t.done(bans.length).get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording how many bans were lifted. */
     private static log({ guildId, executorId, removed }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.UnnukeBans,
@@ -42,6 +45,7 @@ export default class BansSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link BansSubCommand.log}. */
 interface LogInput {
     guildId: string;
     executorId: string;

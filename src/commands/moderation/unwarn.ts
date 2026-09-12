@@ -41,7 +41,14 @@ const options = {
 
 @Options(options)
 
+/**
+ * Removes one warning (by ID) or all warnings from a member's record.
+ */
 export default class UnwarnCommand extends Command {
+    /**
+     * Deletes all of the target's warnings when `all` is set; otherwise deletes the
+     * warning matching `id`. Requires one of the two options to be provided.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.moderation.unwarn;

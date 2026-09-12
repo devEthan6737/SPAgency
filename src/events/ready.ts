@@ -6,12 +6,22 @@ import { startTempbanPoller } from '../systems/tempban/poller.js';
 import { initUbfb } from '../systems/ubfb/client.js';
 import { VerificationServer } from '../systems/verification/index.js';
 
-// `ready` fires again on every fresh gateway session (not on a resume — Discord replays whatever a
-// resume missed on its own), which is exactly when a role/permission change could have happened
-// without any of us seeing the event for it. The antiraid recheck below needs that every time; the
-// rest of this is real one-time process setup, so it's gated by this flag instead of `once: true`.
+/**
+ * `true` once one-time process setup below has run. `ready` fires again on every fresh gateway
+ * session (not on a resume — Discord replays whatever a resume missed on its own), so this flag is
+ * used instead of `{ once: true }`: the antiraid recheck needs to run on every fresh session, but the
+ * rest of this is real one-time setup that must not repeat.
+ */
 let initialized = false;
 
+/**
+ * Fires on every fresh gateway session (see `initialized` above for why not just once). First-time
+ * setup (logger, UBFB client, tempban poller, `GuildConfigCache`, `VerificationServer`) runs once.
+ * Every time, it also rechecks antiraid prerequisites for every guild — the only case none of
+ * `guildRoleUpdate`/`guildRoleDelete`/`guildMemberUpdate` can cover is a change that happened while
+ * the bot was disconnected (see docs/antiraid.md section 6) — and (re)starts `RaidmodeExpiry`'s
+ * per-guild timers, which don't survive a restart.
+ */
 export default createEvent({
     data: { name: 'ready', once: false },
     async run(user, client) {
@@ -24,8 +34,7 @@ export default createEvent({
             VerificationServer.start(client);
         }
 
-        // Catches drift from while the bot was offline/disconnected — everything else runs
-        // reactively off guildRoleUpdate/guildRoleDelete/guildMemberUpdate, not on a timer.
+        // Covers drift from while offline — everything else reacts to role/member events, not a timer.
         void AntiraidSystem.recheckAllPrerequisites(client).catch((error) =>
             client.logger.error('[antiraid] Startup prerequisites check failed', error)
         );

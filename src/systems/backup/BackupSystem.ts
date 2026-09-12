@@ -5,6 +5,7 @@ import type { backups, BackupChannel, BackupEmoji, BackupSticker } from '../../d
 
 type Backup = typeof backups.$inferSelect;
 
+/** How many of each kind {@link BackupSystem.restore} actually created — everything already present by name is skipped, so these can be lower than the snapshot's totals. */
 export interface RestoreCounts {
     channels: number;
     roles: number;
@@ -22,6 +23,12 @@ export class BackupSystem {
         return Buffer.from(await response.arrayBuffer()).toString('base64');
     }
 
+    /**
+     * Takes a full snapshot of `guild`'s channels (grouped by category), roles, bans, emojis and
+     * stickers, ready to persist and later {@link BackupSystem.restore}. Emoji/sticker images are
+     * downloaded sequentially, not in parallel, to avoid hammering Discord's CDN with a burst of
+     * requests for one backup.
+     */
     static async snapshot(guild: GuildStructure<'cached' | 'api'>): Promise<BackupSnapshot> {
         const [channels, roles, bans, emojis, stickers] = await Promise.all([
             guild.channels.list(),

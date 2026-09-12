@@ -26,7 +26,15 @@ const options = {
 
 @Options(options)
 
+/**
+ * Clears a member's active timeout.
+ */
 export default class UntimeoutCommand extends Command {
+    /**
+     * Validates the target is a member of the guild, enforces role hierarchy (owner
+     * exempt — Discord only validates the bot's own hierarchy, never the invoker's),
+     * then removes the timeout.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 

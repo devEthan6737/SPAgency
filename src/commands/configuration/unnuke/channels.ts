@@ -13,7 +13,9 @@ import { UnnukeHelpers } from './shared.js';
 
 @Cooldown.user(15 * 60_000, { group: 'unnuke' })
 
+/** Deletes every guild channel that shares a name with an earlier one, to undo a raid that spammed duplicate channels. Logs the number removed via {@link BotActionLog}. */
 export default class ChannelsSubCommand extends SubCommand {
+    /** Lists all channels and delegates duplicate detection/removal to {@link UnnukeHelpers.deleteDuplicates}. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 
@@ -32,6 +34,7 @@ export default class ChannelsSubCommand extends SubCommand {
         await ctx.editOrReply({ content: t.done(removed).get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording how many duplicate channels were removed. */
     private static log({ guildId, executorId, removed }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.UnnukeChannels,
@@ -43,6 +46,7 @@ export default class ChannelsSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link ChannelsSubCommand.log}. */
 interface LogInput {
     guildId: string;
     executorId: string;

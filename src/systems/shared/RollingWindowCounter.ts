@@ -15,6 +15,7 @@ import { ExpiringMap } from './ExpiringMap.js';
 export class RollingWindowCounter {
     private entries = new ExpiringMap<string, number[]>();
 
+    /** @param windowMs Size of the rolling window, in ms, that {@link hit} counts within. */
     constructor(private readonly windowMs: number) {}
 
     /** Registers a hit for `key` and returns how many hits it has within the window, including this one. */

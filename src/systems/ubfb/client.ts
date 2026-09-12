@@ -11,6 +11,13 @@ import { UBFB } from 'ubfb';
  */
 let instance: UBFB | undefined;
 
+/**
+ * Creates and connects the shared UBFB client. Call once, from the `ready` event, once the bot's own
+ * user (and so its `name`/`avatarUrl`) is available.
+ * @param name Bot name reported to UBFB.
+ * @param avatarUrl Bot avatar reported to UBFB, if any.
+ * @returns The connected client — also stored for later retrieval via {@link getUbfb}.
+ */
 export function initUbfb(name: string, avatarUrl?: string): UBFB {
     instance = new UBFB({ name, avatarUrl });
 
@@ -22,6 +29,10 @@ export function initUbfb(name: string, avatarUrl?: string): UBFB {
     return instance;
 }
 
+/**
+ * The shared UBFB client created by {@link initUbfb}.
+ * @throws If called before {@link initUbfb} has run.
+ */
 export function getUbfb(): UBFB {
     if (!instance) throw new Error('UBFB client not initialized yet — initUbfb() must run first, from the ready event.');
     return instance;

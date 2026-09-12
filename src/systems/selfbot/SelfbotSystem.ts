@@ -17,9 +17,13 @@ import { RollingWindowCounter } from '../shared/RollingWindowCounter.js';
  * reversible kick, not a ban.
  */
 export class SelfbotSystem {
+    /** Weight for an account created more recently than `selfbotMinAccountAge`. */
     private static readonly NewAccountWeight = 2;
+    /** Weight for a member with no custom avatar set. */
     private static readonly DefaultAvatarWeight = 1;
+    /** Weight for a username matching {@link SelfbotSystem.hasSuspiciousName}. */
     private static readonly SuspiciousNameWeight = 1;
+    /** Weight for a join that's part of a burst — see {@link SelfbotSystem.isJoinBurst}. */
     private static readonly JoinBurstWeight = 2;
     /** Sum of triggered weights needed to act — e.g. a new account with a default avatar (2 + 1) alone isn't enough, but add either a suspicious name or a join burst and it is. */
     private static readonly ScoreThreshold = 3;

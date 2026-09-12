@@ -31,10 +31,12 @@ export class ExpiringMap<K, V> {
         this.entries.set(key, { value, timer });
     }
 
+    /** Current value for `key`, or `undefined` if absent or already expired. Does not affect its `ttlMs`. */
     get(key: K): V | undefined {
         return this.entries.get(key)?.value;
     }
 
+    /** Whether `key` currently has a live (unexpired) entry. */
     has(key: K): boolean {
         return this.entries.has(key);
     }

@@ -60,50 +60,65 @@ export enum SelfbotAction {
  */
 export const guildProtection = pgTable('guild_protection',
     {
+        /** Guild this protection configuration belongs to. */
         guildId: text('guild_id').primaryKey().references(() => guilds.id, { onDelete: 'cascade' }),
 
-        // main raid detector: bans on suspicious bursts of channel/role/ban/member events (antiraid.js)
+        /** Main raid detector: bans on suspicious bursts of channel/role/ban/member events (`antiraid.js`). */
         antiraidEnable: boolean('antiraid_enable').notNull().default(true),
 
-        // kicks bots on join (antibots.js)
+        /** Kicks bots on join (`antibots.js`). */
         antibotsEnable: boolean('antibots_enable').notNull().default(false),
+        /** Which bots {@link antibotsEnable} kicks. */
         antibotsType: text('antibots_type').notNull().$type<AntibotsType>().default(AntibotsType.All),
 
-        // what to do with a member SelfbotSystem scores as likely a selfbot/fake account on join —
-        // replaces the old antitokens.js (a broken username/join-count heuristic, see docs/selfbot.md)
+        /**
+         * What to do with a member `SelfbotSystem` scores as likely a selfbot/fake account on join —
+         * replaces the old `antitokens.js` (a broken username/join-count heuristic, see docs/selfbot.md).
+         */
         selfbotAction: text('selfbot_action').notNull().$type<SelfbotAction>().default(SelfbotAction.None),
-        // only the account-age signal is per-guild tunable — the rest of SelfbotSystem's weights are
-        // fixed in code, see docs/selfbot.md for why. '30d' since the duration parser has no month
-        // unit (only s/m/h/d/w) — a real calendar month is a variable length anyway, not worth it here
+        /**
+         * Only the account-age signal is per-guild tunable — the rest of `SelfbotSystem`'s weights are
+         * fixed in code, see docs/selfbot.md. Defaults to `'30d'` since the duration parser has no
+         * month unit (only s/m/h/d/w).
+         */
         selfbotMinAccountAge: text('selfbot_min_account_age').notNull().default('30d'),
 
-        // what to do when a known malicious user (per UBFB) joins — mark.js and kick-malicious.js
-        // used to be two independent booleans that could both be on at once, which makes no sense
-        // (let them in and flag them, vs. remove them, are mutually exclusive outcomes)
+        /**
+         * What to do when a known malicious user (per UBFB) joins. Replaces the legacy bot's two
+         * independent booleans (`mark.js`/`kick-malicious.js`), which made no sense as separate
+         * toggles since "let them in and flag them" and "remove them" are mutually exclusive.
+         */
         maliciousMemberAction: text('malicious_member_action').notNull().$type<MaliciousMemberAction>().default(MaliciousMemberAction.Mark),
 
-        // web-only verification (OAuth2 + captcha on SPA's own dashboard) — see docs/verification.md.
-        // No channel/type: the legacy bot's 4 in-Discord variants (message collector, buttons...) were
-        // all automatable by a selfbot in a few lines; a real Discord OAuth2 login isn't.
+        /**
+         * Web-only verification (OAuth2 + captcha on SPA's own dashboard) — see docs/verification.md.
+         * No channel/type column: the legacy bot's in-Discord variants were all automatable by a
+         * selfbot; a real Discord OAuth2 login isn't.
+         */
         verificationEnable: boolean('verification_enable').notNull().default(false),
+        /** Role granted once a member passes verification. */
         verificationRole: text('verification_role'),
 
-        // pings SP Agency staff when AntiraidSystem bans someone for a detected raid — see
-        // docs/intelligent-sos.md. The 2-minute cooldown between alerts lives in memory
-        // (IntelligentSosSystem), not here — too short-lived to be worth persisting.
+        /**
+         * Pings SP Agency staff when `AntiraidSystem` bans someone for a detected raid — see
+         * docs/intelligent-sos.md. The alert cooldown lives in memory (`IntelligentSosSystem`), not here.
+         */
         intelligentSosEnable: boolean('intelligent_sos_enable').notNull().default(false),
 
-        // manual lockdown (raidmode.js) — see docs/raidmode.md. Enable/disable is a plain toggle via
-        // the dashboard, no password of its own — the legacy bot's per-server raidmode password never
-        // got a real replacement (its 2FA command was never ported, see docs/raidmode.md).
+        /**
+         * Manual lockdown (`raidmode.js`) — see docs/raidmode.md. A plain dashboard toggle, no
+         * password of its own (the legacy bot's per-server raidmode password/2FA was never ported).
+         */
         raidmodeEnable: boolean('raidmode_enable').notNull().default(false),
-        // duration new joins get temp-banned for while active, e.g. '1d' — also how long raidmode
-        // itself stays on before RaidmodeExpiry turns it off automatically
+        /**
+         * Duration new joins get temp-banned for while raidmode is active, e.g. `'1d'` — also how
+         * long raidmode itself stays on before `RaidmodeExpiry` turns it off automatically.
+         */
         raidmodeTimeToDisable: text('raidmode_time_to_disable').notNull().default('1d'),
-        // when raidmode was turned on — null while off. A real timestamp, not epoch ms in an
-        // `integer` column: a 4-byte int overflows a millisecond `Date.now()` (13 digits) by three
-        // orders of magnitude, which the legacy schema did without anyone noticing since Mongo
-        // doesn't enforce column widths.
+        /**
+         * When raidmode was turned on, `null` while off. A real timestamp rather than epoch ms in an
+         * `integer` column, since a 4-byte int can't hold a millisecond `Date.now()`.
+         */
         raidmodeActivatedAt: timestamp('raidmode_activated_at')
     },
     (table) => [index('guild_protection_antiraid_enable_idx').on(table.antiraidEnable)]

@@ -24,7 +24,14 @@ const options = {
 
 @Options(options)
 
+/**
+ * Lists a member's recorded warnings.
+ */
 export default class WarnsCommand extends Command {
+    /**
+     * Fetches the member's warnings and renders them as an embed, or reports that
+     * there are none.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         

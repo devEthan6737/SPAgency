@@ -16,7 +16,15 @@ import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 @Cooldown.user(30 * 60_000, { group: 'backup' })
 
+/**
+ * Restores whatever is missing in the server from its saved backup (channels, roles, bans,
+ * emojis, stickers). Rate-limited to once per 30 minutes per user.
+ */
 export default class LoadSubCommand extends SubCommand {
+    /**
+     * Fetches the saved backup, optionally cleans up duplicate entities first (if the invoker
+     * confirms), then restores via `BackupSystem.restore` and reports the resulting counts.
+     */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.moderation.backup;
@@ -41,6 +49,7 @@ export default class LoadSubCommand extends SubCommand {
         await ctx.editOrReply({ content: t.restored(counts.channels, counts.roles, counts.bans, counts.emojis, counts.stickers).get() });
     }
 
+    /** Builds the `BotActionLog` entry recording the backup restore and its counts. */
     private static log({ guildId, executorId, counts }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.BackupLoad,

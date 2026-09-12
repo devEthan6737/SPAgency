@@ -32,7 +32,13 @@ const options = {
 
 @Options(options)
 
+/**
+ * Changes a member's nickname. Requires `ManageNicknames`.
+ * A member can always set their own nickname; changing someone else's requires the invoker to be
+ * the server owner or to outrank the target's highest role.
+ */
 export default class SetNicknameSubCommand extends SubCommand {
+    /** Checks the invoker/target role hierarchy (skipped for self-edits), then applies the nickname and logs the action. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const guild = await ctx.guild();
@@ -62,6 +68,7 @@ export default class SetNicknameSubCommand extends SubCommand {
         await ctx.write({ content: ctx.t.commands.configuration.member.setNickname.done.get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording the nickname change. */
     private static log({ guildId, targetId, executorId, nickname }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.SetNickname,
@@ -74,6 +81,7 @@ export default class SetNicknameSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link SetNicknameSubCommand.log}. */
 interface LogInput {
     guildId: string;
     targetId: string;

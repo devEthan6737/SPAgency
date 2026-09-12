@@ -16,4 +16,5 @@ export const isOwner = createMiddleware<undefined, CommandContext>(async ({ cont
     next();
 });
 
+/** Registry of this project's named middlewares, passed to `client.setServices({ middlewares: ... })` so commands can reference them (e.g. `middlewares: ['isOwner']`) by key. */
 export const commandMiddlewares = { isOwner };

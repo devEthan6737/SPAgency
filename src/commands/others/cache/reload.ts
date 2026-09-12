@@ -17,6 +17,7 @@ import { cacheGuildIdOption, resolveCacheGuildId } from './shared.js';
 @Options(cacheGuildIdOption)
 
 export default class ReloadSubCommand extends SubCommand {
+    /** Invalidates the target guild's cache entry and re-fetches it, replying with success or a no-row message. */
     async run(ctx: CommandContext<typeof cacheGuildIdOption>) {
         const t = ctx.t.commands.others.cache;
 

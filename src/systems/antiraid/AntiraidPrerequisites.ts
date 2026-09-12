@@ -8,6 +8,7 @@ import type { UsingClient } from 'seyfert';
  * not just once when the toggle is flipped.
  */
 export class AntiraidPrerequisites {
+    /** @returns Whether the bot in `guildId` currently has Ban Members, View Audit Log, and the highest role position in the guild — `false` (never throws) if any check fails or can't be resolved. */
     static async meets(client: UsingClient, guildId: string): Promise<boolean> {
         try {
             const me = await client.guilds.fetchSelf(guildId);

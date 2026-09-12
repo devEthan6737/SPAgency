@@ -1,6 +1,7 @@
 import type { AutocompleteInteraction, SeyfertChoice } from 'seyfert';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
 
+/** Outcome of {@link ForceReasons.resolve} — either the reason to use, or the list of reasons the guild actually allows. */
 export type ForceReasonResult = { ok: true; reason: string } | { ok: false; allowed: string[] };
 
 /**

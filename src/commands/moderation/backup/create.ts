@@ -15,7 +15,16 @@ import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 @Cooldown.user(30 * 60_000, { group: 'backup' })
 
+/**
+ * Snapshots the server (channels, roles, bans, emojis, stickers) and saves it as the guild's
+ * backup, overwriting any existing one after confirmation. Rate-limited to once per 30 minutes
+ * per user.
+ */
 export default class CreateSubCommand extends SubCommand {
+    /**
+     * Confirms overwrite if a backup already exists, takes a snapshot via `BackupSystem.snapshot`,
+     * persists it, and reports the resulting counts.
+     */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 
@@ -51,6 +60,7 @@ export default class CreateSubCommand extends SubCommand {
         });
     }
 
+    /** Builds the `BotActionLog` entry recording the backup creation and its counts. */
     private static log({ guildId, executorId, counts }: LogInput): BotActionLog {
         return new BotActionLog(guildId, {
             type: BotActionType.BackupCreate,

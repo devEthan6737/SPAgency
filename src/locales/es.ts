@@ -1,3 +1,12 @@
+/**
+ * Locale en español, servido vía `@LocalesT(...)` sobre la base en inglés que registra Discord (ver
+ * CONTRIBUTING.md, sección "Idioma").
+ *
+ * Estructura en espejo del árbol de comandos: `commands.<categoria>.<comando>.<clave>`, más un
+ * namespace `systems` para mensajes sin invocador directo (sistemas de protección, logs, automod).
+ * Los textos dinámicos son funciones `(args) => string`; los fijos, literales planos. El texto
+ * compartido entre comandos hermanos vive bajo una clave `shared` de esa categoría, no duplicado.
+ */
 export default {
     commands: {
         configuration: {

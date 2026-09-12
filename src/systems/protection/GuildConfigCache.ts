@@ -4,6 +4,7 @@ import { GuildRepository } from '../../database/repositories/guild.repository.js
 import type { AutomodFinalAction } from '../../database/schema/guild-moderation.js';
 import type { AntibotsType, MaliciousMemberAction, SelfbotAction } from '../../database/schema/guild-protection.js';
 
+/** Shape of a guild's cached settings — one field per column {@link GuildConfigCache} needs from `guild_protection`, `guild_configuration`, `guild_moderation`, and `guilds` (`language`). */
 export interface GuildSettings {
     language: string;
     antiraidEnable: boolean;

@@ -27,7 +27,9 @@ const options = {
 
 @Options(options)
 
+/** Bulk-deletes a given number of messages (1-1000) from the invoking channel. */
 export default class ClearCommand extends Command {
+    /** Purges messages in batches of up to 100 until `amount` is reached or the channel runs out, then logs the total deleted. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const channel = await ctx.channel();
@@ -51,6 +53,7 @@ export default class ClearCommand extends Command {
         await ctx.write({ content: ctx.t.commands.moderation.clear.done(deleted).get() });
     }
 
+    /** Builds the `BotActionLog` entry recording the purge. */
     private static log({ guildId, executorId, channelId, amount }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.Clear,

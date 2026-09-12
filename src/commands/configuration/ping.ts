@@ -10,7 +10,9 @@ import { db } from '../../database/connection.js';
 
 @LocalesT('commands.configuration.ping.name', 'commands.configuration.ping.description')
 
+/** Reports round-trip message latency, gateway latency, and a database round-trip latency, updating the reply as each becomes available. */
 export default class PingCommand extends Command {
+    /** Sends a placeholder reply, then edits it in with message/API latency and finally with database latency. */
     async run(ctx: CommandContext) {
         const start = Date.now();
         await ctx.write({ content: ctx.t.commands.configuration.ping.calculating.get() });

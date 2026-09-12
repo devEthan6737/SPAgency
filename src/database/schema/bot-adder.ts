@@ -13,11 +13,15 @@ import { guilds } from './guild.js';
 export const botAdders = pgTable(
     'bot_adders',
     {
+        /** Guild the bot was added to. */
         guildId: text('guild_id')
             .notNull()
             .references(() => guilds.id, { onDelete: 'cascade' }),
+        /** The added bot's user id. */
         botId: text('bot_id').notNull(),
+        /** Id of the member who added the bot. */
         executorId: text('executor_id').notNull(),
+        /** When the bot was added. */
         addedAt: timestamp('added_at').notNull().defaultNow()
     },
     (table) => [ primaryKey({ columns: [table.guildId, table.botId] }) ]

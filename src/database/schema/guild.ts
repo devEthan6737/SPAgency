@@ -9,12 +9,12 @@ import { pgTable, text } from 'drizzle-orm/pg-core';
  * see docs/antiraid.md section 2.
  */
 export const guilds = pgTable('guilds', {
-    // discord server id
+    /** Discord server id. */
     id: text('id').primaryKey(),
-    // discord user id of the server owner
+    /** Discord user id of the server owner. */
     ownerId: text('owner_id').notNull(),
-    // command prefix for this server
+    /** Command prefix for this server. */
     prefix: text('prefix').notNull().default('sp!'),
-    // language used for bot replies in this server
+    /** Language used for bot replies in this server. */
     language: text('language').notNull().default('es')
 });

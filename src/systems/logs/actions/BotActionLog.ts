@@ -2,6 +2,7 @@ import type { EmbedColors, SeyfertLocale } from 'seyfert';
 import { botActionLogs, BotActionType } from '../../../database/schema/bot-action-log.js';
 import { Log } from '../Log.js';
 
+/** Input for {@link BotActionLog}'s constructor — everything the caller already knows about the action it just performed. */
 export interface BotActionLogInput {
     type: BotActionType;
     color: EmbedColors;
@@ -22,6 +23,10 @@ export interface BotActionLogInput {
 export class BotActionLog extends Log<BotActionType, typeof botActionLogs> {
     readonly type: BotActionType;
 
+    /**
+     * @param guildId Server the action happened in.
+     * @param input Everything the caller already knows about the action — see {@link BotActionLogInput}.
+     */
     constructor(
         guildId: string,
         private readonly input: BotActionLogInput

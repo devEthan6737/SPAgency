@@ -68,7 +68,8 @@ Así está escrito todo `src/`. Si porta algo del bot legacy (`comandos/`, `even
 - Contrato de clase abstracta con **métodos** abstractos, no propiedades sobreescritas.
 - Función usada en un solo fichero → `private static` de esa clase, no función suelta. Compartida entre hermanos → clase de métodos estáticos en un fichero compartido de esa carpeta (ver `unnuke/shared.ts`), nunca duplicada.
 - `src/systems/` para subsistemas transversales; `src/middlewares/` aparte, un fichero por middleware.
-- Sin comentarios de *qué* hace el código — solo de *por qué* cuando no es obvio. Documentación de hover = JSDoc, no `//`.
+- Todo elemento exportado (clase, método público, función, interfaz, tipo) lleva JSDoc (`/** */`) — incluso cuando el nombre ya es descriptivo. Es documentación de hover para quien consuma el símbolo desde otro fichero, no una regla de "solo si hace falta".
+- Un comentario `//` de una línea es aceptable dentro de un método para el *por qué* no obvio (una restricción externa, un bug que se esquiva, una decisión no evidente) — nunca para el *qué*, que ya cubre el JSDoc o el propio nombre. Se mantiene lo más corto posible.
 - Sin `switch` para traducir un enum externo a forma propia cuando cada rama solo asigna los mismos campos: eso es una tabla (`Record<Enum, Forma>` o `Partial<...>`) + lookup y guard clause, no control de flujo. `switch`/`if` encadenado solo cuando hay comportamiento distinto de verdad.
 - Constante usada por una sola clase → `private static readonly` en PascalCase (`MaxRetries`), no módulo suelto en `SCREAMING_SNAKE_CASE`. Ese formato se reserva para constantes de módulo sin clase dueña.
 

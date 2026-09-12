@@ -36,7 +36,15 @@ const options = {
 
 @Options(options)
 
+/**
+ * Adds a warning to a member, feeding the escalation system described in docs/moderation.md.
+ */
 export default class WarnCommand extends Command {
+    /**
+     * Validates the target isn't the bot or the invoker, resolves a forced reason if
+     * one is configured for the guild, then records the warning and reports the
+     * member's new warning total.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 

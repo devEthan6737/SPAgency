@@ -26,6 +26,13 @@ const options = {
 
 @Options(options)
 
+/**
+ * Changes the server's icon from a user-supplied image URL. Requires `ManageGuild`.
+ *
+ * The URL is downloaded under an SSRF guard (see {@link SetIconSubCommand.urlToDataUri}): only
+ * `http`/`https`, resolved hosts checked against private/loopback/link-local ranges, no redirects,
+ * a fetch timeout, and a size cap enforced on the real stream rather than trusting `Content-Length`.
+ */
 export default class SetIconSubCommand extends SubCommand {
     /** True for loopback/private/link-local addresses (incl. cloud metadata hosts like 169.254.169.254). */
     private static isPrivateIp(ip: string): boolean {
@@ -51,6 +58,7 @@ export default class SetIconSubCommand extends SubCommand {
         );
     }
 
+    /** Resolves `hostname` (or uses it directly if it's already an IP) and rejects if any resolved address is private. */
     private static async assertPublicHost(hostname: string) {
         const targets = isIP(hostname) ? [hostname] : (await lookup(hostname, { all: true })).map((entry) => entry.address);
         if (targets.some(SetIconSubCommand.isPrivateIp)) throw new Error('Blocked private address.');
@@ -94,6 +102,7 @@ export default class SetIconSubCommand extends SubCommand {
         }
     }
 
+    /** Downloads the given URL as a data URI (via the SSRF-guarded {@link SetIconSubCommand.urlToDataUri}) and applies it as the guild icon. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.configuration.guild.setIcon;
@@ -113,6 +122,7 @@ export default class SetIconSubCommand extends SubCommand {
         await ctx.write({ content: t.done.get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording the icon change. */
     private static log({ guildId, executorId }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.SetIcon,
@@ -123,6 +133,7 @@ export default class SetIconSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link SetIconSubCommand.log}. */
 interface LogInput {
     guildId: string;
     executorId: string;

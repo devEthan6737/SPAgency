@@ -25,7 +25,14 @@ const options = {
 
 @Options(options)
 
+/**
+ * Restores a role's SendMessages permission on the current channel, undoing a lock.
+ */
 export default class UnlockCommand extends Command {
+    /**
+     * Edits the channel's permission overwrite for the given role (or @everyone by
+     * default) to allow sending messages again.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const guild = await ctx.guild();

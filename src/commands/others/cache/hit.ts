@@ -17,6 +17,7 @@ import { cacheGuildIdOption, resolveCacheGuildId } from './shared.js';
 @Options(cacheGuildIdOption)
 
 export default class HitSubCommand extends SubCommand {
+    /** Invalidates the target guild's cache entry, times a fresh `get()`, and replies with the elapsed round-trip in ms. */
     async run(ctx: CommandContext<typeof cacheGuildIdOption>) {
         const t = ctx.t.commands.others.cache;
 

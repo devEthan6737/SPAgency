@@ -14,8 +14,10 @@ import {
     type CommandContext
 } from 'seyfert';
 
+/** Locale accessor for this command's strings. */
 type CommandsLocale = SeyfertLocale['commands']['others']['commands'];
 
+/** Minimal shape of a command option, as needed to render it in the usage embed. */
 interface CommandOptionInfo {
     name: string;
     description: string;
@@ -50,15 +52,19 @@ const options = {
 })
 @LocalesT('commands.others.commands.name', 'commands.others.commands.description')
 @Options(options)
+/** Lists every registered command grouped by category, or looks up one command's usage by name (with autocomplete). Read-only, no side effects. */
 export default class CommandsCommand extends Command {
+    /** Type guard filtering out context-menu commands, which don't expose the fields this command displays. */
     static isCommand(value: Command | ContextMenuCommand): value is Command {
         return value instanceof Command;
     }
 
+    /** Distinguishes a plain option descriptor from a nested {@link SubCommand} entry in `command.options`. */
     private isCommandOption(value: SubCommand | CommandOptionInfo): value is CommandOptionInfo {
         return !(value instanceof SubCommand);
     }
 
+    /** Shows a single command's usage if `command` was given, otherwise the full grouped list. */
     async run(ctx: CommandContext<typeof options>) {
         const commandName = ctx.options.command;
 

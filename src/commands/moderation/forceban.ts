@@ -29,7 +29,13 @@ const options = {
 
 @Options(options)
 
+/**
+ * Bans every UBFB blacklist entry (optionally filtered by reason) from the server, whether or
+ * not they're a current member. Requires confirmation before banning, since it can affect many
+ * users at once.
+ */
 export default class ForcebanCommand extends Command {
+    /** Filters the UBFB blacklist by reason (if given), confirms with the invoker, then bans each entry and logs the outcome. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 
@@ -63,6 +69,7 @@ export default class ForcebanCommand extends Command {
         await ctx.editOrReply({ content: t.done(banned, entries.length).get() });
     }
 
+    /** Builds the `BotActionLog` entry recording how many of the matched entries were banned. */
     private static log({ guildId, executorId, banned, total }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.Forceban,

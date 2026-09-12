@@ -1,6 +1,7 @@
 import { integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { guilds } from './guild.js';
 
+/** Kind of server event recorded in `server_event_logs` — one variant per event the bot tracks. */
 export enum ServerEventType {
     ChannelCreate = 'channelCreate',
     ChannelDelete = 'channelDelete',
@@ -40,12 +41,16 @@ export enum ServerEventType {
 
 /** One row per server event (channelCreate, raidDetected, ...), never edited. */
 export const serverEventLogs = pgTable('server_event_logs', {
+    /** Row id. */
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    /** Guild the event happened in. */
     guildId: text('guild_id').notNull().references(() => guilds.id, { onDelete: 'cascade' }),
+    /** What kind of event this is. */
     type: text('type').notNull().$type<ServerEventType>(),
     /** Id of the channel/role/member the event happened to, if any. */
     targetId: text('target_id'),
     /** Extra data specific to the event type. */
     data: jsonb('data').$type<Record<string, unknown>>(),
+    /** When the event happened. */
     createdAt: timestamp('created_at').notNull().defaultNow()
 });

@@ -2,6 +2,7 @@ import { and, count, eq } from 'drizzle-orm';
 import { db } from '../connection.js';
 import { warns } from '../schema/warn.js';
 
+/** Static-method repository for the `warns` table — one row per warning issued. */
 export class WarnRepository {
     /**
      * `moderatorId` for a warning `AutomodSystem` issues on its own — no Discord user behind it, but
@@ -11,6 +12,14 @@ export class WarnRepository {
      */
     static AutomodModeratorId = 'SP Agency';
 
+    /**
+     * Creates a warning.
+     * @param guildId Guild the warning was issued in.
+     * @param userId Warned user's id.
+     * @param moderatorId Issuer's id, or {@link WarnRepository.AutomodModeratorId} for automod.
+     * @param reason Why the user was warned.
+     * @returns The created row(s).
+     */
     static create(guildId: string, userId: string, moderatorId: string, reason: string) {
         return db.insert(warns).values({ guildId, userId, moderatorId, reason }).returning();
     }
@@ -29,6 +38,11 @@ export class WarnRepository {
         return row?.total ?? 0;
     }
 
+    /**
+     * All of a user's warnings in a guild, oldest first.
+     * @param guildId Guild to look in.
+     * @param userId User whose warnings to list.
+     */
     static list(guildId: string, userId: string) {
         return db
             .select()
@@ -37,6 +51,13 @@ export class WarnRepository {
             .orderBy(warns.createdAt);
     }
 
+    /**
+     * Deletes a single warning by id, scoped to the guild and user it belongs to.
+     * @param guildId Guild the warning was issued in.
+     * @param userId Warned user's id.
+     * @param id Warning row id.
+     * @returns The deleted row(s).
+     */
     static deleteById(guildId: string, userId: string, id: number) {
         return db
             .delete(warns)
@@ -44,6 +65,12 @@ export class WarnRepository {
             .returning();
     }
 
+    /**
+     * Deletes every warning a user has in a guild.
+     * @param guildId Guild to clear warnings in.
+     * @param userId User whose warnings to delete.
+     * @returns The deleted row(s).
+     */
     static deleteAll(guildId: string, userId: string) {
         return db
             .delete(warns)

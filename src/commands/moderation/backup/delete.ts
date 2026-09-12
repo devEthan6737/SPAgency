@@ -14,7 +14,9 @@ import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 @Cooldown.user(30 * 60_000, { group: 'backup' })
 
+/** Deletes the server's saved backup, if any, after confirmation. Rate-limited to once per 30 minutes per user. */
 export default class DeleteSubCommand extends SubCommand {
+    /** Looks up the existing backup, confirms with the invoker, then deletes it and logs the action. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 
@@ -38,6 +40,7 @@ export default class DeleteSubCommand extends SubCommand {
         await ctx.editOrReply({ content: t.deleted.get() });
     }
 
+    /** Builds the `BotActionLog` entry recording the backup deletion. */
     private static log({ guildId, executorId }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.BackupDelete,

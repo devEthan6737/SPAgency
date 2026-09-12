@@ -1,3 +1,13 @@
+/**
+ * English locale — the fallback/base language Seyfert registers commands under (see
+ * `@Declare({ name, description })` in CONTRIBUTING.md's "Idioma" section).
+ *
+ * Structure mirrors the command tree 1:1: `commands.<categoria>.<comando>.<clave>`, plus a top-level
+ * `systems` namespace for messages with no direct command invoker (protection systems, logs,
+ * automod). Dynamic strings are functions `(args) => string`; fixed strings are plain literals. Text
+ * shared between sibling commands lives under a `shared` key in that category instead of being
+ * duplicated per command.
+ */
 export default {
     commands: {
         configuration: {

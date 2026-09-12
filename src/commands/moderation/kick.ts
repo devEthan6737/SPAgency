@@ -35,7 +35,17 @@ const options = {
 
 @Options(options)
 
+/**
+ * Kicks a member from the server. Enforces the not-the-bot -> not-self -> invoker-vs-target
+ * hierarchy check (owner exempt) before acting, since Discord only validates the bot's own
+ * hierarchy, never the invoker's.
+ */
 export default class KickCommand extends Command {
+    /**
+     * Rejects targeting the bot, self, or a non-member, then — unless the invoker is the guild
+     * owner — requires the invoker's highest role to outrank the target's. Resolves the reason
+     * via `ForceReasons`, DMs the target, kicks, and logs the action.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 
@@ -71,6 +81,7 @@ export default class KickCommand extends Command {
         ] });
     }
 
+    /** Builds the `BotActionLog` entry recording the kick. */
     private static log({ guildId, targetId, executorId, reason }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.Kick,

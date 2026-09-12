@@ -21,44 +21,57 @@ export enum AutomodFinalAction {
  * that, nothing read `guild_moderation` on a hot path, so staleness here didn't matter.
  */
 export const guildModeration = pgTable('guild_moderation', {
+    /** Guild this moderation configuration belongs to. */
     guildId: text('guild_id').primaryKey().references(() => guilds.id, { onDelete: 'cascade' }),
-    // preset reasons staff can pick from for mod actions (forcereason.js)
+    /** Preset reasons staff can pick from for mod actions (`forcereason.js`). */
     forceReasons: text('force_reasons').array().notNull().default([]),
 
-    // basic message-rate flood protection (antiflood.js) — moved here from guild_protection: this
-    // polices in-server chat conduct, not a join-time/structural attack, so it belongs with
-    // moderation, not protection (see docs/moderation.md). No native Discord AutoMod trigger covers
-    // message frequency, so this stays bot-side even once AutoMod handles keywords/mention-spam.
+    /**
+     * Basic message-rate flood protection (`antiflood.js`) — lives here rather than in
+     * `guild_protection` since this polices in-server chat conduct, not a join-time/structural
+     * attack (see docs/moderation.md). Stays bot-side since no native Discord AutoMod trigger covers
+     * message frequency.
+     */
     antiflood: boolean('antiflood').notNull().default(true),
 
-    // deletes webhooks that flood messages (was purge-webhooks-attacks.js) — renamed from
-    // purgeWebhooksAttacks* for consistency with antiflood, now that both live together as
-    // moderation's two flood responses. No "remember the creator" column: see docs/moderation.md for
-    // why banning a webhook's creator on repeat offense punishes the wrong person more often than not.
+    /**
+     * Deletes webhooks that flood messages (was `purge-webhooks-attacks.js`). No "remember the
+     * creator" column — see docs/moderation.md for why banning a webhook's creator on repeat offense
+     * punishes the wrong person more often than not.
+     */
     antiWebhooksFlood: boolean('anti_webhooks_flood').notNull().default(false),
 
-    // deletes the message and warns when someone @mentions and deletes it shortly after
+    /** Deletes the message and warns when someone @mentions and deletes it shortly after. */
     ghostpingEnable: boolean('ghostping_enable').notNull().default(false),
 
-    // deletes and warns when a message is mostly uppercase — only checked past a minimum length
-    // (fixed in code, see AutomodSystem) so short reactions like "OK" never trip it
+    /**
+     * Deletes and warns when a message is mostly uppercase — only checked past a minimum length
+     * (fixed in code, see `AutomodSystem`) so short reactions like "OK" never trip it.
+     */
     capsLockEnable: boolean('caps_lock_enable').notNull().default(false),
-    // percent of letters that must be uppercase to count, e.g. 70
+    /** Percent of letters that must be uppercase to count, e.g. 70. */
     capsLockThreshold: integer('caps_lock_threshold').notNull().default(70),
 
+    /** Deletes and warns when a message has too many emojis. */
     manyEmojisEnable: boolean('many_emojis_enable').notNull().default(false),
-    // emoji count (custom + unicode) a single message can have before it counts as spam
+    /** Emoji count (custom + unicode) a single message can have before it counts as spam. */
     manyEmojisThreshold: integer('many_emojis_threshold').notNull().default(8),
 
+    /** Deletes and warns when a message is too long. */
     manyWordsEnable: boolean('many_words_enable').notNull().default(false),
-    // word count a single message can have before it counts as a wall-of-text
+    /** Word count a single message can have before it counts as a wall-of-text. */
     manyWordsThreshold: integer('many_words_threshold').notNull().default(150),
 
-    // shared escalation ladder every automod detector above (plus antiflood) feeds into — see
-    // docs/moderation.md. Each violation adds one `warns` row with moderatorId 'SP Agency'; the ladder acts
-    // on that count, not on any one detector individually.
+    /**
+     * Shared escalation ladder every automod detector above (plus antiflood) feeds into — see
+     * docs/moderation.md. Each violation adds one `warns` row with `moderatorId` `'SP Agency'`; the
+     * ladder acts on that count, not on any one detector individually.
+     */
     automodMuteAt: integer('automod_mute_at').notNull().default(3),
+    /** Minutes a member stays muted once `automodMuteAt` is reached. */
     automodMuteMinutes: integer('automod_mute_minutes').notNull().default(10),
+    /** What happens once the violation count reaches {@link automodFinalActionAt}. */
     automodFinalAction: text('automod_final_action').notNull().$type<AutomodFinalAction>().default(AutomodFinalAction.None),
+    /** Violation count at which {@link automodFinalAction} triggers. */
     automodFinalActionAt: integer('automod_final_action_at').notNull().default(6)
 });

@@ -36,7 +36,18 @@ const options = {
 
 @Options(options)
 
+/**
+ * Bans a member from the server. DMs the target the reason (best-effort) before banning.
+ * Enforces the not-the-bot -> not-self -> invoker-vs-target hierarchy check (owner exempt)
+ * before acting, since Discord only validates the bot's own hierarchy, never the invoker's.
+ */
 export default class BanCommand extends Command {
+    /**
+     * Rejects targeting the bot or self, then — unless the invoker is the guild owner — requires
+     * the invoker's highest role to outrank the target's (skipped if the target isn't a member,
+     * since hierarchy doesn't apply to non-members). Resolves the reason via `ForceReasons`,
+     * DMs the target, bans, and logs the action.
+     */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.moderation.ban;
@@ -69,6 +80,7 @@ export default class BanCommand extends Command {
         ] });
     }
 
+    /** Builds the `BotActionLog` entry recording the ban. */
     private static log({ guildId, targetId, executorId, reason }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.Ban,

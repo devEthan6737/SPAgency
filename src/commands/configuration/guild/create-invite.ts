@@ -11,7 +11,12 @@ import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 
 @LocalesT('commands.configuration.guild.createInvite.name', 'commands.configuration.guild.createInvite.description')
 
+/**
+ * Creates a 24h invite for a randomly picked text channel of the guild.
+ * Requires `CreateInstantInvite`.
+ */
 export default class CreateInviteSubCommand extends SubCommand {
+    /** Picks a random text channel, creates an invite for it, and replies with the invite link. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 
@@ -25,11 +30,12 @@ export default class CreateInviteSubCommand extends SubCommand {
         if (!channel) return await ctx.write({ content: t.noChannel.get() });
 
         const invite = await channel.invites.create({ max_age: 86_400 });
-        
+
         void dispatchLog(ctx.client, CreateInviteSubCommand.log({ guildId: guild.id, channelId: channel.id, executorId: ctx.author.id, code: invite.code })).catch(() => {});
         await ctx.write({ content: t.done(`https://discord.gg/${invite.code}`).get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording the invite creation. */
     private static log({ guildId, channelId, executorId, code }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.CreateInvite,
@@ -42,6 +48,7 @@ export default class CreateInviteSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link CreateInviteSubCommand.log}. */
 interface LogInput {
     guildId: string;
     channelId: string;

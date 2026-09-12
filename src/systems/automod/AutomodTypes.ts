@@ -19,6 +19,7 @@ export enum AutomodSanction {
     Ban = 'ban'
 }
 
+/** Input for `AutomodEscalation.log` — everything needed to describe one already-decided violation. */
 export interface LogInput {
     guildId: string;
     targetId: string;
@@ -27,12 +28,14 @@ export interface LogInput {
     subCount: number;
 }
 
+/** Input for `AutomodSystem`'s private `sanction()` — a detector that tripped on a live message. */
 export interface SanctionInput {
     settings: GuildSettings;
     message: MessageStructure;
     detector: AutomodDetector;
 }
 
+/** Input for `AutomodEscalation.sanctionUser` — a confirmed violation, from any detector (own or native), about to be warned/escalated. */
 export interface SanctionUserInput {
     settings: GuildSettings;
     guildId: string;
@@ -44,6 +47,7 @@ export interface SanctionUserInput {
     mentionedUserId?: string;
 }
 
+/** Input for `AutomodEscalation.announce` — the pieces needed to render the right in-channel notice. */
 export interface AnnounceInput {
     detector: AutomodDetector;
     userId: string;

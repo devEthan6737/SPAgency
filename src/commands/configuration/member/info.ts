@@ -20,7 +20,9 @@ const options = {
 
 @Options(options)
 
+/** Shows an embed with basic information about a guild member (id, nickname, join date, roles). */
 export default class InfoSubCommand extends SubCommand {
+    /** Fetches the target member and replies with the info embed. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 

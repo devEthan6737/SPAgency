@@ -1,6 +1,12 @@
 import { createEvent, Embed, EmbedColors } from 'seyfert';
 import { GuildRepository } from '../database/repositories/guild.repository.js';
 
+/**
+ * Fires when the bot leaves or is removed from a guild. Deletes that guild's row via
+ * `GuildRepository.delete` so no config lingers for a server the bot no longer serves, then posts a
+ * notice embed to `STAFF_LOGS_CHANNEL` if configured. Discord may only hand back a partial `guild`
+ * (id only) in this event, hence the `'name' in guild` check before reading richer fields.
+ */
 export default createEvent({
     data: { name: 'guildDelete' },
     async run(guild, client) {

@@ -13,7 +13,17 @@ import { Confirmation } from '../../systems/confirmation/index.js';
 
 @LocalesT('commands.moderation.nuke.name', 'commands.moderation.nuke.description')
 
+/**
+ * Deletes and recreates the invoking text channel with the same settings, wiping its entire
+ * message history. Requires confirmation, since the channel content is unrecoverable afterward
+ * (short of a full `/backup load`).
+ */
 export default class NukeCommand extends Command {
+    /**
+     * Confirms with the invoker, then clones the channel's raw settings (name, parent, position,
+     * topic, nsfw, slowmode, permission overwrites) into a new channel, deletes the original, logs
+     * the action, and posts a confirmation message in the clone.
+     */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
         const t = ctx.t.commands.moderation.nuke;
@@ -52,6 +62,7 @@ export default class NukeCommand extends Command {
         await clone.messages.write({ content: t.done.get() });
     }
 
+    /** Builds the `BotActionLog` entry recording the nuke, keyed on the new channel's id. */
     private static log({ guildId, channelId, executorId }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.Nuke,

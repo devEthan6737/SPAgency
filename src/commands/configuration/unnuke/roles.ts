@@ -13,7 +13,9 @@ import { UnnukeHelpers } from './shared.js';
 
 @Cooldown.user(15 * 60_000, { group: 'unnuke' })
 
+/** Deletes every guild role that shares a name with an earlier one, to undo a raid that spammed duplicate roles. Logs the number removed via {@link BotActionLog}. */
 export default class RolesSubCommand extends SubCommand {
+    /** Lists all roles and delegates duplicate detection/removal to {@link UnnukeHelpers.deleteDuplicates}. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 
@@ -32,6 +34,7 @@ export default class RolesSubCommand extends SubCommand {
         await ctx.editOrReply({ content: t.done(removed).get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording how many duplicate roles were removed. */
     private static log({ guildId, executorId, removed }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.UnnukeRoles,
@@ -43,6 +46,7 @@ export default class RolesSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link RolesSubCommand.log}. */
 interface LogInput {
     guildId: string;
     executorId: string;

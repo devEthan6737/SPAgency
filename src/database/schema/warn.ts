@@ -1,17 +1,18 @@
 import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { guilds } from './guild.js';
 
+/** One row per warning issued, not per user. */
 export const warns = pgTable('warns', {
-    // one row per warning, not per user
+    /** Row id. */
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    // server this warning was issued in
+    /** Server this warning was issued in. */
     guildId: text('guild_id').notNull().references(() => guilds.id, { onDelete: 'cascade' }),
-    // the warned user's id
+    /** The warned user's id. */
     userId: text('user_id').notNull(),
-    // why the user was warned
+    /** Why the user was warned. */
     reason: text('reason').notNull(),
-    // who issued the warning
+    /** Who issued the warning — a user id, or `WarnRepository.AutomodModeratorId` for automod. */
     moderatorId: text('moderator_id').notNull(),
-    // when the warning was issued
+    /** When the warning was issued. */
     createdAt: timestamp('created_at').notNull().defaultNow()
 });

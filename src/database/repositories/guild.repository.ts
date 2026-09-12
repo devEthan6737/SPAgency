@@ -5,6 +5,7 @@ import { AutomodFinalAction, guildModeration } from '../schema/guild-moderation.
 import { type AntibotsType, type MaliciousMemberAction, type SelfbotAction, guildProtection } from '../schema/guild-protection.js';
 import { guilds } from '../schema/guild.js';
 
+/** Full per-guild configuration, joined from the four `guild*` tables. */
 export interface GuildConfig {
     core: typeof guilds.$inferSelect;
     protection: typeof guildProtection.$inferSelect;
@@ -12,6 +13,7 @@ export interface GuildConfig {
     configuration: typeof guildConfiguration.$inferSelect;
 }
 
+/** Static-method repository spanning `guilds`, `guild_protection`, `guild_moderation` and `guild_configuration`. */
 export class GuildRepository {
     /** Single-column lookup for the message prefix handler, avoids the full joined get(). */
     static async getPrefix(id: string): Promise<string | null> {
@@ -126,6 +128,11 @@ export class GuildRepository {
         return row?.forceReasons ?? [];
     }
 
+    /**
+     * Full joined configuration for a guild across all four `guild*` tables.
+     * @param id Guild id.
+     * @returns The guild's {@link GuildConfig}, or `null` if it has no row (never registered / deleted).
+     */
     static async get(id: string): Promise<GuildConfig | null> {
         const [row] = await db
             .select()
@@ -145,6 +152,13 @@ export class GuildRepository {
         };
     }
 
+    /**
+     * Returns the guild's existing configuration, or creates a fresh row (with defaults) in each of
+     * the four `guild*` tables when it doesn't have one yet.
+     * @param id Guild id.
+     * @param ownerId Discord user id of the guild owner, used only on first creation.
+     * @returns The guild's {@link GuildConfig}, existing or newly created.
+     */
     static async findOrCreate(id: string, ownerId: string): Promise<GuildConfig> {
         const existing = await GuildRepository.get(id);
         if (existing) return existing;
@@ -159,18 +173,42 @@ export class GuildRepository {
         return (await GuildRepository.get(id))!;
     }
 
+    /**
+     * Partially updates a guild's `guilds` row (id, owner, prefix, language).
+     * @param id Guild id.
+     * @param patch Columns to change.
+     * @returns The updated row(s).
+     */
     static updateCore(id: string, patch: Partial<typeof guilds.$inferInsert>) {
         return db.update(guilds).set(patch).where(eq(guilds.id, id)).returning();
     }
 
+    /**
+     * Partially updates a guild's `guild_protection` row.
+     * @param id Guild id.
+     * @param patch Columns to change.
+     * @returns The updated row(s).
+     */
     static updateProtection(id: string, patch: Partial<typeof guildProtection.$inferInsert>) {
         return db.update(guildProtection).set(patch).where(eq(guildProtection.guildId, id)).returning();
     }
 
+    /**
+     * Partially updates a guild's `guild_moderation` row.
+     * @param id Guild id.
+     * @param patch Columns to change.
+     * @returns The updated row(s).
+     */
     static updateModeration(id: string, patch: Partial<typeof guildModeration.$inferInsert>) {
         return db.update(guildModeration).set(patch).where(eq(guildModeration.guildId, id)).returning();
     }
 
+    /**
+     * Partially updates a guild's `guild_configuration` row.
+     * @param id Guild id.
+     * @param patch Columns to change.
+     * @returns The updated row(s).
+     */
     static updateConfiguration(id: string, patch: Partial<typeof guildConfiguration.$inferInsert>) {
         return db.update(guildConfiguration).set(patch).where(eq(guildConfiguration.guildId, id)).returning();
     }

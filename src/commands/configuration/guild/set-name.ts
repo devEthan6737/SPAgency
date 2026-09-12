@@ -24,17 +24,19 @@ const options = {
 
 @Options(options)
 
+/** Changes the server's name and logs the action. Requires `ManageGuild`. */
 export default class SetNameSubCommand extends SubCommand {
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 
         const guild = await ctx.guild();
         await guild.edit({ name: ctx.options.name });
-        
+
         void dispatchLog(ctx.client, SetNameSubCommand.log({ guildId: guild.id, executorId: ctx.author.id, name: ctx.options.name })).catch(() => {});
         await ctx.write({ content: ctx.t.commands.configuration.guild.setName.done.get() });
     }
 
+    /** Builds the {@link BotActionLog} entry recording the name change. */
     private static log({ guildId, executorId, name }: LogInput) {
         return new BotActionLog(guildId, {
             type: BotActionType.SetName,
@@ -46,6 +48,7 @@ export default class SetNameSubCommand extends SubCommand {
     }
 }
 
+/** Input for {@link SetNameSubCommand.log}. */
 interface LogInput {
     guildId: string;
     executorId: string;

@@ -18,6 +18,7 @@ import { AutoLoad, Command, Declare, LocalesT, type CommandContext } from 'seyfe
 @AutoLoad()
 
 export default class CacheCommand extends Command {
+    /** Replies with the parent command's usage text; invoked when `/cache` is run without a subcommand. */
     async run(ctx: CommandContext) {
         await ctx.write({ content: ctx.t.commands.others.cache.usage.get() });
     }

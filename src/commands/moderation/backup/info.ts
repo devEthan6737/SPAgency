@@ -8,7 +8,9 @@ import { BackupRepository } from '../../../database/repositories/backup.reposito
 
 @LocalesT('commands.moderation.backup.info.name', 'commands.moderation.backup.info.description')
 
+/** Shows the server's saved backup, if any: channel/role/ban/emoji/sticker counts and creation date. */
 export default class InfoSubCommand extends SubCommand {
+    /** Fetches the saved backup and replies with its summary, or a "no backup" message if none exists. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
 

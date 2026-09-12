@@ -1,7 +1,11 @@
 import { createEvent } from 'seyfert';
 import { AntiraidSystem } from '../systems/antiraid/index.js';
 
-/** A role's position or permissions changed — either could break the antiraid prerequisites (see docs/antiraid.md section 6), so re-check regardless of which role it was. */
+/**
+ * Fires when a role's position or permissions change. Either could break the antiraid prerequisites
+ * (Ban Members, View Audit Log, top-of-hierarchy role — see docs/antiraid.md section 6), so this
+ * rechecks them regardless of which role was touched, rather than filtering to the bot's own role.
+ */
 export default createEvent({
     data: { name: 'guildRoleUpdate' },
     async run([role], client) {

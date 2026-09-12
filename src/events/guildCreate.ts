@@ -1,6 +1,11 @@
 import { createEvent, Embed, EmbedColors } from 'seyfert';
 import { GuildRepository } from '../database/repositories/guild.repository.js';
 
+/**
+ * Fires when the bot joins a new guild. Ensures a `guild_configuration`/`guild_protection` row exists
+ * for it (`GuildRepository.findOrCreate`) so every config lookup elsewhere can assume one, then posts
+ * a notice embed to `STAFF_LOGS_CHANNEL` if that env var is configured — silently skipped otherwise.
+ */
 export default createEvent({
     data: { name: 'guildCreate' },
     async run(guild, client) {

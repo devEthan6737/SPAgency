@@ -8,9 +8,11 @@ import { GuildConfigCache } from '../protection/index.js';
 import { AntiraidPrerequisites } from './AntiraidPrerequisites.js';
 import { BurstTracker } from './BurstTracker.js';
 
+/** Input for {@link AntiraidSystem.detect} — one flagged audit log entry. */
 export interface AntiraidDetectOptions {
     client: UsingClient;
     guildId: string;
+    /** Who performed the flagged action, straight off the audit log entry. */
     executorId: string;
     /** How much this action counts toward the burst threshold — see {@link AntiraidSystem.weightFor}. Defaults to 1. */
     weight?: number;

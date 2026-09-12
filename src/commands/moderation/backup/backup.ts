@@ -14,7 +14,12 @@ import { AutoLoad, Command, Declare, LocalesT, Middlewares, type CommandContext 
 
 @AutoLoad()
 
+/**
+ * Parent command for the `backup` subcommands (`create`, `info`, `load`, `delete`), auto-loaded
+ * from this folder via `@AutoLoad()`. Owner-only (`isOwner` middleware), requires Administrator.
+ */
 export default class BackupCommand extends Command {
+    /** Usage fallback shown when the command is invoked without a subcommand. */
     async run(ctx: CommandContext) {
         await ctx.write({ content: ctx.t.commands.moderation.backup.usage.get() });
     }

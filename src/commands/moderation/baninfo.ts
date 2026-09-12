@@ -23,7 +23,9 @@ const options = {
 
 @Options(options)
 
+/** Looks up and displays the details of an existing server ban for the given user. */
 export default class BaninfoCommand extends Command {
+    /** Fetches the ban by user id and replies with its reason, or a "not banned" message if none exists. */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
 

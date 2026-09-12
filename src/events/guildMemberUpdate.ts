@@ -1,7 +1,12 @@
 import { createEvent } from 'seyfert';
 import { AntiraidSystem } from '../systems/antiraid/index.js';
 
-/** A member's roles changed — only the bot's own matter for the antiraid prerequisites (see docs/antiraid.md section 6), everyone else is a no-op. */
+/**
+ * Fires when a member's roles or other guild-level attributes change. Only the bot's own update
+ * matters here — a role move/permission change on the bot itself can silently break the antiraid
+ * prerequisites (Ban Members, View Audit Log, top-of-hierarchy role — see docs/antiraid.md section 6),
+ * so it triggers an immediate `recheckPrerequisites` instead of waiting on a timer. Anyone else is a no-op.
+ */
 export default createEvent({
     data: { name: 'guildMemberUpdate' },
     async run([member], client) {

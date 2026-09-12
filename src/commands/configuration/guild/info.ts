@@ -7,7 +7,9 @@ import { Declare, Embed, EmbedColors, LocalesT, SubCommand, type CommandContext 
 
 @LocalesT('commands.configuration.guild.info.name', 'commands.configuration.guild.info.description')
 
+/** Shows an embed with basic information about the current server (id, owner, creation date, verification level, boosts). */
 export default class InfoSubCommand extends SubCommand {
+    /** Fetches the guild and replies with the info embed. */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
         

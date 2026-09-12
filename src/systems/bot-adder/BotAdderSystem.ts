@@ -31,6 +31,7 @@ export class BotAdderSystem {
         return BotAdderRepository.delete(guildId, botId);
     }
 
+    /** Bans whoever added `botId`, if a live-tracked record exists — a no-op otherwise (no fallback to Discord's own audit log, see docs/bot-adder.md). Skips the bot's own account and the case where the recorded adder is no longer resolvable. */
     static async enforce(client: UsingClient, guildId: string, botId: string, source: RaidBotSource): Promise<void> {
         const executorId = await BotAdderRepository.findAdder(guildId, botId);
         if (!executorId || executorId === client.botId) return;

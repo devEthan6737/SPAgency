@@ -11,7 +11,9 @@ import { cacheGuildIdOption, resolveCacheGuildId } from './shared.js';
 
 @Options(cacheGuildIdOption)
 
+/** Reads a guild's `GuildConfigCache` entry via {@link GuildConfigCache.peek} — a passive read that never triggers a database query. */
 export default class InfoSubCommand extends SubCommand {
+    /** Replies with the cached entry as pretty-printed JSON, or a not-cached message if there is none. */
     async run(ctx: CommandContext<typeof cacheGuildIdOption>) {
         const t = ctx.t.commands.others.cache;
 
