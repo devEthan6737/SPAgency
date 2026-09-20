@@ -456,6 +456,14 @@ export default {
             automaticAlert: (guildName: string, guildId: string, invite: string, reason: string) =>
                 `@everyone 🆘 **S.O.S. automático** de \`${guildName}\` (${guildId})!\n**Motivo:** ${reason}\n${invite}`
         },
+        support: {
+            opening: {
+                title: (subject: string) => `🎫 ${subject}`,
+                description: (userId: string, username: string) =>
+                    `Ticket abierto desde la web por <@${userId}> (**${username}**, \`${userId}\`).\nEl staff responde escribiendo en este canal. Los mensajes que empiezan por \`//\` son notas internas: no llegan al usuario.`,
+                closeButton: 'Cerrar ticket'
+            }
+        },
         verification: {
             dm: (link: string) => `👋 ¡Bienvenido! Para acceder a este servidor, verifícate aquí:\n${link}\n\nEste enlace caduca en 15 minutos.`
         },

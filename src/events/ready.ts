@@ -5,6 +5,7 @@ import { GuildConfigCache } from '../systems/protection/index.js';
 import { RaidmodeExpiry } from '../systems/raidmode/index.js';
 import { startTempbanPoller } from '../systems/tempban/poller.js';
 import { initUbfb } from '../systems/ubfb/client.js';
+import { SupportApi, SupportSystem } from '../systems/support/index.js';
 import { VerificationApi } from '../systems/verification/index.js';
 
 /**
@@ -32,13 +33,16 @@ export default createEvent({
             initUbfb(user.username, user.avatarURL());
             startTempbanPoller(client);
             GuildConfigCache.start(client);
-            ApiServer.start(client, [VerificationApi]);
+            ApiServer.start(client, [VerificationApi, SupportApi]);
         }
 
         // Covers drift from while offline — everything else reacts to role/member events, not a timer.
         void AntiraidSystem.recheckAllPrerequisites(client).catch((error) =>
             client.logger.error('[antiraid] Startup prerequisites check failed', error)
         );
+
+        // The index is rebuilt on every fresh session, not just the first: a ticket channel deleted while the gateway was down never fires `channelDelete`.
+        void SupportSystem.start(client);
 
         RaidmodeExpiry.start(client);
     }

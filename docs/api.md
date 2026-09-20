@@ -13,6 +13,7 @@ Un `ApiModule` es `{ prefix, handle(client, request) }`; en este repo son clases
 | Módulo | Prefijo | Clave | Doc |
 | :----- | :------ | :---- | :-- |
 | `VerificationApi` | `/verify` | `VERIFICATION_API_KEY` | [verification.md](verification.md) |
+| `SupportApi` | `/support` | `SUPPORT_API_KEY` | [support.md](support.md) |
 
 ## Convenciones
 

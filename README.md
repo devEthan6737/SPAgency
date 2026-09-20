@@ -12,6 +12,7 @@ Bot de Discord enfocado en la seguridad de servidores, construido sobre [Seyfert
 - **Automod** — flood, ghostping, caps lock, exceso de emojis/palabras, más lo que ya bloquea el AutoMod nativo de Discord. Ver [`docs/moderation.md`](docs/moderation.md).
 - **Bot-adder** — banea a quien añadió un bot que resultó ser un raider. Ver [`docs/bot-adder.md`](docs/bot-adder.md).
 - **Verificación** — OAuth2 + captcha vía dashboard web. Ver [`docs/verification.md`](docs/verification.md).
+- **Soporte** — tickets web ↔ Discord: cada ticket es un canal del servidor de soporte. Ver [`docs/support.md`](docs/support.md).
 - **SOS al staff** — aviso manual o automático al staff de SPAgency. Ver [`docs/intelligent-sos.md`](docs/intelligent-sos.md).
 - **Logs** — registro de seguridad de dos tipos (acciones pedidas por comando vs. eventos automáticos). Ver [`docs/logs.md`](docs/logs.md).
 
