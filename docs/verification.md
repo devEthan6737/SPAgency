@@ -1,6 +1,6 @@
-# Verificación — `VerificationSystem` / `VerificationServer`
+# Verificación — `VerificationSystem` / `VerificationApi`
 
-**Ficheros:** [`src/systems/verification/VerificationSystem.ts`](../src/systems/verification/VerificationSystem.ts), [`src/systems/verification/VerificationServer.ts`](../src/systems/verification/VerificationServer.ts), [`src/events/guildMemberAdd.ts`](../src/events/guildMemberAdd.ts)
+**Ficheros:** [`src/systems/verification/VerificationSystem.ts`](../src/systems/verification/VerificationSystem.ts), [`src/systems/verification/VerificationApi.ts`](../src/systems/verification/VerificationApi.ts), [`src/events/guildMemberAdd.ts`](../src/events/guildMemberAdd.ts)
 
 Solo por web — OAuth2 de Discord + captcha en el dashboard, fuera de este repo. Sustituye a las 4 variantes del legacy (mensaje pasivo, código por chat, botón, "automática" vía `antitokens`): las tres primeras las automatiza un selfbot en pocas líneas; un login OAuth2 real, no.
 
@@ -35,9 +35,9 @@ token   = "<payload>.<firma>"
 - Comparación de firma en tiempo constante (`timingSafeEqual`).
 - **El rol se lee al conceder, no del token** — el payload solo lleva `guildId`/`userId`; si un admin cambia `verificationRole` después de emitido el token, se aplica el rol correcto igualmente.
 
-## `VerificationServer` — la API REST
+## `VerificationApi` — la API REST
 
-`node:http` puro, sin framework (dos rutas, sin cuerpo que parsear). Solo `127.0.0.1` (bot y dashboard comparten VPS).
+Módulo de [`ApiServer`](api.md) montado en `/verify/*`: dos rutas, sin cuerpo que parsear. Autenticación con `VERIFICATION_API_KEY`.
 
 **`GET /verify/:token`** — al abrir el enlace.
 - `200 { guildId, userId }` — válido.
@@ -56,7 +56,7 @@ token   = "<payload>.<firma>"
 - `VERIFICATION_SECRET` — firma tokens, nunca se comparte.
 - `VERIFICATION_API_KEY` — autentica al dashboard, nunca se expone al navegador.
 - `VERIFICATION_WEB_URL` — base del enlace en el DM.
-- `VERIFICATION_SERVER_PORT` — puerto de la API (default `4501`), solo VPS.
+- `VERIFICATION_SERVER_PORT` — puerto del servidor HTTP compartido (default `4501`), ver [api.md](api.md).
 
 ## Dónde encaja en `guildMemberAdd.ts`
 

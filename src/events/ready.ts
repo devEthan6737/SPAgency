@@ -1,10 +1,11 @@
 import { createEvent } from 'seyfert';
+import { ApiServer } from '../systems/api/index.js';
 import { AntiraidSystem } from '../systems/antiraid/index.js';
 import { GuildConfigCache } from '../systems/protection/index.js';
 import { RaidmodeExpiry } from '../systems/raidmode/index.js';
 import { startTempbanPoller } from '../systems/tempban/poller.js';
 import { initUbfb } from '../systems/ubfb/client.js';
-import { VerificationServer } from '../systems/verification/index.js';
+import { VerificationApi } from '../systems/verification/index.js';
 
 /**
  * `true` once one-time process setup below has run. `ready` fires again on every fresh gateway
@@ -16,7 +17,7 @@ let initialized = false;
 
 /**
  * Fires on every fresh gateway session (see `initialized` above for why not just once). First-time
- * setup (logger, UBFB client, tempban poller, `GuildConfigCache`, `VerificationServer`) runs once.
+ * setup (logger, UBFB client, tempban poller, `GuildConfigCache`, `ApiServer`) runs once.
  * Every time, it also rechecks antiraid prerequisites for every guild — the only case none of
  * `guildRoleUpdate`/`guildRoleDelete`/`guildMemberUpdate` can cover is a change that happened while
  * the bot was disconnected (see docs/antiraid.md section 6) — and (re)starts `RaidmodeExpiry`'s
@@ -31,7 +32,7 @@ export default createEvent({
             initUbfb(user.username, user.avatarURL());
             startTempbanPoller(client);
             GuildConfigCache.start(client);
-            VerificationServer.start(client);
+            ApiServer.start(client, [VerificationApi]);
         }
 
         // Covers drift from while offline — everything else reacts to role/member events, not a timer.

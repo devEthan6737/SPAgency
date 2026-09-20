@@ -23,7 +23,7 @@ export type GrantRoleResult = 'granted' | 'notConfigured' | 'failed';
  * docs/verification.md for the full design and the API contract the dashboard has to implement
  * against. This class owns everything the bot side needs: issuing/validating the signed token that
  * proves a (guild, user) pair without any database round-trip, and granting the configured role once
- * the dashboard confirms a successful verification via {@link VerificationServer}.
+ * the dashboard confirms a successful verification via {@link VerificationApi}.
  *
  * The signing secret (`VERIFICATION_SECRET`) never leaves this process — the dashboard doesn't decode
  * the token itself, it asks the bot's HTTP API to do it. That's the whole point: the bot stays the
@@ -78,12 +78,12 @@ export class VerificationSystem {
     }
 
     /**
-     * Verifies a token's signature and expiry — the sole gate `VerificationServer` relies on for
+     * Verifies a token's signature and expiry — the sole gate `VerificationApi` relies on for
      * both of its routes, since the bot never persists which tokens it issued.
      * @param token Token as received from the URL (`GET /verify/:token`, `POST /verify/:token/complete`).
      * @returns The decoded `(guildId, userId)` pair if the token is genuine and unexpired, or `null`
      * for anything wrong with it (bad shape, forged signature, expired) — deliberately one
-     * undifferentiated failure case for the caller, since `VerificationServer` only needs to know
+     * undifferentiated failure case for the caller, since `VerificationApi` only needs to know
      * valid-or-not to decide its HTTP response.
      */
     static verifyToken(token: string): VerificationTokenPayload | null {
@@ -111,7 +111,7 @@ export class VerificationSystem {
     /**
      * Grants the guild's currently configured `verificationRole` — read fresh from
      * `GuildConfigCache`, not embedded in the token, so an admin changing the role after the token
-     * was issued still gets honored correctly. Called by `VerificationServer` once the dashboard
+     * was issued still gets honored correctly. Called by `VerificationApi` once the dashboard
      * confirms `(guildId, userId)` completed OAuth2 + captcha.
      * @param client Bot client, used to grant the role and log a failure.
      * @param guildId From the verified token payload — never take this from an untrusted source.

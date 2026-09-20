@@ -1,2 +1,2 @@
-export * from './VerificationServer.js';
+export * from './VerificationApi.js';
 export * from './VerificationSystem.js';
