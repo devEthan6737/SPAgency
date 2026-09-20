@@ -44,7 +44,7 @@ export class SupportPosts {
         const embed = new Embed()
             .setColor(EmbedColors.Green)
             .setAuthor({ name: username, ...(avatarUrl && { iconUrl: avatarUrl }) })
-            .setDescription(content.replace(/@(everyone|here)/gi, '@​$1'))
+            .setDescription(content.replace(/@(everyone|here)/gi, '@\u200B$1'))
             .setFooter({ text: SupportPosts.WebFooter });
 
         return { embeds: [embed], allowed_mentions: { parse: [] } };

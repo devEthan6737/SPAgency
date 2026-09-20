@@ -1,5 +1,6 @@
 import { createEvent } from 'seyfert';
 import { AntiWebhooksFloodSystem, AutomodSystem } from '../systems/automod/index.js';
+import { SupportSystem } from '../systems/support/index.js';
 
 /**
  * A webhook message and a member message never both apply to the same event, so this splits cleanly
@@ -11,6 +12,8 @@ import { AntiWebhooksFloodSystem, AutomodSystem } from '../systems/automod/index
 export default createEvent({
     data: { name: 'messageCreate' },
     async run(message, client) {
+        if (SupportSystem.isTicketChannel(message.channelId)) return await SupportSystem.ingest(client, message);
+
         AutomodSystem.trackForGhostping(message);
 
         if (message.webhookId) {

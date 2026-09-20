@@ -28,9 +28,14 @@ export class SupportApi {
 
         const { method, segments } = request;
 
-        if (segments.length === 1 && segments[0] === 'tickets') {
-            if (method === 'POST') return await SupportApi.create(client, settings, request);
-            if (method === 'GET') return SupportApi.list(request);
+        if (segments[0] === 'tickets') {
+            if (segments.length === 1 && method === 'POST') return await SupportApi.create(client, settings, request);
+            if (segments.length === 1 && method === 'GET') return SupportApi.list(request);
+
+            if (segments.length === 3 && segments[2] === 'messages') {
+                if (method === 'GET') return await SupportApi.messages(client, settings, request);
+                if (method === 'POST') return await SupportApi.send(client, request);
+            }
         }
 
         return reply(404, { error: 'not_found' });
@@ -57,6 +62,52 @@ export class SupportApi {
         if (!userId || !SupportApi.UserIdPattern.test(userId)) throw new ApiError(400, 'invalid_body');
 
         return reply(200, { tickets: SupportSystem.listOpen(userId).map(SupportApi.serialize) });
+    }
+
+    /**
+     * `GET /support/tickets/:ticketId/messages?userId=&after=` — the messages newer than the cursor,
+     * at most 50 in ascending order; the web calls again with the last `id` if it got a full batch.
+     * A ticket that is closing still answers `200`: `404` would send the user to a transcript the web doesn't have yet.
+     */
+    private static async messages(client: UsingClient, settings: SupportSettings, { segments, query }: ApiRequest): Promise<ApiResponse> {
+        const ticket = SupportApi.ownedTicket(segments[1], query.get('userId'));
+
+        const after = query.get('after') ?? undefined;
+        if (after !== undefined && !/^\d{1,25}$/.test(after)) throw new ApiError(400, 'invalid_body');
+
+        return reply(200, { messages: await SupportSystem.messages(client, settings, ticket, after, 50) });
+    }
+
+    /** `POST /support/tickets/:ticketId/messages` — publishes what the user wrote on the web into the channel. */
+    private static async send(client: UsingClient, request: ApiRequest): Promise<ApiResponse> {
+        const body = await request.json();
+        const { userId, content } = typeof body === 'object' && body !== null ? (body as Record<string, unknown>) : {};
+
+        const ticket = SupportApi.ownedTicket(request.segments[1], userId);
+        const text = typeof content === 'string' ? content.trim() : '';
+        if (!text || text.length > 2000) throw new ApiError(400, 'invalid_body');
+
+        const result = await SupportSystem.sendUserMessage(client, ticket, text);
+        if (result.ok) return reply(200, { id: result.id });
+
+        // The contract has no code for these: a closing ticket is not `404` (the transcript isn't ready), and nothing else fits a Discord failure.
+        if (result.reason === 'closing') return reply(409, { error: 'closing' });
+        if (result.reason === 'cooldown') return reply(429, { error: 'cooldown' });
+
+        return reply(502, { error: 'send_failed' });
+    }
+
+    /**
+     * Finds a ticket and checks it belongs to `userId` — the ownership check every ticket route makes.
+     * @throws {ApiError} `400` for a malformed `userId`, `404` if the ticket doesn't exist or isn't theirs — deliberately indistinguishable.
+     */
+    private static ownedTicket(ticketId: string, userId: unknown): SupportTicket {
+        if (typeof userId !== 'string' || !SupportApi.UserIdPattern.test(userId)) throw new ApiError(400, 'invalid_body');
+
+        const ticket = SupportTicketIndex.get(ticketId);
+        if (!ticket || ticket.userId !== userId) throw new ApiError(404, 'not_found');
+
+        return ticket;
     }
 
     /** A ticket as the web sees it — no channel id, that's the bot's business. */

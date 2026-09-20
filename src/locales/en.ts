@@ -462,6 +462,12 @@ export default {
                 description: (userId: string, username: string) =>
                     `Ticket opened from the web by <@${userId}> (**${username}**, \`${userId}\`).\nStaff reply by writing in this channel. Messages starting with \`//\` are internal notes: they never reach the user.`,
                 closeButton: 'Close ticket'
+            },
+            message: {
+                attachment: '[attachment not available on the web]',
+                unknownUser: 'user',
+                unknownRole: 'role',
+                unknownChannel: 'channel'
             }
         },
         verification: {

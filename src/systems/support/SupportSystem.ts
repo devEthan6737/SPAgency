@@ -2,7 +2,10 @@ import { randomBytes } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { ChannelType, OverwriteType, PermissionFlagsBits, SeyfertError, type UsingClient } from 'seyfert';
 import { ExpiringMap } from '../shared/ExpiringMap.js';
+import type { MessageStructure } from 'seyfert';
 import { SupportConfig, type SupportSettings } from './SupportConfig.js';
+import { SupportMessageBuffer } from './SupportMessageBuffer.js';
+import { SupportMessages, type SupportMessage } from './SupportMessages.js';
 import { SupportPosts } from './SupportPosts.js';
 import { SupportTicketChannel, type SupportTicket } from './SupportTicket.js';
 import { SupportTicketIndex } from './SupportTicketIndex.js';
@@ -19,11 +22,15 @@ export interface CreateTicketInput {
 /** `tooManyOpen` and `cooldown` are the user's doing; `full` and `failed` are ours (the category is at Discord's limit, or a Discord call failed). */
 export type CreateTicketResult = { ok: true; ticket: SupportTicket } | { ok: false; reason: 'tooManyOpen' | 'cooldown' | 'full' | 'failed' };
 
+/** `closing` and `cooldown` are the ticket's or the user's state; `failed` is Discord refusing the write. */
+export type SendMessageResult = { ok: true; id: string } | { ok: false; reason: 'closing' | 'cooldown' | 'failed' };
+
 /** Orchestrates a ticket's life on the Discord side — see docs/support.md. */
 export class SupportSystem {
     /** Users whose channel is being created right now — makes two quick clicks one ticket, not two. */
     private static creating = new Set<string>();
     private static cooldowns = new ExpiringMap<string, true>();
+    private static messageCooldowns = new ExpiringMap<string, true>();
 
     /**
      * Brings the support system up on a fresh gateway session: warns if the feature isn't fully
@@ -104,6 +111,68 @@ export class SupportSystem {
             return { ok: true, ticket };
         } finally {
             SupportSystem.creating.delete(userId);
+        }
+    }
+
+    /** Whether a channel is one of the open tickets — `messageCreate` uses this to keep them away from automod. */
+    static isTicketChannel(channelId: string): boolean {
+        return SupportTicketIndex.getByChannel(channelId) !== undefined;
+    }
+
+    /**
+     * Web-visible messages of a ticket after a cursor, oldest first — from the buffer when it reaches
+     * that far back, from the channel's history otherwise.
+     * @param client Bot client.
+     * @param settings Support settings.
+     * @param ticket The ticket to read.
+     * @param after Message id to start after; without one, from the beginning.
+     * @param limit Most messages to return.
+     */
+    static messages(client: UsingClient, settings: SupportSettings, ticket: SupportTicket, after: string | undefined, limit: number): Promise<SupportMessage[]> {
+        return SupportMessageBuffer.read(client, settings, ticket, after, limit);
+    }
+
+    /**
+     * Feeds a live message from a ticket channel into the buffer. Errors are logged, never thrown —
+     * this runs from the gateway event, where nobody is waiting on it.
+     * @param client Bot client.
+     * @param message The message that was just created.
+     */
+    static async ingest(client: UsingClient, message: MessageStructure): Promise<void> {
+        const settings = SupportConfig.get();
+        if (!settings) return;
+
+        try {
+            const normalized = await SupportMessages.normalize(client, settings, message);
+            if (normalized && normalized.author !== 'note') SupportMessageBuffer.push(message.channelId, normalized);
+        } catch (error) {
+            client.logger.error('[support] Reading a ticket message failed', error);
+        }
+    }
+
+    /**
+     * Posts a message the user wrote on the web into their ticket's channel, as an embed carrying
+     * their name and avatar. The web only sends the user id, so the name and avatar are looked up
+     * (cache first) — if that fails, the message still goes out under a generic name.
+     * @param client Bot client.
+     * @param ticket The user's ticket.
+     * @param content The message text, already length-checked.
+     */
+    static async sendUserMessage(client: UsingClient, ticket: SupportTicket, content: string): Promise<SendMessageResult> {
+        if (ticket.state === 'closing') return { ok: false, reason: 'closing' };
+        if (SupportSystem.messageCooldowns.has(ticket.userId)) return { ok: false, reason: 'cooldown' };
+        // Set before the writes below, so a burst of requests trips it instead of all slipping past.
+        SupportSystem.messageCooldowns.set(ticket.userId, true, 2_000);
+
+        try {
+            const user = await client.users.fetch(ticket.userId).catch(() => null);
+            const author = { username: user ? (user.globalName ?? user.username) : client.t('es').systems.support.message.unknownUser.get(), avatarUrl: user?.avatarURL() ?? null };
+
+            const sent = await client.messages.write(ticket.channelId, SupportPosts.userMessage(author, content));
+            return { ok: true, id: sent.id };
+        } catch (error) {
+            client.logger.error('[support] Posting a user message failed', error);
+            return { ok: false, reason: 'failed' };
         }
     }
 
