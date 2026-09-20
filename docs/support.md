@@ -86,13 +86,13 @@ Todo por variables de entorno (en desarrollo se cargan del `.env` vía `dotenv`;
 
 | Variable | Para qué |
 | :------- | :------- |
-| `SUPPORT_API_KEY` | autentica a la web contra `/support/*` |
-| `SUPPORT_WEB_API_KEY`, `SUPPORT_WEB_URL` | el bot contra la web, al empujar transcripts |
+| `INTERNAL_API_KEY` | clave compartida con la web, en ambos sentidos: la web contra `/support/*` y el bot contra la web al empujar transcripts |
+| `WEB_URL` | base de la web, para esas llamadas del bot |
 | `SUPPORT_GUILD_ID`, `SUPPORT_CATEGORY_ID` | dónde viven los tickets |
 | `SUPPORT_STAFF_ROLE_ID` | rol que ve y responde |
 | `SUPPORT_TRANSCRIPTS_CHANNEL_ID` | canal con las copias del staff |
 
-**Si falta cualquiera, el soporte queda desactivado**: aviso en el arranque (`[support] Disabled — missing …`) y `503 support_unavailable` en las rutas — nunca un fallo al arrancar. Se exigen también las de transcript aunque todavía no se usen, para no aceptar tickets que luego no se podrían cerrar. La comprobación de la clave va antes que la de configuración: quien no está autenticado no puede saber si el soporte está activo.
+**Si falta cualquiera, el soporte queda desactivado**: aviso en el arranque (`[support] Disabled — missing …`) y `503 support_unavailable` en las rutas — nunca un fallo al arrancar. `INTERNAL_API_KEY` y `WEB_URL` cuentan como requeridas (sin ellas el bot no podría entregar transcripts); se exigen también las de transcript aunque todavía no se usen, para no aceptar tickets que luego no se podrían cerrar. La comprobación de la clave va antes que la de configuración: quien no está autenticado no puede saber si el soporte está activo.
 
 **Permisos del bot en la categoría:** ver canales, gestionar canales, enviar mensajes, insertar enlaces, adjuntar archivos y leer el historial. Los overwrites del canal solo se aceptan si el bot ya tiene esos permisos.
 

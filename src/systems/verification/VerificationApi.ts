@@ -21,7 +21,7 @@ export class VerificationApi {
         // POST /verify/:token/complete
         if (method === 'POST' && segments.length === 2 && segments[1] === 'complete') {
             // Checked before the token so an unauthenticated caller can't tell valid tokens from invalid ones.
-            if (!ApiAuth.isAuthorized(headers, 'VERIFICATION_API_KEY')) return reply(401, { error: 'unauthorized' });
+            if (!ApiAuth.isAuthorized(headers)) return reply(401, { error: 'unauthorized' });
 
             return await VerificationApi.complete(client, segments[0]);
         }

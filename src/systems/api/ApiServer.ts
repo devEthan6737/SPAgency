@@ -5,7 +5,7 @@ import { ApiError, reply, type ApiModule, type ApiRequest, type ApiResponse } fr
 /**
  * The bot's single HTTP server for the dashboard/web — see docs/api.md. Just `node:http` and a
  * router that picks a module by the first path segment; each feature ({@link ApiModule}) owns its
- * routes and its own API key.
+ * routes. Every request is authenticated with the same `INTERNAL_API_KEY` (see {@link ApiAuth}).
  *
  * Binds to `127.0.0.1` only — bot and web run on the same VPS, this was never meant to be reachable
  * from outside it.
@@ -25,7 +25,7 @@ export class ApiServer {
         if (ApiServer.started) return;
         ApiServer.started = true;
 
-        const port = Number(process.env.VERIFICATION_SERVER_PORT ?? 4501);
+        const port = Number(process.env.BOT_API_PORT ?? 4501);
 
         createServer((req, res) => {
             void ApiServer.handle(client, modules, req).then(

@@ -7,7 +7,7 @@ import { SupportTicketIndex } from './SupportTicketIndex.js';
 
 /**
  * The bot's half of the REST contract with the web's support pages — see docs/support.md.
- * Mounted by {@link ApiServer} under `/support/*`; every route needs `SUPPORT_API_KEY`.
+ * Mounted by {@link ApiServer} under `/support/*`; every route needs `INTERNAL_API_KEY`.
  */
 export class SupportApi {
     static readonly prefix = 'support';
@@ -21,7 +21,7 @@ export class SupportApi {
      */
     static async handle(client: UsingClient, request: ApiRequest): Promise<ApiResponse> {
         // Auth first, so an unauthenticated caller can't tell whether support is configured or up.
-        if (!ApiAuth.isAuthorized(request.headers, 'SUPPORT_API_KEY')) return reply(401, { error: 'unauthorized' });
+        if (!ApiAuth.isAuthorized(request.headers)) return reply(401, { error: 'unauthorized' });
 
         const settings = SupportConfig.get();
         if (!settings || !SupportTicketIndex.isReady()) return reply(503, { error: 'support_unavailable' });

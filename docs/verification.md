@@ -37,14 +37,14 @@ token   = "<payload>.<firma>"
 
 ## `VerificationApi` — la API REST
 
-Módulo de [`ApiServer`](api.md) montado en `/verify/*`: dos rutas, sin cuerpo que parsear. Autenticación con `VERIFICATION_API_KEY`.
+Módulo de [`ApiServer`](api.md) montado en `/verify/*`: dos rutas, sin cuerpo que parsear. Autenticación con `INTERNAL_API_KEY`.
 
 **`GET /verify/:token`** — al abrir el enlace.
 - `200 { guildId, userId }` — válido.
 - `400 { error: "invalid_token" }` — firma inválida, mal formado, o expirado (mismo error para los tres, nada distinto que hacer).
 
 **`POST /verify/:token/complete`** — solo desde el backend del dashboard, tras OAuth2+captcha exitoso.
-- Header `Authorization: Bearer <VERIFICATION_API_KEY>`.
+- Header `Authorization: Bearer <INTERNAL_API_KEY>`.
 - `200 { granted: true }`.
 - `401` — API key ausente/incorrecta.
 - `400` — mismo criterio que `GET`.
@@ -54,9 +54,9 @@ Módulo de [`ApiServer`](api.md) montado en `/verify/*`: dos rutas, sin cuerpo q
 ### Variables de entorno
 
 - `VERIFICATION_SECRET` — firma tokens, nunca se comparte.
-- `VERIFICATION_API_KEY` — autentica al dashboard, nunca se expone al navegador.
+- `INTERNAL_API_KEY` — clave compartida con la web, ver [api.md](api.md); autentica al dashboard y nunca se expone al navegador.
 - `VERIFICATION_WEB_URL` — base del enlace en el DM.
-- `VERIFICATION_SERVER_PORT` — puerto del servidor HTTP compartido (default `4501`), ver [api.md](api.md).
+- `BOT_API_PORT` — puerto del servidor HTTP compartido (default `4501`), ver [api.md](api.md).
 
 ## Dónde encaja en `guildMemberAdd.ts`
 
