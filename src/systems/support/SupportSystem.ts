@@ -1,10 +1,10 @@
 import { randomBytes } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { ChannelType, OverwriteType, PermissionFlagsBits, SeyfertError, type UsingClient } from 'seyfert';
+import { ChannelType, OverwriteType, PermissionFlagsBits, SeyfertError, type MessageStructure, type UsingClient } from 'seyfert';
 import { ExpiringMap } from '../shared/ExpiringMap.js';
-import type { MessageStructure } from 'seyfert';
+import { SupportClose } from './SupportClose.js';
 import { SupportConfig, type SupportSettings } from './SupportConfig.js';
-import { SupportMessageBuffer } from './SupportMessageBuffer.js';
+import { SupportMessageBuffer, type SupportMessageQuery } from './SupportMessageBuffer.js';
 import { SupportMessages, type SupportMessage } from './SupportMessages.js';
 import { SupportPosts } from './SupportPosts.js';
 import { SupportTicketChannel, type SupportTicket } from './SupportTicket.js';
@@ -12,10 +12,15 @@ import { SupportTicketIndex } from './SupportTicketIndex.js';
 
 /** What the web sends to open a ticket — already validated by {@link SupportApi}. */
 export interface CreateTicketInput {
+    /** Discord id of the user opening it. */
     userId: string;
+    /** Their display name. */
     username: string;
+    /** Their avatar URL, or `null` if the web sent none usable. */
     avatarUrl: string | null;
+    /** Subject, as a single line. */
     subject: string;
+    /** The first message. */
     message: string;
 }
 
@@ -29,12 +34,17 @@ export type SendMessageResult = { ok: true; id: string } | { ok: false; reason: 
 export class SupportSystem {
     /** Users whose channel is being created right now — makes two quick clicks one ticket, not two. */
     private static creating = new Set<string>();
+
+    /** Users who opened a ticket less than a minute ago. */
     private static cooldowns = new ExpiringMap<string, true>();
+
+    /** Users who sent a message less than two seconds ago. */
     private static messageCooldowns = new ExpiringMap<string, true>();
 
     /**
      * Brings the support system up on a fresh gateway session: warns if the feature isn't fully
-     * configured, otherwise (re)builds the ticket index, retrying if Discord fails.
+     * configured, otherwise (re)builds the ticket index, retrying if Discord fails, and resumes any
+     * close that was under way.
      * @param client Bot client.
      */
     static async start(client: UsingClient): Promise<void> {
@@ -48,14 +58,19 @@ export class SupportSystem {
 
             try {
                 await SupportTicketIndex.rebuild(client, settings);
-                return client.logger.info(`[support] Ticket index ready (${SupportTicketIndex.size} open)`);
+                client.logger.info(`[support] Ticket index ready (${SupportTicketIndex.size} open)`);
+                return SupportClose.resumeAll(client, settings);
             } catch (error) {
                 client.logger.error('[support] Building the ticket index failed', error);
             }
         }
     }
 
-    /** The user's tickets, closing ones included. */
+    /**
+     * Lists a user's tickets.
+     * @param userId Discord id of the user.
+     * @returns Their tickets, closing ones included.
+     */
     static listOpen(userId: string): SupportTicket[] {
         return SupportTicketIndex.ofUser(userId);
     }
@@ -67,6 +82,7 @@ export class SupportSystem {
      * @param client Bot client.
      * @param settings Support settings.
      * @param input The validated request from the web.
+     * @returns The new ticket, or why none was created.
      */
     static async create(client: UsingClient, settings: SupportSettings, input: CreateTicketInput): Promise<CreateTicketResult> {
         const { userId, username, avatarUrl, subject, message } = input;
@@ -96,7 +112,7 @@ export class SupportSystem {
             if (!channel) return { ok: false, reason: 'failed' };
 
             try {
-                await client.messages.write(channel.id, SupportPosts.opening(client, userId, username, subject));
+                await client.messages.write(channel.id, SupportPosts.opening(client, input));
                 await client.messages.write(channel.id, SupportPosts.userMessage({ username, avatarUrl }, message));
             } catch (error) {
                 client.logger.error('[support] Posting into the new ticket channel failed', error);
@@ -114,22 +130,42 @@ export class SupportSystem {
         }
     }
 
-    /** Whether a channel is one of the open tickets — `messageCreate` uses this to keep them away from automod. */
-    static isTicketChannel(channelId: string): boolean {
+    /**
+     * Whether a channel is one of the open tickets. This runs for every message and every channel
+     * deletion the bot sees, in every server, so the guild is compared first — a string comparison
+     * against a cached value — and the index is only consulted for the support server's own channels.
+     * @param guildId Guild the channel belongs to, or `undefined` for a DM.
+     * @param channelId The channel to check.
+     * @returns `true` only for a channel of the support server that is a ticket.
+     */
+    static isTicketChannel(guildId: string | undefined, channelId: string): boolean {
+        if (!guildId || guildId !== SupportConfig.get()?.guildId) return false;
+
         return SupportTicketIndex.getByChannel(channelId) !== undefined;
     }
 
     /**
-     * Web-visible messages of a ticket after a cursor, oldest first — from the buffer when it reaches
-     * that far back, from the channel's history otherwise.
+     * Forgets a ticket whose channel was deleted by hand: drops it from the index and discards its
+     * buffer. Every other channel — which is nearly all of them — is ignored at the guild check.
+     * @param guildId Guild the deleted channel belonged to.
+     * @param channelId The deleted channel.
+     */
+    static forgetChannel(guildId: string | undefined, channelId: string): void {
+        if (!SupportSystem.isTicketChannel(guildId, channelId)) return;
+
+        SupportTicketIndex.remove(channelId);
+        SupportMessageBuffer.drop(channelId);
+    }
+
+    /**
+     * Reads a ticket's web-visible messages after a cursor.
      * @param client Bot client.
      * @param settings Support settings.
-     * @param ticket The ticket to read.
-     * @param after Message id to start after; without one, from the beginning.
-     * @param limit Most messages to return.
+     * @param query The ticket, the cursor and how many messages to return.
+     * @returns The messages, oldest first — from the buffer when it reaches that far back, from the channel's history otherwise.
      */
-    static messages(client: UsingClient, settings: SupportSettings, ticket: SupportTicket, after: string | undefined, limit: number): Promise<SupportMessage[]> {
-        return SupportMessageBuffer.read(client, settings, ticket, after, limit);
+    static messages(client: UsingClient, settings: SupportSettings, query: SupportMessageQuery): Promise<SupportMessage[]> {
+        return SupportMessageBuffer.read(client, settings, query);
     }
 
     /**
@@ -157,6 +193,7 @@ export class SupportSystem {
      * @param client Bot client.
      * @param ticket The user's ticket.
      * @param content The message text, already length-checked.
+     * @returns The id of the message posted, or why it wasn't.
      */
     static async sendUserMessage(client: UsingClient, ticket: SupportTicket, content: string): Promise<SendMessageResult> {
         if (ticket.state === 'closing') return { ok: false, reason: 'closing' };
@@ -179,6 +216,9 @@ export class SupportSystem {
     /**
      * Permission overwrites for a ticket channel: hidden from everyone, visible to the staff role and the bot.
      * The user never gets access — their side of the conversation is the web.
+     * @param client Bot client — its id gets the bot's own overwrite.
+     * @param settings Support settings — the guild (its `@everyone` role) and the staff role.
+     * @returns The overwrites to create the channel with.
      */
     private static overwrites(client: UsingClient, settings: SupportSettings) {
         const chat = PermissionFlagsBits.ViewChannel | PermissionFlagsBits.SendMessages | PermissionFlagsBits.ReadMessageHistory;
@@ -191,7 +231,11 @@ export class SupportSystem {
         ];
     }
 
-    /** Discord rejects a channel in a category that already holds 50 — recognizable only by the error's text. */
+    /**
+     * Discord rejects a channel in a category that already holds 50 — recognizable only by the error's text.
+     * @param error Whatever a failed channel creation threw.
+     * @returns Whether it is that rejection.
+     */
     private static isCategoryFull(error: unknown): boolean {
         return SeyfertError.is(error) && /maximum number of channels/i.test(String(error.metadata?.detail));
     }

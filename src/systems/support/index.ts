@@ -1,4 +1,5 @@
 export * from './SupportApi.js';
+export * from './SupportClose.js';
 export * from './SupportConfig.js';
 export * from './SupportHistory.js';
 export * from './SupportMessageBuffer.js';
@@ -7,3 +8,5 @@ export * from './SupportPosts.js';
 export * from './SupportSystem.js';
 export * from './SupportTicket.js';
 export * from './SupportTicketIndex.js';
+export * from './SupportTranscript.js';
+export * from './SupportWebClient.js';

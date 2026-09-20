@@ -1,10 +1,10 @@
 # Soporte — tickets web ↔ Discord — `SupportSystem` / `SupportApi`
 
-**Ficheros:** [`src/systems/support/`](../src/systems/support/) (`SupportApi.ts`, `SupportSystem.ts`, `SupportTicketIndex.ts`, `SupportTicket.ts`, `SupportMessages.ts`, `SupportMessageBuffer.ts`, `SupportHistory.ts`, `SupportPosts.ts`, `SupportConfig.ts`), [`src/events/ready.ts`](../src/events/ready.ts), [`src/events/messageCreate.ts`](../src/events/messageCreate.ts)
+**Ficheros:** [`src/systems/support/`](../src/systems/support/) (`SupportApi.ts`, `SupportSystem.ts`, `SupportTicketIndex.ts`, `SupportTicket.ts`, `SupportMessages.ts`, `SupportMessageBuffer.ts`, `SupportHistory.ts`, `SupportClose.ts`, `SupportTranscript.ts`, `SupportWebClient.ts`, `SupportPosts.ts`, `SupportConfig.ts`), [`src/components/support-close.ts`](../src/components/support-close.ts), [`src/events/ready.ts`](../src/events/ready.ts), [`src/events/messageCreate.ts`](../src/events/messageCreate.ts), [`src/events/channelDelete.ts`](../src/events/channelDelete.ts)
 
 El usuario abre un ticket desde la web, el ticket es un canal del servidor de soporte, el staff responde en Discord y el usuario desde la web. Este doc cubre **el lado del bot**; el contrato completo (rutas, cuerpos, códigos, transcript) vive en `docs/support.md` del repo de la web (`SPA-Website`) y es la fuente de verdad — aquí solo lo que el bot decide por su cuenta.
 
-> **Estado:** implementado crear y listar tickets, y los mensajes en ambos sentidos. Pendiente: cierre y transcript, botón **Cerrar ticket** y `channelDelete` (ver [Pendiente](#pendiente)).
+> **Estado:** implementado entero — crear, listar, mensajes en ambos sentidos y cierre con transcript. Falta la prueba de extremo a extremo contra Discord y la web reales.
 
 ## El canal es el ticket — sin base de datos
 
@@ -70,9 +70,11 @@ Cada ticket tiene un búfer de sus últimos 200 mensajes visibles para la web, p
 - **`POST /support/tickets/:ticketId/messages`** — `{ userId, content }`, `content` ≤ 2000. `200 { id }`, `400`, `404`, `429 cooldown` (más de un mensaje cada 2 s por usuario; se anota *antes* de escribir, para que una ráfaga no lo esquive). La web solo manda el `userId`, así que el nombre y el avatar del embed se piden a Discord (caché primero); si falla, sale con un nombre genérico.
 - **`409 closing`** — el ticket ya se está cerrando. El contrato no lo define: un `404` mandaría al usuario a un transcript que la web aún no tiene, y la web muestra cualquier código desconocido como un error genérico. `502 send_failed` si Discord rechaza el mensaje.
 
-### Automod
+### Automod y el coste por evento
 
-`messageCreate.ts` pregunta primero si el canal es un ticket (`SupportSystem.isTicketChannel`, una búsqueda en el índice): si lo es, el mensaje va solo al búfer y **no llega al automod ni al rastreo de ghostpings** — el staff no es un bot, y de otro modo se le sancionaría por mayúsculas o enlaces dentro de un ticket.
+`messageCreate.ts` pregunta primero si el canal es un ticket (`SupportSystem.isTicketChannel(guildId, channelId)`): si lo es, el mensaje va solo al búfer y **no llega al automod ni al rastreo de ghostpings** — el staff no es un bot, y de otro modo se le sancionaría por mayúsculas o enlaces dentro de un ticket.
+
+Esa pregunta se hace **por cada mensaje de cada servidor** en el que está el bot, así que **primero se compara el servidor** con el de soporte (una comparación de cadenas contra un valor ya en caché, `SupportConfig.get()`) y solo si coincide se consulta el índice. Con miles de servidores, casi todos los mensajes acaban en esa primera comparación y nunca tocan el índice. Un mensaje directo (sin servidor) también sale ahí.
 
 ## Los mensajes del usuario — `SupportPosts`
 
@@ -96,14 +98,46 @@ Todo por variables de entorno (en desarrollo se cargan del `.env` vía `dotenv`;
 
 **Permisos del bot en la categoría:** ver canales, gestionar canales, enviar mensajes, insertar enlaces, adjuntar archivos y leer el historial. Los overwrites del canal solo se aceptan si el bot ya tiene esos permisos.
 
+## Cerrar un ticket — `SupportClose`
+
+Cierra el staff (botón **Cerrar ticket**) o el usuario (`POST /support/tickets/:ticketId/close`); el proceso es el mismo. Se divide en lo que ha de pasar antes de contestar y lo lento, que va en segundo plano.
+
+**`begin`** (rápido; `202 { closing: true }` en cuanto termina):
+
+1. Marca el ticket `closing` **antes de cualquier `await`**: desde ese instante nadie más puede iniciar un cierre ni escribir en él (`409 closing`). Cerrar dos veces es inocuo: la segunda responde igual (`already`).
+2. Renombra el canal a `cerrando-<id>`. Es la marca que permite retomar el cierre tras un reinicio; **si falla, no se empieza nada** (el ticket vuelve a `open` y responde `502 close_failed`), porque sin marca un reinicio lo dejaría a medias.
+3. Bloquea el canal: el staff sigue viéndolo pero no escribe (`PUT` del overwrite completo, que reemplaza el anterior). El bot conserva el suyo. Si falla, se sigue.
+4. Publica un aviso (`🔒 Ticket cerrado por …`) cuyo footer, `close:user` o `close:staff`, **guarda quién cerró**. Un cierre retomado tras reiniciar lo lee de ahí; sin aviso, asume `staff`.
+
+**`finish`** (en segundo plano, una sola vez por ticket):
+
+1. Lee el canal entero (`SupportHistory.full`: de 100 en 100, **con** las notas `//`) y construye las dos versiones de `SupportTranscript`:
+   - **Web:** `{ ticketId, userId, subject, openedAt, closedAt, closedBy, messages }`, solo `staff` y `user`, sin notas. Es lo que guarda la web para siempre.
+   - **Staff:** un `.txt` con todo, notas incluidas (`nota interna`), con las líneas de continuación indentadas.
+2. **Lo empuja a la web** (`SupportWebClient`: `POST <WEB_URL>/api/support/transcripts`, `Authorization: Bearer <INTERNAL_API_KEY>`, 15 s de timeout). Es idempotente por `ticketId`. Un fallo de red o un `5xx` se reintenta a los 5 s, 30 s, 5 min y 30 min; **cualquier `4xx` no** (clave mala, cuerpo inválido, más de 5 MB): es un fallo del bot, no de disponibilidad.
+3. **Con la confirmación de la web**, y solo entonces:
+   - El ticket sale del índice y su búfer se descarta: para el usuario ya está cerrado (`GET …/messages` pasa a `404` y la web lo lleva al historial, que ya existe).
+   - Sube la copia del staff a `STAFF_LOGS_CHANNEL` (3 intentos).
+   - Intenta un DM al usuario avisando de que puede verlo en la web. **De mejor esfuerzo**: el usuario no comparte servidor con el bot, así que Discord suele rechazarlo; se ignora sin más.
+   - **Borra el canal**, salvo que la copia del staff no haya podido subirse: entonces el canal es lo único que queda de las notas y se conserva.
+4. **Si la web no confirma** (un `4xx`, o los reintentos agotados): el canal queda bloqueado y sin borrar, se sube igualmente la copia del staff y se avisa en `STAFF_LOGS_CHANNEL` (`⚠️ No se pudo entregar…`, con el motivo y el canal). El ticket sigue `closing`, así que la web lo sigue viendo. **Se reintenta al reiniciar el bot**, y como cada intento avisa, un ticket atascado avisa una vez por arranque.
+
+Un fallo inesperado de `finish` (Discord fallando al leer el historial, por ejemplo) se reintenta hasta 3 veces con un minuto de espera; pasado eso, lo retoma el siguiente arranque.
+
+**Reanudación:** `SupportSystem.start` llama a `SupportClose.resumeAll` tras reconstruir el índice: todo ticket cuyo canal se llame `cerrando-…` vuelve a `finish`. No hace falta guardar nada más porque el canal lo contiene todo.
+
+### El botón
+
+`src/components/support-close.ts` es un `ComponentCommand` (la carpeta se declara en `locations.components` de `seyfert.config.mjs`). Responde en privado (efímero) y comprueba, en este orden: que sea el servidor de soporte, que quien pulsa tenga el rol de staff (`ctx.member.roles.keys`, que viene en la propia interacción) y que el canal sea un ticket. El `customId` (`support-close`) no lleva el ticket: se resuelve por el canal donde se pulsa, así que sigue funcionando en mensajes anteriores a un reinicio. No hay comando para cerrar: el botón es la única vía desde Discord.
+
+### `channelDelete`
+
+Si alguien borra un canal de ticket a mano, `channelDelete.ts` lo quita del índice y descarta su búfer (tras un cierre normal ya estaba fuera, y es un no-op). El evento llega por **cada canal borrado en cada servidor**, así que delega en `SupportSystem.forgetChannel(guildId, channelId)`, que descarta todo lo que no sea del servidor de soporte con la misma comparación de servidor de arriba antes de tocar el índice. Los borrados con el bot apagado no llegan aquí: los cubre la reconstrucción del índice de la siguiente sesión.
+
 ## Decisiones de diseño
 
 - **Un ticket en cierre sigue existiendo para la web** hasta que ésta confirma el transcript: `GET …/messages` seguirá respondiendo `200` (sin mensajes nuevos) y solo pasará a `404` después. Un `404` inmediato haría que la web llevara al usuario a un historial que todavía no existe.
 - **El antiraid no se dispara** al crear y borrar canales de tickets, porque ignora al propio bot como ejecutor ([`AntiraidSystem.ts:41`](../src/systems/antiraid/AntiraidSystem.ts)).
 - **Intents:** ya están `GuildMessages` y `MessageContent`; no hay nada que tocar en el Developer Portal.
-
-## Pendiente
-
-- **Cierre:** bloqueo y marca `cerrando-…`, historial completo, transcript en dos versiones, empuje a la web con reintentos (5 s, 30 s, 5 min, 30 min), copia al canal del staff, DM de mejor esfuerzo y borrado. Si la web falla, el canal queda bloqueado, se sube igualmente la copia del staff y se avisa en `STAFF_LOGS_CHANNEL`; un `4xx` de la web no se reintenta. Al arrancar se retoman los canales `cerrando-…`.
-- **Botón `support-close`:** `ComponentCommand` (hay que añadir `components` a `locations` en `seyfert.config.mjs`), solo para el staff, comprobando `ctx.member.roles.keys` de la interacción. El `customId` no lleva el ticket: se resuelve por el canal donde se pulsa.
-- **`channelDelete.ts`** (no existe aún): quitar del índice un ticket cuyo canal se borre a mano.
+- **Códigos fuera del contrato:** `409 closing`, `502 close_failed` y `502 send_failed` no los define; la web muestra cualquier código desconocido como un error genérico.
+- **El transcript de la web no lleva notas ni mensajes del bot** (ni el informativo ni el aviso de cierre): el normalizador los descarta, y el aviso solo lo lee `SupportPosts.closedByOf`.

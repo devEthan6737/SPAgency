@@ -468,6 +468,34 @@ export default {
                 unknownUser: 'user',
                 unknownRole: 'role',
                 unknownChannel: 'channel'
+            },
+            close: {
+                notice: {
+                    user: '🔒 Ticket closed by the user from the web.',
+                    staff: (staffId: string) => `🔒 Ticket closed by <@${staffId}>.`
+                },
+                button: {
+                    notStaff: '❌ Only staff can close tickets.',
+                    notTicket: '❌ This channel is not a ticket.',
+                    started: '🔒 Closing the ticket…',
+                    already: 'ℹ️ This ticket is already being closed.',
+                    failed: '❌ Could not start the close. Try again.'
+                },
+                dm: (subject: string) => `🔒 Your ticket «${subject}» has been closed. You can read the conversation on the web, in your support history.`,
+                staffCopy: (subject: string, userId: string, by: string) => `📎 Ticket **${subject}** from <@${userId}> closed ${by}. Copy with the internal notes attached.`,
+                deliveryFailed: (subject: string, channelId: string, reason: string) =>
+                    `⚠️ Could not deliver the transcript of ticket **${subject}** (<#${channelId}>) to the web: ${reason}. The channel stays locked and undeleted; it will be retried when the bot restarts. Copy attached.`
+            },
+            transcript: {
+                header: (subject: string, ticketId: string, userId: string, openedAt: string, closedAt: string, by: string) =>
+                    `Ticket: ${subject}\nID: ${ticketId}\nUser: ${userId}\nOpened: ${openedAt}\nClosed: ${closedAt} (${by})`,
+                closedByUser: 'by the user',
+                closedByStaff: 'by staff',
+                authors: {
+                    user: 'user',
+                    staff: 'staff',
+                    note: 'internal note'
+                }
             }
         },
         verification: {

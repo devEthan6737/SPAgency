@@ -6,13 +6,18 @@ import { SupportPosts } from './SupportPosts.js';
 /** `note` is a staff message starting with `//` — never sent to the web, only kept for the staff's copy of the transcript. */
 export type SupportMessageAuthor = 'staff' | 'user' | 'note';
 
-/** A ticket message in the shape the contract with the web defines. `at` is ISO 8601. */
+/** A ticket message in the shape the contract with the web defines. */
 export interface SupportMessage {
+    /** Discord message id — also the cursor the web polls with. */
     id: string;
     author: SupportMessageAuthor;
+    /** Display name of whoever wrote it. */
     name: string;
+    /** Avatar URL, or `null` if there is none. */
     avatar: string | null;
+    /** Text with Discord's markup already turned into plain text. */
     content: string;
+    /** ISO 8601 creation time. */
     at: string;
 }
 
@@ -27,6 +32,7 @@ export class SupportMessages {
     private static roleNames = new ExpiringMap<string, Map<string, string>>();
 
     /**
+     * Normalizes one message.
      * @param client Bot client.
      * @param settings Support settings — the guild and the staff role.
      * @param message Message from the ticket channel, live or read back from history.
@@ -55,14 +61,21 @@ export class SupportMessages {
         };
     }
 
-    /** Orders two snowflakes: negative if `a` is older, positive if newer. Compares length first, then lexically — which is numeric for digit strings of equal length. */
+    /**
+     * Orders two snowflakes. Compares length first, then lexically — which is numeric for digit strings of equal length.
+     * @param a First snowflake.
+     * @param b Second snowflake.
+     * @returns Negative if `a` is older, positive if it is newer, `0` if they are the same.
+     */
     static compareIds(a: string, b: string): number {
         return a.length - b.length || (a < b ? -1 : a > b ? 1 : 0);
     }
 
     /**
-     * A message the bot itself posted for the user on the web: its embed carries their name and avatar,
-     * and the `web` footer is what marks it. Anything else the bot writes (the opening message) has no such footer.
+     * Reads a message the bot itself posted for the user on the web: its embed carries their name and
+     * avatar, and the `web` footer is what marks it. Anything else the bot writes (the opening message) has no such footer.
+     * @param message A message written by the bot.
+     * @returns The `user` message, or `null` if it isn't one.
      */
     private static fromWeb(message: MessageStructure): SupportMessage | null {
         const embed = message.embeds[0];
@@ -80,9 +93,13 @@ export class SupportMessages {
     }
 
     /**
-     * The message's author as a guild member if they hold the staff role, else `null`.
-     * A live message already carries its member; one read back from history doesn't, so that case
-     * asks for the member (cache first) — and someone who has since left the server no longer counts.
+     * Finds the message's author among the staff. A live message already carries its member; one read
+     * back from history doesn't, so that case asks for the member (cache first) — and someone who has
+     * since left the server no longer counts.
+     * @param client Bot client.
+     * @param settings Support settings — the guild and the staff role.
+     * @param message The message whose author to check.
+     * @returns The author as a guild member if they hold the staff role, else `null`.
      */
     private static async staffMember(client: UsingClient, settings: SupportSettings, message: MessageStructure): Promise<GuildMemberStructure | null> {
         const member = message.member ?? (await client.members.fetch(settings.guildId, message.author.id).catch(() => null));
@@ -91,9 +108,13 @@ export class SupportMessages {
     }
 
     /**
-     * The message text with Discord's markup replaced by plain text, since the web can't resolve ids:
+     * Replaces Discord's markup with plain text, since the web can't resolve ids:
      * `<@id>` → `@name`, `<@&id>` → `@role`, `<#id>` → `#channel`, `<:name:id>` → `:name:`.
      * Roles and channels are only looked up if the text actually mentions one, so the common case costs nothing.
+     * @param client Bot client.
+     * @param guildId Guild whose roles and channels the ids refer to.
+     * @param message The message whose text to convert.
+     * @returns The converted, trimmed text.
      */
     private static async readable(client: UsingClient, guildId: string, message: MessageStructure): Promise<string> {
         const t = client.t('es').systems.support.message;
@@ -122,7 +143,12 @@ export class SupportMessages {
         return text.replace(/<a?:(\w+):\d+>/g, ':$1:').trim();
     }
 
-    /** Role names of the guild, from the short-lived cache or REST. */
+    /**
+     * Role names of a guild, from the short-lived cache or REST.
+     * @param client Bot client.
+     * @param guildId The guild whose roles to name.
+     * @returns Role name by role id.
+     */
     private static async roles(client: UsingClient, guildId: string): Promise<Map<string, string>> {
         const cached = SupportMessages.roleNames.get(guildId);
         if (cached) return cached;

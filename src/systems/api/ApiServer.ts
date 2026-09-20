@@ -66,6 +66,7 @@ export class ApiServer {
     /**
      * Buffers the request body up to {@link ApiServer.MaxBodyBytes} and parses it as JSON.
      * @param req Request to read.
+     * @returns The parsed body.
      * @throws {ApiError} `413` once the cap is exceeded — reading stops there, the rest is never buffered — or `400` for an empty or malformed body.
      */
     private static async readJson(req: IncomingMessage): Promise<unknown> {

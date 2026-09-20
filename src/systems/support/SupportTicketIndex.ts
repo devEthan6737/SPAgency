@@ -8,16 +8,27 @@ import { SupportTicketChannel, type SupportTicket } from './SupportTicket.js';
  * fresh gateway session and kept up to date by the create/close flows and `channelDelete`.
  */
 export class SupportTicketIndex {
+    /** Tickets by `ticketId`. */
     private static tickets = new Map<string, SupportTicket>();
+
+    /** `ticketId` by the channel the ticket lives in. */
     private static channels = new Map<string, string>();
+
+    /** Whether {@link SupportTicketIndex.rebuild} has completed at least once. */
     private static built = false;
 
-    /** Whether the first {@link SupportTicketIndex.rebuild} has finished — until then the API answers `503`. */
+    /**
+     * Whether the first rebuild has finished — until then the API answers `503`.
+     * @returns `true` once the index reflects Discord.
+     */
     static isReady(): boolean {
         return SupportTicketIndex.built;
     }
 
-    /** Number of tickets currently indexed. */
+    /**
+     * Number of tickets currently indexed.
+     * @returns The count, closing tickets included.
+     */
     static get size(): number {
         return SupportTicketIndex.tickets.size;
     }
@@ -27,6 +38,7 @@ export class SupportTicketIndex {
      * fires before the guilds' channels arrive, so the cache can still be empty at this point.
      * @param client Bot client.
      * @param settings Support settings — the guild and category to scan.
+     * @throws If Discord fails to list the channels; the index is left as it was.
      */
     static async rebuild(client: UsingClient, { guildId, categoryId }: SupportSettings): Promise<void> {
         const startedAt = Date.now();
@@ -50,31 +62,57 @@ export class SupportTicketIndex {
         SupportTicketIndex.built = true;
     }
 
-    /** Indexes a ticket — used right after its channel is created. */
+    /**
+     * Indexes a ticket — used right after its channel is created.
+     * @param ticket The ticket to add.
+     */
     static add(ticket: SupportTicket): void {
         SupportTicketIndex.tickets.set(ticket.ticketId, ticket);
         SupportTicketIndex.channels.set(ticket.channelId, ticket.ticketId);
     }
 
-    /** Drops the ticket living in `channelId`, if any — from a finished close or a channel deleted by hand. */
+    /**
+     * Drops the ticket living in a channel, if any — from a finished close or a channel deleted by hand.
+     * @param channelId The channel the ticket lives in. Unknown channels are ignored.
+     */
     static remove(channelId: string): void {
         const ticketId = SupportTicketIndex.channels.get(channelId);
         if (ticketId) SupportTicketIndex.tickets.delete(ticketId);
         SupportTicketIndex.channels.delete(channelId);
     }
 
-    /** The ticket with this id, or `undefined`. */
+    /**
+     * Every indexed ticket.
+     * @returns A new array, closing tickets included.
+     */
+    static all(): SupportTicket[] {
+        return [...SupportTicketIndex.tickets.values()];
+    }
+
+    /**
+     * Looks a ticket up by its id.
+     * @param ticketId The id the web knows the ticket by.
+     * @returns The ticket, or `undefined` if there is none.
+     */
     static get(ticketId: string): SupportTicket | undefined {
         return SupportTicketIndex.tickets.get(ticketId);
     }
 
-    /** The ticket living in this channel, or `undefined` — `undefined` for every channel that isn't a ticket. */
+    /**
+     * Looks a ticket up by the channel it lives in.
+     * @param channelId Any channel id.
+     * @returns The ticket, or `undefined` for every channel that isn't one.
+     */
     static getByChannel(channelId: string): SupportTicket | undefined {
         const ticketId = SupportTicketIndex.channels.get(channelId);
         return ticketId ? SupportTicketIndex.tickets.get(ticketId) : undefined;
     }
 
-    /** Every ticket of a user, closing ones included — at most one today, but a list so the limit can change. */
+    /**
+     * A user's tickets — at most one today, but a list so the limit can change.
+     * @param userId Discord id of the user.
+     * @returns Their tickets, closing ones included.
+     */
     static ofUser(userId: string): SupportTicket[] {
         return [...SupportTicketIndex.tickets.values()].filter((ticket) => ticket.userId === userId);
     }

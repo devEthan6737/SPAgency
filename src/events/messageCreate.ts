@@ -8,11 +8,14 @@ import { SupportSystem } from '../systems/support/index.js';
  * `AutomodSystem` detector. Ghostping tracking runs unconditionally for every message with a mention,
  * regardless of which branch handles the rest — see `AutomodSystem.trackForGhostping`'s doc comment
  * for why that's cheap enough to not gate behind a config check here.
+ *
+ * A message in a support ticket channel goes only to `SupportSystem.ingest` and never reaches automod:
+ * the staff aren't bots, so caps or links in a ticket would get them sanctioned.
  */
 export default createEvent({
     data: { name: 'messageCreate' },
     async run(message, client) {
-        if (SupportSystem.isTicketChannel(message.channelId)) return await SupportSystem.ingest(client, message);
+        if (SupportSystem.isTicketChannel(message.guildId, message.channelId)) return await SupportSystem.ingest(client, message);
 
         AutomodSystem.trackForGhostping(message);
 

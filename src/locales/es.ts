@@ -468,6 +468,34 @@ export default {
                 unknownUser: 'usuario',
                 unknownRole: 'rol',
                 unknownChannel: 'canal'
+            },
+            close: {
+                notice: {
+                    user: '🔒 Ticket cerrado por el usuario desde la web.',
+                    staff: (staffId: string) => `🔒 Ticket cerrado por <@${staffId}>.`
+                },
+                button: {
+                    notStaff: '❌ Solo el staff puede cerrar tickets.',
+                    notTicket: '❌ Este canal no es un ticket.',
+                    started: '🔒 Cerrando el ticket…',
+                    already: 'ℹ️ Este ticket ya se está cerrando.',
+                    failed: '❌ No se pudo iniciar el cierre. Inténtalo de nuevo.'
+                },
+                dm: (subject: string) => `🔒 Tu ticket «${subject}» se ha cerrado. Puedes consultar la conversación desde la web, en tu historial de soporte.`,
+                staffCopy: (subject: string, userId: string, by: string) => `📎 Ticket **${subject}** de <@${userId}> cerrado ${by}. Copia con las notas internas adjunta.`,
+                deliveryFailed: (subject: string, channelId: string, reason: string) =>
+                    `⚠️ No se pudo entregar a la web el transcript del ticket **${subject}** (<#${channelId}>): ${reason}. El canal queda bloqueado y sin borrar; se reintentará al reiniciar el bot. Copia adjunta.`
+            },
+            transcript: {
+                header: (subject: string, ticketId: string, userId: string, openedAt: string, closedAt: string, by: string) =>
+                    `Ticket: ${subject}\nID: ${ticketId}\nUsuario: ${userId}\nAbierto: ${openedAt}\nCerrado: ${closedAt} (${by})`,
+                closedByUser: 'por el usuario',
+                closedByStaff: 'por el staff',
+                authors: {
+                    user: 'usuario',
+                    staff: 'staff',
+                    note: 'nota interna'
+                }
             }
         },
         verification: {
