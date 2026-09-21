@@ -30,14 +30,15 @@ Orden de comprobaciones, cada una con su código (los del contrato de la web):
 
 1. Ya tiene un ticket, **cerrándose incluido**, o se está creando uno ahora mismo → `429 too_many_open_tickets`. El bloqueo por usuario (`creating`) convierte dos clics rápidos en un ticket, no dos.
 2. Creó otro hace menos de 60 s → `429 cooldown` (`ExpiringMap`, en memoria).
-3. La categoría ya tiene 50 canales → `503 support_full`. Es el tope de Discord; se comprueba con el tamaño del índice y, por si la categoría tiene más canales que tickets, también reconociendo el error de Discord (`Maximum number of channels…`).
-4. Cualquier otro fallo de Discord → `502 ticket_creation_failed`.
+3. Ya abrió 5 tickets en las últimas 24 h → `429 daily_limit` (`RollingWindowCounter`). Sin este tope, abrir y cerrar en bucle crea y borra un canal y publica un archivo en `STAFF_LOGS_CHANNEL` cada 60 s.
+4. La categoría ya tiene 50 canales → `503 support_full`. Es el tope de Discord; se comprueba con el tamaño del índice y, por si la categoría tiene más canales que tickets, también reconociendo el error de Discord (`Maximum number of channels…`).
+5. Cualquier otro fallo de Discord → `502 ticket_creation_failed`.
 
 Después: canal con sus permisos, mensaje informativo (asunto, quién lo abrió, botón **Cerrar ticket**) y **el primer mensaje del usuario** como embed aparte. Si falla la publicación, **el canal se borra** — no queda un ticket a medias.
 
 **Permisos del canal:** `@everyone` sin ver; staff (`SUPPORT_STAFF_ROLE_ID`) ver, escribir, historial y adjuntar; bot lo mismo más enlaces y `ManageChannels` (para poder renombrar y borrar el canal cuando el cierre lo bloquee). El usuario nunca entra: su interfaz es la web.
 
-**Validación (`SupportApi.parseCreateBody`):** el asunto se colapsa a una línea (va al tema, cuya segunda línea *es* el asunto), `username` se recorta a 80 caracteres y un `avatarUrl` que no sea `https:` se descarta en vez de rechazar la petición — Discord rechazaría el embed entero por un icono inválido.
+**Validación (`SupportApi.parseCreateBody`):** el asunto se colapsa a una línea (va al tema, cuya segunda línea *es* el asunto), `username` se recorta a 80 caracteres y un `avatarUrl` que no sea de la CDN de Discord (`https` en `cdn.discordapp.com` o `media.discordapp.net`) se descarta en vez de rechazar la petición. Es el icono de un embed y la web ya solo manda avatares de Discord: cualquier otro host es contenido que nadie avala.
 
 ## Los mensajes del ticket — `SupportMessages`
 
@@ -70,6 +71,8 @@ Cada ticket tiene un búfer de sus últimos 200 mensajes visibles para la web, p
 - **`POST /support/tickets/:ticketId/messages`** — `{ userId, content }`, `content` ≤ 2000. `200 { id }`, `400`, `404`, `429 cooldown` (más de un mensaje cada 2 s por usuario; se anota *antes* de escribir, para que una ráfaga no lo esquive). La web solo manda el `userId`, así que el nombre y el avatar del embed se piden a Discord (caché primero); si falla, sale con un nombre genérico.
 - **`409 closing`** — el ticket ya se está cerrando. El contrato no lo define: un `404` mandaría al usuario a un transcript que la web aún no tiene, y la web muestra cualquier código desconocido como un error genérico. `502 send_failed` si Discord rechaza el mensaje.
 
+- **`409 ticket_full`** — el usuario ya mandó 300 mensajes por la web en este ticket: tiene que cerrarlo y abrir otro. Es la primera defensa contra un ticket que la web no aceptaría guardar (ver [Límites y abuso](#límites-y-abuso)). El contador está en memoria y se reinicia con el bot; por eso hay una segunda defensa al cerrar.
+
 ### Automod y el coste por evento
 
 `messageCreate.ts` pregunta primero si el canal es un ticket (`SupportSystem.isTicketChannel(guildId, channelId)`): si lo es, el mensaje va solo al búfer y **no llega al automod ni al rastreo de ghostpings** — el staff no es un bot, y de otro modo se le sancionaría por mayúsculas o enlaces dentro de un ticket.
@@ -95,6 +98,8 @@ Todo por variables de entorno (en desarrollo se cargan del `.env` vía `dotenv`;
 | `STAFF_LOGS_CHANNEL` | canal del staff: copias de los transcripts y avisos cuando la web no confirma uno. Es el mismo de las altas/bajas del bot y el SOS, no uno propio |
 
 **Si falta cualquiera, el soporte queda desactivado**: aviso en el arranque (`[support] Disabled — missing …`) y `503 support_unavailable` en las rutas — nunca un fallo al arrancar. `INTERNAL_API_KEY`, `WEB_URL` y `STAFF_LOGS_CHANNEL` cuentan como requeridas aunque todavía no se usen (sin ellas no se podría entregar ni archivar un transcript), para no aceptar tickets que luego no se podrían cerrar. `STAFF_LOGS_CHANNEL` es opcional para el resto del bot, pero aquí es obligatoria. La comprobación de la clave va antes que la de configuración: quien no está autenticado no puede saber si el soporte está activo.
+
+**`WEB_URL` se valida** (`SupportConfig.invalid`): debe ser `https`, o `http` solo hacia esta máquina (`localhost`, `127.x.x.x`, `::1`), porque en cada llamada del bot a la web viaja `INTERNAL_API_KEY`. Cualquier otra cosa desactiva el soporte con un aviso en el arranque, igual que una variable que falta. Además, esas llamadas se hacen con `redirect: 'error'`: una redirección nunca puede llevarse la clave a otro sitio.
 
 **Permisos del bot en la categoría:** ver canales, gestionar canales, enviar mensajes, insertar enlaces, adjuntar archivos y leer el historial. Los overwrites del canal solo se aceptan si el bot ya tiene esos permisos.
 
@@ -126,6 +131,8 @@ Un fallo inesperado de `finish` (Discord fallando al leer el historial, por ejem
 
 **Reanudación:** `SupportSystem.start` llama a `SupportClose.resumeAll` tras reconstruir el índice: todo ticket cuyo canal se llame `cerrando-…` vuelve a `finish`. No hace falta guardar nada más porque el canal lo contiene todo.
 
+**Transcript demasiado grande.** La web rechaza más de 5000 mensajes o 5 MB, y un transcript que rechaza es un ticket que no puede cerrarse nunca (un `4xx` no se reintenta). `SupportTranscript.forWeb` recorta la conversación a sus mensajes **más recientes** —máximo 4500 y 4 MB de JSON, con margen— y devuelve cuántos dejó fuera (`omitted`); el mensaje con la copia del staff lo avisa. La copia del staff, que sí lleva todo, se recorta igual si pasara de 8 MB (el tope de adjuntos de Discord ronda los 10), con una línea que lo dice dentro del archivo.
+
 ### El botón
 
 `src/components/support-close.ts` es un `ComponentCommand` (la carpeta se declara en `locations.components` de `seyfert.config.mjs`). Responde en privado (efímero) y comprueba, en este orden: que sea el servidor de soporte, que quien pulsa tenga el rol de staff (`ctx.member.roles.keys`, que viene en la propia interacción) y que el canal sea un ticket. El `customId` (`support-close`) no lleva el ticket: se resuelve por el canal donde se pulsa, así que sigue funcionando en mensajes anteriores a un reinicio. No hay comando para cerrar: el botón es la única vía desde Discord.
@@ -134,10 +141,33 @@ Un fallo inesperado de `finish` (Discord fallando al leer el historial, por ejem
 
 Si alguien borra un canal de ticket a mano, `channelDelete.ts` lo quita del índice y descarta su búfer (tras un cierre normal ya estaba fuera, y es un no-op). El evento llega por **cada canal borrado en cada servidor**, así que delega en `SupportSystem.forgetChannel(guildId, channelId)`, que descarta todo lo que no sea del servidor de soporte con la misma comparación de servidor de arriba antes de tocar el índice. Los borrados con el bot apagado no llegan aquí: los cubre la reconstrucción del índice de la siguiente sesión.
 
+## Límites y abuso
+
+| Límite | Valor | Qué evita |
+| :----- | :---- | :-------- |
+| Tickets abiertos por usuario | 1 | acumular canales |
+| Tickets abiertos por usuario en 24 h | 5 | el bucle abrir/cerrar que inunda `STAFF_LOGS_CHANNEL` y crea y borra canales |
+| Entre dos tickets del mismo usuario | 60 s | ráfagas |
+| Entre dos mensajes del mismo usuario | 2 s | flood del canal |
+| Mensajes por ticket, por la web | 300 | un ticket que crece hasta no poder guardarse |
+| Transcript enviado a la web | 4500 mensajes / 4 MB | idem; recorta los más antiguos |
+| Cuerpo de una petición a la API | 32 KB | memoria |
+
+Sin el tope por ticket, un usuario a 1 mensaje cada 2 s alcanzaba los 5 MB de la web en horas (antes si son caracteres multibyte); con ella y el recorte, **todo ticket puede cerrarse**. Sin eso, varias cuentas llenaban los 50 huecos de la categoría con tickets que nunca se cierran.
+
+## Modelo de amenazas
+
+- **La web es la frontera de confianza del usuario.** El bot cree el `userId` que recibe: quien controla la web (o la clave) puede actuar como cualquier usuario. `INTERNAL_API_KEY` es una sola clave, usada en ambos sentidos y por todos los módulos de la API; rotarla exige cambiarla en los dos `.env` a la vez.
+- **Los temas de los canales de la categoría se creen.** Alguien con `ManageChannels` en ella puede crear un canal con el formato de un ticket y hacer que el bot empuje a la web un transcript de un usuario cualquiera. No se firma el tema a propósito: quien tiene ese permiso ya puede borrar y leer todos los tickets. **Mantén `ManageChannels` y `ManageMessages` en esa categoría solo para gente de confianza.**
+- **Todo el staff ve todos los tickets** (es el diseño: un solo rol). Las notas `//` solo las ve el staff, pero las ve todo el staff.
+- **Lo que escribe el usuario nunca puede mencionar a nadie:** va en embeds con `allowed_mentions` vacío, y los mensajes del bot al canal del staff que incluyen el asunto (controlado por el usuario) también los desactivan.
+- **Ningún dato del usuario forma parte del nombre del canal:** solo el `ticketId` aleatorio. El asunto va en el tema, ya en una sola línea.
+- **Las peticiones sin clave se registran** (una advertencia por minuto y módulo, sin la ruta: `/verify/<token>/complete` lleva una credencial en ella).
+
 ## Decisiones de diseño
 
 - **Un ticket en cierre sigue existiendo para la web** hasta que ésta confirma el transcript: `GET …/messages` seguirá respondiendo `200` (sin mensajes nuevos) y solo pasará a `404` después. Un `404` inmediato haría que la web llevara al usuario a un historial que todavía no existe.
 - **El antiraid no se dispara** al crear y borrar canales de tickets, porque ignora al propio bot como ejecutor ([`AntiraidSystem.ts:41`](../src/systems/antiraid/AntiraidSystem.ts)).
 - **Intents:** ya están `GuildMessages` y `MessageContent`; no hay nada que tocar en el Developer Portal.
-- **Códigos fuera del contrato:** `409 closing`, `502 close_failed` y `502 send_failed` no los define; la web muestra cualquier código desconocido como un error genérico.
+- **Códigos fuera del contrato:** `409 closing`, `409 ticket_full`, `429 daily_limit`, `502 close_failed` y `502 send_failed` no los define; la web muestra cualquier código desconocido como un error genérico.
 - **El transcript de la web no lleva notas ni mensajes del bot** (ni el informativo ni el aviso de cierre): el normalizador los descarta, y el aviso solo lo lee `SupportPosts.closedByOf`.

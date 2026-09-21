@@ -40,13 +40,23 @@ export class SupportConfig {
     }
 
     /**
+     * Lists the variables that are set but unusable. `WEB_URL` carries `INTERNAL_API_KEY` on every
+     * call the bot makes to it, so it must be `https`, or plain `http` only towards this machine.
+     * @returns A description of each problem — an empty list means nothing is wrong.
+     */
+    static invalid(): string[] {
+        const url = process.env.WEB_URL;
+        return url && !SupportConfig.isSafeWebUrl(url) ? ['WEB_URL must be https, or http on a loopback address: it carries INTERNAL_API_KEY'] : [];
+    }
+
+    /**
      * Reads the settings. Cached after the first call — the environment doesn't change while the
      * process runs — so it is cheap enough to call on the hot path of every message event.
-     * @returns The settings, or `null` while anything in {@link SupportConfig.missing} is unset.
+     * @returns The settings, or `null` while anything in {@link SupportConfig.missing} is unset or {@link SupportConfig.invalid} reports a problem.
      */
     static get(): SupportSettings | null {
         if (SupportConfig.cached !== undefined) return SupportConfig.cached;
-        if (SupportConfig.missing().length) return (SupportConfig.cached = null);
+        if (SupportConfig.missing().length || SupportConfig.invalid().length) return (SupportConfig.cached = null);
 
         // Safe: `missing()` just confirmed every one of these is set.
         const env = process.env as Record<string, string>;
@@ -58,5 +68,21 @@ export class SupportConfig {
             webUrl: env.WEB_URL,
             webApiKey: env.INTERNAL_API_KEY
         });
+    }
+
+    /**
+     * Whether a URL can safely carry the shared key.
+     * @param value The URL to check.
+     * @returns `true` for `https`, or for `http` towards `localhost` or a `127.x.x.x` / `::1` address.
+     */
+    private static isSafeWebUrl(value: string): boolean {
+        try {
+            const { protocol, hostname } = new URL(value);
+            if (protocol === 'https:') return true;
+
+            return protocol === 'http:' && (hostname === 'localhost' || hostname === '[::1]' || /^127\./.test(hostname));
+        } catch {
+            return false;
+        }
     }
 }

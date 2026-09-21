@@ -15,6 +15,11 @@ export interface SupportTicket {
     /** The channel the ticket lives in. */
     channelId: string;
     state: SupportTicketState;
+    /**
+     * Messages the user has sent through the web since the bot started. Not persisted, so a restart
+     * resets it — the size cap on the transcript itself is what covers that case.
+     */
+    userMessages: number;
 }
 
 /** The channel fields {@link SupportTicketChannel.parse} reads — a subset every guild text channel structure satisfies. */
@@ -75,7 +80,8 @@ export class SupportTicketChannel {
             userId: match[2],
             subject: subject.trim(),
             channelId: id,
-            state: name.startsWith('cerrando-') ? 'closing' : 'open'
+            state: name.startsWith('cerrando-') ? 'closing' : 'open',
+            userMessages: 0
         };
     }
 

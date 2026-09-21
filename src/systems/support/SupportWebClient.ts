@@ -19,7 +19,9 @@ export class SupportWebClient {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${webApiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
-                signal: AbortSignal.timeout(15_000)
+                signal: AbortSignal.timeout(15_000),
+                // The request carries the shared key: a redirect must never take it somewhere else.
+                redirect: 'error'
             });
 
             if (response.ok) return { ok: true };

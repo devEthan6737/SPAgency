@@ -481,6 +481,7 @@ export default {
                     already: 'ℹ️ Este ticket ya se está cerrando.',
                     failed: '❌ No se pudo iniciar el cierre. Inténtalo de nuevo.'
                 },
+                truncated: (omitted: number) => `⚠️ La web solo recibió los últimos mensajes: los ${omitted} más antiguos no caben en su límite de tamaño. Están en la copia adjunta.`,
                 dm: (subject: string) => `🔒 Tu ticket «${subject}» se ha cerrado. Puedes consultar la conversación desde la web, en tu historial de soporte.`,
                 staffCopy: (subject: string, userId: string, by: string) => `📎 Ticket **${subject}** de <@${userId}> cerrado ${by}. Copia con las notas internas adjunta.`,
                 deliveryFailed: (subject: string, channelId: string, reason: string) =>
@@ -489,6 +490,7 @@ export default {
             transcript: {
                 header: (subject: string, ticketId: string, userId: string, openedAt: string, closedAt: string, by: string) =>
                     `Ticket: ${subject}\nID: ${ticketId}\nUsuario: ${userId}\nAbierto: ${openedAt}\nCerrado: ${closedAt} (${by})`,
+                staffTruncated: (omitted: number) => `[… ${omitted} mensajes anteriores omitidos por tamaño …]`,
                 closedByUser: 'por el usuario',
                 closedByStaff: 'por el staff',
                 authors: {

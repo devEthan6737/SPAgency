@@ -52,7 +52,7 @@ export class SupportApi {
      * @param client Bot client.
      * @param settings Support settings.
      * @param request The request, whose body is the ticket to open.
-     * @returns `201` with the ticket's id and opening date, or the reason it wasn't opened.
+     * @returns `201` with the ticket's id and opening date, or the reason it wasn't opened — `429` for a cooldown or the daily limit.
      * @throws {ApiError} `400 invalid_body` if the body is missing something or out of bounds.
      */
     private static async create(client: UsingClient, settings: SupportSettings, request: ApiRequest): Promise<ApiResponse> {
@@ -64,6 +64,7 @@ export class SupportApi {
 
         if (result.reason === 'tooManyOpen') return reply(429, { error: 'too_many_open_tickets' });
         if (result.reason === 'cooldown') return reply(429, { error: 'cooldown' });
+        if (result.reason === 'dailyLimit') return reply(429, { error: 'daily_limit' });
         if (result.reason === 'full') return reply(503, { error: 'support_full' });
 
         return reply(502, { error: 'ticket_creation_failed' });
@@ -105,7 +106,7 @@ export class SupportApi {
      * `POST /support/tickets/:ticketId/messages` — publishes what the user wrote on the web into the channel.
      * @param client Bot client.
      * @param request The request: the ticket id in the path, `{ userId, content }` in the body.
-     * @returns `200` with the id of the message posted, or `409` while closing, `429` on cooldown, `502` if Discord refuses.
+     * @returns `200` with the id of the message posted, or `409` while closing or once the ticket is full, `429` on cooldown, `502` if Discord refuses.
      * @throws {ApiError} `400 invalid_body` for a malformed `userId` or an empty or over-long `content`, `404 not_found` if the ticket isn't the user's.
      */
     private static async send(client: UsingClient, request: ApiRequest): Promise<ApiResponse> {
@@ -120,6 +121,7 @@ export class SupportApi {
 
         // The contract has no code for these: a closing ticket is not `404` (the transcript isn't ready), and nothing else fits a Discord failure.
         if (result.reason === 'closing') return reply(409, { error: 'closing' });
+        if (result.reason === 'full') return reply(409, { error: 'ticket_full' });
         if (result.reason === 'cooldown') return reply(429, { error: 'cooldown' });
 
         return reply(502, { error: 'send_failed' });
@@ -183,8 +185,8 @@ export class SupportApi {
 
     /**
      * Validates the body of `POST /support/tickets` and normalizes it: the subject is collapsed to one
-     * line (it goes into the channel topic, whose second line is the subject), an unusable avatar URL
-     * is dropped rather than failing the whole request.
+     * line (it goes into the channel topic, whose second line is the subject), an avatar URL that isn't
+     * Discord's own is dropped rather than failing the whole request.
      * @param body The parsed JSON body, of unknown shape.
      * @returns The input, or `null` if anything required is missing or out of bounds.
      */
@@ -205,22 +207,24 @@ export class SupportApi {
         return {
             userId,
             username: username.trim().slice(0, 80),
-            avatarUrl: SupportApi.isHttpsUrl(avatarUrl) ? avatarUrl : null,
+            avatarUrl: SupportApi.isDiscordAvatarUrl(avatarUrl) ? avatarUrl : null,
             subject: cleanSubject,
             message: cleanMessage
         };
     }
 
     /**
-     * Whether a value is an `https:` URL — anything else is dropped, since Discord rejects an embed whose icon isn't one.
+     * Whether a value is a Discord CDN URL. The avatar becomes the icon of an embed, and only Discord's own
+     * hosts are accepted: it is what the web sends, and anything else is content nobody vouched for.
      * @param value The value to check, of unknown type.
-     * @returns `true` if it is a string that parses as an `https:` URL.
+     * @returns `true` if it is an `https:` URL on Discord's CDN.
      */
-    private static isHttpsUrl(value: unknown): value is string {
+    private static isDiscordAvatarUrl(value: unknown): value is string {
         if (typeof value !== 'string') return false;
 
         try {
-            return new URL(value).protocol === 'https:';
+            const { protocol, hostname } = new URL(value);
+            return protocol === 'https:' && (hostname === 'cdn.discordapp.com' || hostname === 'media.discordapp.net');
         } catch {
             return false;
         }

@@ -142,7 +142,8 @@ export class SupportClose {
 
         const t = client.t('es').systems.support;
         const transcript = SupportTranscript.forStaff(client, info, messages);
-        const delivery = await SupportClose.deliver(settings, SupportTranscript.forWeb(info, messages));
+        const web = SupportTranscript.forWeb(info, messages);
+        const delivery = await SupportClose.deliver(settings, web.payload);
 
         if (!delivery.ok) {
             await SupportClose.postToStaff(client, settings, { content: t.close.deliveryFailed(ticket.subject, ticket.channelId, delivery.reason).get(), ticket, transcript });
@@ -154,7 +155,8 @@ export class SupportClose {
         SupportMessageBuffer.drop(ticket.channelId);
 
         const by = info.closedBy === 'user' ? t.transcript.closedByUser.get() : t.transcript.closedByStaff.get();
-        const archived = await SupportClose.postToStaff(client, settings, { content: t.close.staffCopy(ticket.subject, ticket.userId, by).get(), ticket, transcript });
+        const truncated = web.omitted ? ` ${t.close.truncated(web.omitted).get()}` : '';
+        const archived = await SupportClose.postToStaff(client, settings, { content: `${t.close.staffCopy(ticket.subject, ticket.userId, by).get()}${truncated}`, ticket, transcript });
 
         // Best effort: the user doesn't share a server with the bot, so Discord often refuses.
         await client.users

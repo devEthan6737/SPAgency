@@ -16,11 +16,30 @@ export interface RestoreCounts {
 
 /** Snapshotting and restoring a guild's channels, roles, bans, emojis and stickers. */
 export class BackupSystem {
-    /** Downloads `url` and returns it as a base64 string, or undefined if it couldn't be fetched. */
+    /**
+     * Downloads an emoji or sticker image. The URLs are built from Discord's CDN, so anything else is
+     * refused; the request has a timeout, follows no redirects, and stops reading past 1 MB (an emoji is
+     * at most 256 KB and a sticker 512 KB) — `Content-Length` is never trusted.
+     * @param url The image's URL.
+     * @returns The image as base64, or `undefined` if it isn't Discord's, couldn't be fetched or was too big.
+     */
     private static async downloadBase64(url: string): Promise<string | undefined> {
-        const response = await fetch(url).catch(() => undefined);
-        if (!response?.ok) return undefined;
-        return Buffer.from(await response.arrayBuffer()).toString('base64');
+        const parsed = URL.canParse(url) ? new URL(url) : undefined;
+        if (!parsed || parsed.protocol !== 'https:' || (parsed.hostname !== 'cdn.discordapp.com' && parsed.hostname !== 'media.discordapp.net')) return undefined;
+
+        const response = await fetch(parsed, { signal: AbortSignal.timeout(15_000), redirect: 'error' }).catch(() => undefined);
+        if (!response?.ok || !response.body) return undefined;
+
+        const chunks: Uint8Array[] = [];
+        let size = 0;
+        for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
+            size += chunk.length;
+            if (size > 1_000_000) return undefined;
+
+            chunks.push(chunk);
+        }
+
+        return Buffer.concat(chunks).toString('base64');
     }
 
     /**

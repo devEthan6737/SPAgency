@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { ChannelType, OverwriteType, PermissionFlagsBits, SeyfertError, type MessageStructure, type UsingClient } from 'seyfert';
 import { ExpiringMap } from '../shared/ExpiringMap.js';
+import { RollingWindowCounter } from '../shared/RollingWindowCounter.js';
 import { SupportClose } from './SupportClose.js';
 import { SupportConfig, type SupportSettings } from './SupportConfig.js';
 import { SupportMessageBuffer, type SupportMessageQuery } from './SupportMessageBuffer.js';
@@ -25,10 +26,10 @@ export interface CreateTicketInput {
 }
 
 /** `tooManyOpen` and `cooldown` are the user's doing; `full` and `failed` are ours (the category is at Discord's limit, or a Discord call failed). */
-export type CreateTicketResult = { ok: true; ticket: SupportTicket } | { ok: false; reason: 'tooManyOpen' | 'cooldown' | 'full' | 'failed' };
+export type CreateTicketResult = { ok: true; ticket: SupportTicket } | { ok: false; reason: 'tooManyOpen' | 'cooldown' | 'dailyLimit' | 'full' | 'failed' };
 
-/** `closing` and `cooldown` are the ticket's or the user's state; `failed` is Discord refusing the write. */
-export type SendMessageResult = { ok: true; id: string } | { ok: false; reason: 'closing' | 'cooldown' | 'failed' };
+/** `closing`, `full` and `cooldown` are the ticket's or the user's state; `failed` is Discord refusing the write. */
+export type SendMessageResult = { ok: true; id: string } | { ok: false; reason: 'closing' | 'full' | 'cooldown' | 'failed' };
 
 /** Orchestrates a ticket's life on the Discord side — see docs/support.md. */
 export class SupportSystem {
@@ -37,6 +38,9 @@ export class SupportSystem {
 
     /** Users who opened a ticket less than a minute ago. */
     private static cooldowns = new ExpiringMap<string, true>();
+
+    /** Tickets each user opened in the last 24 hours — caps the open-and-close loop, which creates and deletes a channel and posts an archive to the staff every time. */
+    private static dailyCreations = new RollingWindowCounter(24 * 60 * 60 * 1000);
 
     /** Users who sent a message less than two seconds ago. */
     private static messageCooldowns = new ExpiringMap<string, true>();
@@ -51,6 +55,9 @@ export class SupportSystem {
         const missing = SupportConfig.missing();
         if (missing.length) return client.logger.warn(`[support] Disabled — missing ${missing.join(', ')}`);
 
+        const invalid = SupportConfig.invalid();
+        if (invalid.length) return client.logger.warn(`[support] Disabled — ${invalid.join('; ')}`);
+
         const settings = SupportConfig.get()!;
         // Delays before each attempt: a failed first build must not leave support down until the next restart.
         for (const delay of [0, 5_000, 30_000]) {
@@ -58,11 +65,13 @@ export class SupportSystem {
 
             try {
                 await SupportTicketIndex.rebuild(client, settings);
-                client.logger.info(`[support] Ticket index ready (${SupportTicketIndex.size} open)`);
-                return SupportClose.resumeAll(client, settings);
             } catch (error) {
                 client.logger.error('[support] Building the ticket index failed', error);
+                continue;
             }
+
+            client.logger.info(`[support] Ticket index ready (${SupportTicketIndex.size} open)`);
+            return SupportClose.resumeAll(client, settings);
         }
     }
 
@@ -89,6 +98,7 @@ export class SupportSystem {
 
         if (SupportSystem.creating.has(userId) || SupportTicketIndex.ofUser(userId).length) return { ok: false, reason: 'tooManyOpen' };
         if (SupportSystem.cooldowns.has(userId)) return { ok: false, reason: 'cooldown' };
+        if (SupportSystem.dailyCreations.count(userId) >= 5) return { ok: false, reason: 'dailyLimit' };
         // Discord's cap on channels per category.
         if (SupportTicketIndex.size >= 50) return { ok: false, reason: 'full' };
 
@@ -120,9 +130,10 @@ export class SupportSystem {
                 return { ok: false, reason: 'failed' };
             }
 
-            const ticket: SupportTicket = { ticketId, userId, subject, channelId: channel.id, state: 'open' };
+            const ticket: SupportTicket = { ticketId, userId, subject, channelId: channel.id, state: 'open', userMessages: 1 };
             SupportTicketIndex.add(ticket);
             SupportSystem.cooldowns.set(userId, true, 60_000);
+            SupportSystem.dailyCreations.hit(userId);
 
             return { ok: true, ticket };
         } finally {
@@ -197,6 +208,8 @@ export class SupportSystem {
      */
     static async sendUserMessage(client: UsingClient, ticket: SupportTicket, content: string): Promise<SendMessageResult> {
         if (ticket.state === 'closing') return { ok: false, reason: 'closing' };
+        // Keeps one ticket from growing into something the web would refuse to store. The count resets on restart; the transcript's own size cap covers that.
+        if (ticket.userMessages >= 300) return { ok: false, reason: 'full' };
         if (SupportSystem.messageCooldowns.has(ticket.userId)) return { ok: false, reason: 'cooldown' };
         // Set before the writes below, so a burst of requests trips it instead of all slipping past.
         SupportSystem.messageCooldowns.set(ticket.userId, true, 2_000);
@@ -206,6 +219,7 @@ export class SupportSystem {
             const author = { username: user ? (user.globalName ?? user.username) : client.t('es').systems.support.message.unknownUser.get(), avatarUrl: user?.avatarURL() ?? null };
 
             const sent = await client.messages.write(ticket.channelId, SupportPosts.userMessage(author, content));
+            ticket.userMessages++;
             return { ok: true, id: sent.id };
         } catch (error) {
             client.logger.error('[support] Posting a user message failed', error);

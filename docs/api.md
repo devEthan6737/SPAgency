@@ -18,6 +18,7 @@ Un `ApiModule` es `{ prefix, handle(client, request) }`; en este repo son clases
 ## Convenciones
 
 - **Autenticación:** `ApiAuth.isAuthorized(headers)` compara `Authorization: Bearer <clave>` con `INTERNAL_API_KEY` en tiempo constante; falla cerrado si la variable no está definida. Es una única clave compartida con la web y en **ambos sentidos**: la web la manda a esta API y el bot la manda a la web al empujar transcripts (`WEB_URL` es la base de esas llamadas). Nunca llega al navegador.
+- **Rechazos:** una petición sin clave, o con una incorrecta, responde `401` y deja **una advertencia por minuto y módulo** en el log (`[api] Refused an unauthenticated request to /support`), para poder ver que alguien sondea. Solo se registra el prefijo, nunca la ruta: `/verify/<token>/complete` lleva una credencial.
 - **Errores:** `throw new ApiError(status, code)` en cualquier punto termina la petición con `{ error: code }`. Cualquier otra excepción se registra y responde `500 internal_error`.
 - **Cuerpos:** `request.json()` lee bajo demanda y con tope de 32 KB (`413 payload_too_large`, y cierra la conexión); vacío o malformado → `400 invalid_body`. Las rutas que no lo llaman nunca leen el cuerpo.
 - **Query:** `request.query` es un `URLSearchParams`.

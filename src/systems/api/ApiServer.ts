@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { UsingClient } from 'seyfert';
+import { ExpiringMap } from '../shared/ExpiringMap.js';
 import { ApiError, reply, type ApiModule, type ApiRequest, type ApiResponse } from './ApiHttp.js';
 
 /**
@@ -12,6 +13,9 @@ import { ApiError, reply, type ApiModule, type ApiRequest, type ApiResponse } fr
  */
 export class ApiServer {
     private static started = false;
+
+    /** Prefixes that already logged a rejected request in the last minute — a probe would otherwise flood the log. */
+    private static rejected = new ExpiringMap<string, true>();
 
     /** Request body cap: the largest legitimate body is a 2000-character message, which is at most 8 KB in UTF-8. */
     private static readonly MaxBodyBytes = 32 * 1024;
@@ -54,13 +58,29 @@ export class ApiServer {
         const module = modules.find((candidate) => candidate.prefix === prefix);
         if (!module) return reply(404, { error: 'not_found' });
 
-        return await module.handle(client, {
+        const response = await module.handle(client, {
             method: req.method ?? 'GET',
             segments,
             query: url.searchParams,
             headers: req.headers,
             json: () => ApiServer.readJson(req)
         });
+
+        if (response.status === 401) ApiServer.logRejected(client, module.prefix);
+        return response;
+    }
+
+    /**
+     * Logs that a request was refused for lacking the key, at most once a minute per module. Only the
+     * module's prefix is logged, never the path: `/verify/<token>/complete` carries a credential in it.
+     * @param client Bot client, for its logger.
+     * @param prefix The module that refused the request.
+     */
+    private static logRejected(client: UsingClient, prefix: string): void {
+        if (ApiServer.rejected.has(prefix)) return;
+
+        ApiServer.rejected.set(prefix, true, 60_000);
+        client.logger.warn(`[api] Refused an unauthenticated request to /${prefix} (more within a minute are not logged)`);
     }
 
     /**

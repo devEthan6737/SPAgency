@@ -27,4 +27,14 @@ export class RollingWindowCounter {
         this.entries.set(key, timestamps, this.windowMs);
         return timestamps.length;
     }
+
+    /**
+     * How many hits `key` has within the window, without registering one — for checking a limit before deciding to act.
+     * @param key What is being counted.
+     * @returns The number of hits within the last `windowMs`.
+     */
+    count(key: string): number {
+        const now = Date.now();
+        return (this.entries.get(key) ?? []).filter((timestamp) => now - timestamp < this.windowMs).length;
+    }
 }
