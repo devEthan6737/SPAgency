@@ -89,7 +89,15 @@ export class AutomodSystem {
 
         const { id: messageId, guildId, channelId, author } = message;
         const mentionedUserId = message.mentions.users[0]?.id;
-        AutomodSystem.ghostpingCandidates.set(messageId, { guildId, channelId, authorId: author.id, mentionedUserId }, { ttlMs: AutomodSystem.GhostpingWindowMs });
+        AutomodSystem.ghostpingCandidates.set(messageId, {
+            guildId,
+            channelId,
+            authorId: author.id,
+            mentionedUserId
+        },
+        {
+            ttlMs: AutomodSystem.GhostpingWindowMs
+        });
     }
 
     /** Called from `messageDelete.ts` for every deletion — a no-op unless `messageId` was tracked by {@link AutomodSystem.trackForGhostping} and is still within its window. */

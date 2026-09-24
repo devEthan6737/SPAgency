@@ -46,9 +46,18 @@ export class RaidmodeSystem {
         const expiresAt = new Date(Date.now() + parseDurationMs(settings.raidmodeTimeToDisable));
 
         await client.bans.create(member.guildId, member.id, { reason }).catch(() => {});
-        await TempbanRepository.create({ guildId: member.guildId, userId: member.id, reason, expiresAt });
+        await TempbanRepository.create({
+            guildId: member.guildId,
+            userId: member.id,
+            reason,
+            expiresAt
+        });
 
-        void dispatchLog(client, RaidmodeSystem.logJoinBan({ guildId: member.guildId, targetId: member.id })).catch(() => {});
+        void dispatchLog(client, RaidmodeSystem.logJoinBan({
+            guildId: member.guildId,
+            targetId: member.id
+        })).catch(() => {});
+        
         if (member.bot) void BotAdderSystem.enforce(client, { guildId: member.guildId, botId: member.id, source: RaidBotSource.Raidmode }).catch(() => {});
         return true;
     }

@@ -28,9 +28,7 @@ export class MaliciousMemberSystem {
         const reason = entry?.reason ?? 'Malicious user';
         const t = client.t(settings.language);
 
-        // A malicious bot bypasses the configured action entirely and always gets banned — there's
-        // no legitimate reason to mark-and-let-in or do nothing about a bot that's both on the
-        // global blacklist and, on top of that, managed to get past AntibotsSystem.
+        // A malicious bot always gets banned, ignoring the configured action.
         const action = member.bot ? MaliciousMemberAction.Ban : settings.maliciousMemberAction;
 
         if (action === MaliciousMemberAction.Mark) {
@@ -39,7 +37,14 @@ export class MaliciousMemberSystem {
         } else if (action === MaliciousMemberAction.Ban) {
             await MaliciousMemberSystem.notifyOwner(client, member.guildId, t.systems.maliciousMember.ownerDmBan(member.id, reason).get());
             await client.bans.create(member.guildId, member.id, { reason }).catch(() => {});
-            if (member.bot) void BotAdderSystem.enforce(client, { guildId: member.guildId, botId: member.id, source: RaidBotSource.MaliciousMember }).catch(() => {});
+
+            if (member.bot) {
+                void BotAdderSystem.enforce(client, {
+                    guildId: member.guildId,
+                    botId: member.id,
+                    source: RaidBotSource.MaliciousMember
+                }).catch(() => {});
+            }
         }
 
         void dispatchLog(client, MaliciousMemberSystem.log({ guildId: member.guildId, targetId: member.id, action })).catch(() => {});

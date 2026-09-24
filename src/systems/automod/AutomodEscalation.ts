@@ -25,7 +25,13 @@ export class AutomodEscalation {
         const t = client.t(settings.language).systems.automod;
         const reason = t.reason[detector]().get();
 
-        await WarnRepository.create({ guildId, userId, moderatorId: WarnRepository.AutomodModeratorId, reason });
+        await WarnRepository.create({
+            guildId,
+            userId,
+            moderatorId: WarnRepository.AutomodModeratorId,
+            reason
+        });
+        
         const subCount = await WarnRepository.countAutomod(guildId, userId);
 
         let sanction = AutomodSanction.Warn;

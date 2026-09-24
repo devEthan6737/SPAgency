@@ -83,7 +83,12 @@ export default class TempbanCommand extends Command {
 
         await ctx.options.member.write({ content: shared.dm(guild.name, reason).get() }).catch(() => {});
         await guild.bans.create(targetId, { reason });
-        await TempbanRepository.create({ guildId: guild.id, userId: targetId, reason: t.autoUnbanReason.get(), expiresAt });
+        await TempbanRepository.create({
+            guildId: guild.id,
+            userId: targetId,
+            reason: t.autoUnbanReason.get(),
+            expiresAt
+        });
         
         void dispatchLog(
             ctx.client,
