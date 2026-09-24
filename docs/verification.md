@@ -35,6 +35,8 @@ token   = "<payload>.<firma>"
 - Comparación de firma en tiempo constante (`timingSafeEqual`).
 - **El rol se lee al conceder, no del token** — el payload solo lleva `guildId`/`userId`; si un admin cambia `verificationRole` después de emitido el token, se aplica el rol correcto igualmente.
 
+> Solo en producción se mandan enlaces y arranca esta API: `canary` y `developing` no hablan con la web (ver [cache.md](cache.md#solo-producción-habla-con-la-web--isproduction)). La configuración de verificación del dashboard sí les llega igualmente, por la base de datos.
+
 ## `VerificationApi` — la API REST
 
 Módulo de [`ApiServer`](api.md) montado en `/verify/*`: dos rutas, sin cuerpo que parsear. Autenticación con `INTERNAL_API_KEY`.

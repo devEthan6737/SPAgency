@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { GuildMemberStructure, UsingClient } from 'seyfert';
 import { GuildConfigCache } from '../protection/index.js';
+import { isProduction } from '../shared/Environment.js';
 
 /** Decoded, verified token payload — only present once {@link VerificationSystem.verifyToken} has confirmed the signature and expiry. */
 export interface VerificationTokenPayload {
@@ -37,12 +38,13 @@ export class VerificationSystem {
     /**
      * Called from `guildMemberAdd.ts` once every removal-capable system already had its turn (see
      * its doc comment) — DMs `member` a fresh verification link if the guild has verification on.
+     * Never outside production: the link leads to the web, which only the real bot talks to.
      * @param client Bot client, used to read the guild's language and send the DM.
      * @param member The member who just joined.
      * @returns Whether a DM with a verification link was sent.
      */
     static async enforce(client: UsingClient, member: GuildMemberStructure): Promise<boolean> {
-        if (member.bot) return false;
+        if (!isProduction() || member.bot) return false;
 
         const settings = await GuildConfigCache.get(member.guildId);
         if (!settings?.verificationEnable || !settings.verificationRole) return false;

@@ -2,7 +2,7 @@
 
 **Ficheros:** [`src/systems/api/`](../src/systems/api/) (`ApiServer.ts`, `ApiHttp.ts`, `ApiAuth.ts`)
 
-Un único servidor `node:http` para todo lo que la web/dashboard necesita del bot. Solo `127.0.0.1` (comparten VPS), puerto `BOT_API_PORT` (default `4501`). Se arranca una vez desde `ready.ts` con la lista de módulos: `ApiServer.start(client, [VerificationApi, …])`.
+Un único servidor `node:http` para todo lo que la web/dashboard necesita del bot. Solo `127.0.0.1` (comparten VPS), puerto `BOT_API_PORT` (default `4501`). **Solo arranca en producción** (`canary` y `developing` no hablan con la web; ver [cache.md](cache.md#solo-producción-habla-con-la-web--isproduction)). Se arranca una vez desde `ready.ts` con la lista de módulos: `ApiServer.start(client, [VerificationApi, …])`.
 
 ## Router
 

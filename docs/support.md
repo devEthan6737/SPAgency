@@ -4,6 +4,8 @@
 
 El usuario abre un ticket desde la web, el ticket es un canal del servidor de soporte, el staff responde en Discord y el usuario desde la web. Este doc cubre **el lado del bot**; el contrato completo (rutas, cuerpos, códigos, transcript) vive en `docs/support.md` del repo de la web (`SPA-Website`) y es la fuente de verdad — aquí solo lo que el bot decide por su cuenta.
 
+> **Solo hay soporte en producción**: en `canary` y en `developing` está apagado entero — ver [cache.md](cache.md#solo-producción-habla-con-la-web--isproduction).
+>
 > **Estado:** implementado entero — crear, listar, mensajes en ambos sentidos y cierre con transcript. Falta la prueba de extremo a extremo contra Discord y la web reales.
 
 ## El canal es el ticket — sin base de datos

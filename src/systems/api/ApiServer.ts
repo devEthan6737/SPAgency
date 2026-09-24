@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { UsingClient } from 'seyfert';
+import { isProduction } from '../shared/Environment.js';
 import { ExpiringMap } from '../shared/ExpiringMap.js';
 import { ApiError, reply, type ApiModule, type ApiRequest, type ApiResponse } from './ApiHttp.js';
 
@@ -21,12 +22,15 @@ export class ApiServer {
     private static readonly MaxBodyBytes = 32 * 1024;
 
     /**
-     * Starts the server. Call once, from the ready event.
+     * Starts the server. Call once, from the ready event. Does nothing outside production: only the
+     * real bot talks to the web — see {@link isProduction}.
      * @param client Bot client, handed to every module.
      * @param modules The features to mount, each under `/<prefix>/*`.
      */
     static start(client: UsingClient, modules: readonly ApiModule[]): void {
         if (ApiServer.started) return;
+        if (!isProduction()) return client.logger.info('[api] Not started: only production talks to the web');
+
         ApiServer.started = true;
 
         const port = Number(process.env.BOT_API_PORT ?? 4501);

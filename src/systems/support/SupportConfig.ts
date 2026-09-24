@@ -1,3 +1,5 @@
+import { isProduction } from '../shared/Environment.js';
+
 /**
  * Everything the support system reads from the environment — see docs/support.md for what each
  * variable is. `webUrl` and `webApiKey` are the shared `WEB_URL` and `INTERNAL_API_KEY`: where and
@@ -55,11 +57,13 @@ export class SupportConfig {
     /**
      * Reads the settings. Cached after the first call — the environment doesn't change while the
      * process runs — so it is cheap enough to call on the hot path of every message event.
-     * @returns The settings, or `null` while anything in {@link SupportConfig.missing} is unset or {@link SupportConfig.invalid} reports a problem.
+     * @returns The settings, or `null` while anything in {@link SupportConfig.missing} is unset, {@link SupportConfig.invalid}
+     * reports a problem, or this isn't production, the only environment that talks to the web. `null` is what switches every part of
+     * support off: nothing else needs its own check, since every one of them starts from these settings.
      */
     static get(): SupportSettings | null {
         if (SupportConfig.cached !== undefined) return SupportConfig.cached;
-        if (SupportConfig.missing().length || SupportConfig.invalid().length) return (SupportConfig.cached = null);
+        if (!isProduction() || SupportConfig.missing().length || SupportConfig.invalid().length) return (SupportConfig.cached = null);
 
         // Safe: `missing()` just confirmed every one of these is set.
         const env = process.env as Record<string, string>;

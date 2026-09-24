@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { ChannelType, OverwriteType, PermissionFlagsBits, SeyfertError, type MessageStructure, type UsingClient } from 'seyfert';
+import { isProduction } from '../shared/Environment.js';
 import { ExpiringMap } from '../shared/ExpiringMap.js';
 import { RollingWindowCounter } from '../shared/RollingWindowCounter.js';
 import { SupportClose } from './SupportClose.js';
@@ -52,6 +53,8 @@ export class SupportSystem {
      * @param client Bot client.
      */
     static async start(client: UsingClient): Promise<void> {
+        if (!isProduction()) return client.logger.info('[support] Disabled: only production talks to the web');
+
         const missing = SupportConfig.missing();
         if (missing.length) return client.logger.warn(`[support] Disabled — missing ${missing.join(', ')}`);
 

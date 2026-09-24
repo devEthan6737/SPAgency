@@ -2,7 +2,7 @@ import { AutoLoad, Command, Declare, LocalesT, type CommandContext } from 'seyfe
 
 /**
  * Internal debug tooling for `GuildConfigCache` — never registered in production (see
- * `props.devOnly` and `src/index.ts`). Only exists on the canary/testing and local-dev bots, where
+ * `props.devOnly` and `src/index.ts`). Only exists on the canary and local-dev bots, where
  * "who can run it" is already answered by which bot application is even installed where (see
  * docs — testers know the canary bot, a dev's own bot is only in their one test server).
  */

@@ -4,7 +4,7 @@ import { cooldown, type CooldownMiddlewares, type CooldownResult } from '@sliphe
 import { GuildRepository } from './database/repositories/guild.repository.js';
 import { commandDefaults } from './systems/commands/defaults.js';
 import { commandMiddlewares } from './middlewares/isOwner.middleware.js';
-import { isProduction } from './systems/shared/Environment.js';
+import { isProduction, unrecognizedBotEnv } from './systems/shared/Environment.js';
 
 const plugins = definePlugins(
     cooldown({
@@ -50,6 +50,9 @@ client.setServices({
 });
 
 await client.start();
+
+const unrecognizedEnv = unrecognizedBotEnv();
+if (unrecognizedEnv) client.logger.warn(`[env] BOT_ENV="${unrecognizedEnv}" is not production, canary or developing — running as PRODUCTION, which talks to the web`);
 
 // Never registered before this — genuinely missing, not a deliberate manual step. `cachePath` makes
 // this a no-op against Discord's API on every boot where the command set hasn't actually changed
