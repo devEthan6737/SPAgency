@@ -17,9 +17,11 @@ export interface SupportSettings {
     webUrl: string;
     /** Key the bot authenticates with when calling the web. */
     webApiKey: string;
+    /** Signs and verifies a ticket channel's topic — the bot-only `VERIFICATION_SECRET`, never shared with the web. See `SupportTicketChannel`. */
+    ticketSecret: string;
 }
 
-/** Reads and caches the support variables — the `SUPPORT_*` ones plus the shared `WEB_URL`, `INTERNAL_API_KEY` and `STAFF_LOGS_CHANNEL`. The whole feature is off unless every one of them is set. */
+/** Reads and caches the support variables — the `SUPPORT_*` ones plus the shared `WEB_URL`, `INTERNAL_API_KEY`, `STAFF_LOGS_CHANNEL` and `VERIFICATION_SECRET`. The whole feature is off unless every one of them is set. */
 export class SupportConfig {
     /** `undefined` until the first {@link SupportConfig.get}; `null` once it found something missing. */
     private static cached: SupportSettings | null | undefined;
@@ -35,7 +37,8 @@ export class SupportConfig {
             'SUPPORT_STAFF_ROLE_ID',
             'STAFF_LOGS_CHANNEL',
             'WEB_URL',
-            'INTERNAL_API_KEY'
+            'INTERNAL_API_KEY',
+            'VERIFICATION_SECRET'
         ].filter((name) => !process.env[name]);
     }
 
@@ -66,7 +69,8 @@ export class SupportConfig {
             staffRoleId: env.SUPPORT_STAFF_ROLE_ID,
             staffChannelId: env.STAFF_LOGS_CHANNEL,
             webUrl: env.WEB_URL,
-            webApiKey: env.INTERNAL_API_KEY
+            webApiKey: env.INTERNAL_API_KEY,
+            ticketSecret: env.VERIFICATION_SECRET
         });
     }
 

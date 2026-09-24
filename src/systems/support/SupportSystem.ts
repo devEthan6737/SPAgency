@@ -110,7 +110,7 @@ export class SupportSystem {
                 .create(settings.guildId, {
                     type: ChannelType.GuildText,
                     name: SupportTicketChannel.openName(ticketId),
-                    topic: SupportTicketChannel.topic(ticketId, userId, subject),
+                    topic: SupportTicketChannel.topic({ ticketId, userId, subject }, settings.ticketSecret),
                     parent_id: settings.categoryId,
                     permission_overwrites: SupportSystem.overwrites(client, settings)
                 })

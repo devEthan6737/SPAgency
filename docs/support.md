@@ -10,7 +10,8 @@ El usuario abre un ticket desde la web, el ticket es un canal del servidor de so
 
 Nada se guarda fuera de Discord. `SupportTicketChannel` codifica y decodifica el ticket:
 
-- **Tema (una sola escritura, al crear):** `ticket:<ticketId> user:<userId>` y, en la segunda línea, el asunto. Discord limita las ediciones de tema y nombre a 2 cada 10 min, por eso el tema no se vuelve a tocar. Un canal de la categoría cuyo tema no encaje simplemente no es un ticket.
+- **Tema (una sola escritura, al crear):** `ticket:<ticketId> user:<userId> sig:<firma>` y, en la segunda línea, el asunto. Discord limita las ediciones de tema y nombre a 2 cada 10 min, por eso el tema no se vuelve a tocar. Un canal de la categoría cuyo tema no encaje, o cuya firma no verifique, simplemente no es un ticket.
+- **`sig`:** HMAC-SHA256 de `support-topic:<ticketId>:<userId>` con `VERIFICATION_SECRET` (bot-only, nunca se comparte con la web). La etiqueta `support-topic:` separa este uso del de los tokens de verificación, que usan la misma clave: una firma de uno no puede valer en el otro. **Rotar `VERIFICATION_SECRET` deja huérfanos los tickets abiertos** (sus temas dejan de verificar): ciérralos antes. Sin ella, cualquiera con `ManageChannels` en la categoría podría crear un canal con el formato correcto y hacer que el bot lo tratara como un ticket real de cualquier `userId` — la firma hace que forjarlo requiera también el secreto, no solo el formato.
 - **Nombre:** `ticket-<6 primeros caracteres del id>`; pasa a `cerrando-<…>` al empezar el cierre, y esa es la marca que permite retomar un cierre tras reiniciar. Discord pasa los nombres a minúsculas, así que el estado se lee por prefijo, nunca comparando el nombre entero.
 - **Fecha de apertura:** sale del snowflake del canal.
 - **`ticketId`:** 16 bytes de `crypto.randomBytes` en base64url (22 caracteres). Opaco: no se puede adivinar ni enumerar.
@@ -96,6 +97,7 @@ Todo por variables de entorno (en desarrollo se cargan del `.env` vía `dotenv`;
 | `SUPPORT_GUILD_ID`, `SUPPORT_CATEGORY_ID` | dónde viven los tickets |
 | `SUPPORT_STAFF_ROLE_ID` | rol que ve y responde |
 | `STAFF_LOGS_CHANNEL` | canal del staff: copias de los transcripts y avisos cuando la web no confirma uno. Es el mismo de las altas/bajas del bot y el SOS, no uno propio |
+| `VERIFICATION_SECRET` | firma el tema del canal (ya firma los tokens de verificación); bot-only, nunca se comparte con la web. Sin ella el soporte se desactiva |
 
 **Si falta cualquiera, el soporte queda desactivado**: aviso en el arranque (`[support] Disabled — missing …`) y `503 support_unavailable` en las rutas — nunca un fallo al arrancar. `INTERNAL_API_KEY`, `WEB_URL` y `STAFF_LOGS_CHANNEL` cuentan como requeridas aunque todavía no se usen (sin ellas no se podría entregar ni archivar un transcript), para no aceptar tickets que luego no se podrían cerrar. `STAFF_LOGS_CHANNEL` es opcional para el resto del bot, pero aquí es obligatoria. La comprobación de la clave va antes que la de configuración: quien no está autenticado no puede saber si el soporte está activo.
 
@@ -158,7 +160,7 @@ Sin el tope por ticket, un usuario a 1 mensaje cada 2 s alcanzaba los 5 MB de la
 ## Modelo de amenazas
 
 - **La web es la frontera de confianza del usuario.** El bot cree el `userId` que recibe: quien controla la web (o la clave) puede actuar como cualquier usuario. `INTERNAL_API_KEY` es una sola clave, usada en ambos sentidos y por todos los módulos de la API; rotarla exige cambiarla en los dos `.env` a la vez.
-- **Los temas de los canales de la categoría se creen.** Alguien con `ManageChannels` en ella puede crear un canal con el formato de un ticket y hacer que el bot empuje a la web un transcript de un usuario cualquiera. No se firma el tema a propósito: quien tiene ese permiso ya puede borrar y leer todos los tickets. **Mantén `ManageChannels` y `ManageMessages` en esa categoría solo para gente de confianza.**
+- **Los temas de los canales de la categoría van firmados** (`sig`, ver arriba), precisamente porque sin eso alguien con `ManageChannels` ahí podría forjar un canal con el formato de un ticket y hacer que el bot empujara a la web un transcript de un usuario cualquiera. Quien tiene ese permiso ya puede borrar y leer todos los tickets legítimos, así que la firma no cambia eso — cierra solo la suplantación de un `userId` ajeno. **Mantén `ManageChannels` y `ManageMessages` en esa categoría solo para gente de confianza**, y `VERIFICATION_SECRET` fuera del `.env` de la web.
 - **Todo el staff ve todos los tickets** (es el diseño: un solo rol). Las notas `//` solo las ve el staff, pero las ve todo el staff.
 - **Lo que escribe el usuario nunca puede mencionar a nadie:** va en embeds con `allowed_mentions` vacío, y los mensajes del bot al canal del staff que incluyen el asunto (controlado por el usuario) también los desactivan.
 - **Ningún dato del usuario forma parte del nombre del canal:** solo el `ticketId` aleatorio. El asunto va en el tema, ya en una sola línea.

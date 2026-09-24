@@ -40,7 +40,7 @@ export class SupportTicketIndex {
      * @param settings Support settings — the guild and category to scan.
      * @throws If Discord fails to list the channels; the index is left as it was.
      */
-    static async rebuild(client: UsingClient, { guildId, categoryId }: SupportSettings): Promise<void> {
+    static async rebuild(client: UsingClient, { guildId, categoryId, ticketSecret }: SupportSettings): Promise<void> {
         const startedAt = Date.now();
         const channels = await client.guilds.channels.list(guildId, true);
 
@@ -48,7 +48,7 @@ export class SupportTicketIndex {
         for (const channel of channels) {
             if (!channel.isTextGuild() || channel.parentId !== categoryId) continue;
 
-            const ticket = SupportTicketChannel.parse(channel);
+            const ticket = SupportTicketChannel.parse(channel, ticketSecret);
             if (ticket) fresh.set(ticket.ticketId, ticket);
         }
 

@@ -1,3 +1,5 @@
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
 /** `closing` from the moment closing starts until the web confirms the transcript — see docs/support.md. */
 export type SupportTicketState = 'open' | 'closing';
 
@@ -22,6 +24,16 @@ export interface SupportTicket {
     userMessages: number;
 }
 
+/** What {@link SupportTicketChannel.topic} needs to describe a new ticket. */
+export interface SupportTicketIdentity {
+    /** The ticket's id. */
+    ticketId: string;
+    /** Discord id of the ticket's owner. */
+    userId: string;
+    /** The subject, which must already be a single line. */
+    subject: string;
+}
+
 /** The channel fields {@link SupportTicketChannel.parse} reads — a subset every guild text channel structure satisfies. */
 export interface SupportChannelData {
     id: string;
@@ -34,6 +46,15 @@ export interface SupportChannelData {
  * The ticket ⇄ channel encoding. The channel *is* the ticket's storage: the topic carries the
  * identifiers and the subject (written once, at creation — Discord limits topic and name edits to 2
  * per 10 minutes), the name carries the state, and the opening date is the channel id's snowflake.
+ *
+ * **The topic is signed.** Nothing else vouches for a channel being a real ticket — there's no
+ * database row to check against — so without a signature, anyone able to create a channel in the
+ * support category (`ManageChannels` there) could hand-write a topic in the right shape and have the
+ * bot treat it as a genuine ticket of any `userId`, transcript pushed to the web and all. The HMAC
+ * over `ticketId:userId`, keyed by `VERIFICATION_SECRET` (bot-only, never shared with the web),
+ * closes that: forging a topic now also requires the secret. That secret already signs the
+ * verification tokens, so the signed text carries a `support-topic:` label — a signature from one use
+ * can never be valid for the other. Rotating it orphans every open ticket: their topics stop verifying.
  */
 export class SupportTicketChannel {
     /**
@@ -55,29 +76,33 @@ export class SupportTicketChannel {
     }
 
     /**
-     * Machine-readable topic: identifiers on the first line, the subject on the second.
-     * @param ticketId The ticket's id.
-     * @param userId Discord id of the ticket's owner.
-     * @param subject The subject, which must already be a single line.
+     * Machine-readable topic: identifiers and signature on the first line, the subject on the second.
+     * @param identity The ticket's id, owner and subject.
+     * @param secret `VERIFICATION_SECRET`, which signs the identifiers.
      * @returns The two-line topic {@link SupportTicketChannel.parse} reads back.
      */
-    static topic(ticketId: string, userId: string, subject: string): string {
-        return `ticket:${ticketId} user:${userId}\n${subject}`;
+    static topic({ ticketId, userId, subject }: SupportTicketIdentity, secret: string): string {
+        return `ticket:${ticketId} user:${userId} sig:${SupportTicketChannel.sign(ticketId, userId, secret)}\n${subject}`;
     }
 
     /**
-     * Reads a ticket back out of a channel.
+     * Reads a ticket back out of a channel, verifying its signature.
      * @param channel The channel's id, name and topic.
-     * @returns The ticket, or `null` if the topic doesn't match the format — such a channel just isn't a ticket.
+     * @param secret `VERIFICATION_SECRET`, checked against the topic's `sig`.
+     * @returns The ticket, or `null` if the topic doesn't match the format or its signature doesn't
+     * check out — such a channel isn't a genuine ticket, whatever it looks like.
      */
-    static parse({ id, name, topic }: SupportChannelData): SupportTicket | null {
+    static parse({ id, name, topic }: SupportChannelData, secret: string): SupportTicket | null {
         const [header, subject = ''] = (topic ?? '').split('\n');
-        const match = /^ticket:([A-Za-z0-9_-]{22}) user:(\d{15,25})$/.exec(header);
+        const match = /^ticket:([A-Za-z0-9_-]{22}) user:(\d{15,25}) sig:([A-Za-z0-9_-]+)$/.exec(header);
         if (!match) return null;
 
+        const [, ticketId, userId, signature] = match;
+        if (!SupportTicketChannel.verify({ ticketId, userId, signature }, secret)) return null;
+
         return {
-            ticketId: match[1],
-            userId: match[2],
+            ticketId,
+            userId,
             subject: subject.trim(),
             channelId: id,
             state: name.startsWith('cerrando-') ? 'closing' : 'open',
@@ -93,5 +118,30 @@ export class SupportTicketChannel {
     static createdAt(snowflakeId: string): Date {
         // A snowflake keeps its creation time, in ms since the Discord epoch, above the lowest 22 bits.
         return new Date(Number((BigInt(snowflakeId) >> 22n) + 1_420_070_400_000n));
+    }
+
+    /**
+     * Signs a `(ticketId, userId)` pair.
+     * @param ticketId The ticket's id.
+     * @param userId Discord id of the ticket's owner.
+     * @param secret `VERIFICATION_SECRET`.
+     * @returns The signature, as it goes in the topic.
+     */
+    private static sign(ticketId: string, userId: string, secret: string): string {
+        // The label keeps this apart from the verification tokens signed with the same secret.
+        return createHmac('sha256', secret).update(`support-topic:${ticketId}:${userId}`).digest('base64url');
+    }
+
+    /**
+     * Checks a topic's signature in constant time.
+     * @param claim The `ticketId`, `userId` and `signature` as read from the topic.
+     * @param secret `VERIFICATION_SECRET`.
+     * @returns Whether `signature` is what {@link SupportTicketChannel.sign} would produce for this pair.
+     */
+    private static verify({ ticketId, userId, signature }: { ticketId: string; userId: string; signature: string }, secret: string): boolean {
+        const expected = Buffer.from(SupportTicketChannel.sign(ticketId, userId, secret));
+        const given = Buffer.from(signature);
+
+        return given.length === expected.length && timingSafeEqual(given, expected);
     }
 }
