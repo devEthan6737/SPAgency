@@ -26,7 +26,7 @@ export class IntelligentSosSystem {
         const settings = await GuildConfigCache.get(guildId);
         if (!settings?.intelligentSosEnable) return;
 
-        IntelligentSosSystem.cooldowns.set(guildId, true, 120_000);
+        IntelligentSosSystem.cooldowns.set(guildId, true, { ttlMs: 120_000 });
 
         await IntelligentSosSystem.sendAlert(client, guildId, reason);
     }

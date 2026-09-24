@@ -154,7 +154,7 @@ export class SupportMessages {
         if (cached) return cached;
 
         const names = new Map((await client.roles.list(guildId, true)).map((role) => [role.id, role.name]));
-        SupportMessages.roleNames.set(guildId, names, 5 * 60_000);
+        SupportMessages.roleNames.set(guildId, names, { ttlMs: 5 * 60_000 });
         return names;
     }
 }

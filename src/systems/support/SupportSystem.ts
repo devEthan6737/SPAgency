@@ -132,7 +132,7 @@ export class SupportSystem {
 
             const ticket: SupportTicket = { ticketId, userId, subject, channelId: channel.id, state: 'open', userMessages: 1 };
             SupportTicketIndex.add(ticket);
-            SupportSystem.cooldowns.set(userId, true, 60_000);
+            SupportSystem.cooldowns.set(userId, true, { ttlMs: 60_000 });
             SupportSystem.dailyCreations.hit(userId);
 
             return { ok: true, ticket };
@@ -212,7 +212,7 @@ export class SupportSystem {
         if (ticket.userMessages >= 300) return { ok: false, reason: 'full' };
         if (SupportSystem.messageCooldowns.has(ticket.userId)) return { ok: false, reason: 'cooldown' };
         // Set before the writes below, so a burst of requests trips it instead of all slipping past.
-        SupportSystem.messageCooldowns.set(ticket.userId, true, 2_000);
+        SupportSystem.messageCooldowns.set(ticket.userId, true, { ttlMs: 2_000 });
 
         try {
             const user = await client.users.fetch(ticket.userId).catch(() => null);

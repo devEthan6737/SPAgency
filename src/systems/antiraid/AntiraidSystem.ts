@@ -60,7 +60,7 @@ export class AntiraidSystem {
         void IntelligentSosSystem.trigger(client, guildId, reason).catch(() => {});
 
         const executor = await client.users.fetch(executorId).catch(() => undefined);
-        if (executor?.bot) void BotAdderSystem.enforce(client, guildId, executorId, RaidBotSource.Antiraid).catch(() => {});
+        if (executor?.bot) void BotAdderSystem.enforce(client, { guildId, botId: executorId, source: RaidBotSource.Antiraid }).catch(() => {});
     }
 
     /**

@@ -14,14 +14,11 @@ export class WarnRepository {
 
     /**
      * Creates a warning.
-     * @param guildId Guild the warning was issued in.
-     * @param userId Warned user's id.
-     * @param moderatorId Issuer's id, or {@link WarnRepository.AutomodModeratorId} for automod.
-     * @param reason Why the user was warned.
+     * @param warn Guild, user, issuer and reason of the warning — `moderatorId` is {@link WarnRepository.AutomodModeratorId} for automod.
      * @returns The created row(s).
      */
-    static create(guildId: string, userId: string, moderatorId: string, reason: string) {
-        return db.insert(warns).values({ guildId, userId, moderatorId, reason }).returning();
+    static create(warn: { guildId: string; userId: string; moderatorId: string; reason: string }) {
+        return db.insert(warns).values(warn).returning();
     }
 
     /**

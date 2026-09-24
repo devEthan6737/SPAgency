@@ -31,8 +31,14 @@ export class BotAdderSystem {
         return BotAdderRepository.delete(guildId, botId);
     }
 
-    /** Bans whoever added `botId`, if a live-tracked record exists — a no-op otherwise (no fallback to Discord's own audit log, see docs/bot-adder.md). Skips the bot's own account and the case where the recorded adder is no longer resolvable. */
-    static async enforce(client: UsingClient, guildId: string, botId: string, source: RaidBotSource): Promise<void> {
+    /**
+     * Bans whoever added `botId`, if a live-tracked record exists — a no-op otherwise (no fallback to
+     * Discord's own audit log, see docs/bot-adder.md). Skips the bot's own account and the case where
+     * the recorded adder is no longer resolvable.
+     * @param client Bot client.
+     * @param hit The guild and bot the ban happened in, and which system caught it.
+     */
+    static async enforce(client: UsingClient, { guildId, botId, source }: RaidBotHit): Promise<void> {
         const executorId = await BotAdderRepository.findAdder(guildId, botId);
         if (!executorId || executorId === client.botId) return;
 
@@ -60,5 +66,15 @@ interface LogInput {
     guildId: string;
     targetId: string;
     botId: string;
+    source: RaidBotSource;
+}
+
+/** What {@link BotAdderSystem.enforce} needs to identify a raid-bot ban. */
+export interface RaidBotHit {
+    /** Guild the bot was banned in. */
+    guildId: string;
+    /** The banned bot's id. */
+    botId: string;
+    /** Which system caught it. */
     source: RaidBotSource;
 }

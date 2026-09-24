@@ -57,8 +57,9 @@ export class RaidmodeExpiry {
         const durationMs = parseDurationMs(state.raidmodeTimeToDisable);
         const delay = Math.max(0, state.raidmodeActivatedAt.getTime() + durationMs - Date.now());
 
-        RaidmodeExpiry.timers.set(guildId, null, delay, () => {
-            void RaidmodeExpiry.expire(client, guildId).catch((error) => client.logger.error(`[raidmode] Failed to auto-disable guild ${guildId}`, error));
+        RaidmodeExpiry.timers.set(guildId, null, {
+            ttlMs: delay,
+            onExpire: () => void RaidmodeExpiry.expire(client, guildId).catch((error) => client.logger.error(`[raidmode] Failed to auto-disable guild ${guildId}`, error))
         });
     }
 

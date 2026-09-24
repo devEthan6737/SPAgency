@@ -1,3 +1,11 @@
+/** Options for {@link ExpiringMap.set} beyond the key and value. */
+export interface ExpiringMapEntryOptions<K, V> {
+    /** How long, in ms, the value stays before it self-deletes. */
+    ttlMs: number;
+    /** Called once, right after the entry is removed, if the key is still untouched when `ttlMs` elapses. */
+    onExpire?: (key: K, value: V) => void;
+}
+
 /**
  * A `Map` where every entry deletes itself after `ttlMs` unless refreshed — the "self-cleaning" dance
  * (clear the old timer if there was one, schedule a new one, delete on fire) that kept getting
@@ -17,9 +25,11 @@ export class ExpiringMap<K, V> {
     /**
      * Stores `value` for `key`, replacing any existing entry and its timer — calling `set` again for
      * the same key restarts its `ttlMs`, it doesn't stack a second timer on top.
-     * @param onExpire Called once, right after the entry is removed, if `key` is still untouched when `ttlMs` elapses.
+     * @param key The key to store under.
+     * @param value The value to store.
+     * @param options How long it lives and, if needed, what to do once it expires.
      */
-    set(key: K, value: V, ttlMs: number, onExpire?: (key: K, value: V) => void): void {
+    set(key: K, value: V, { ttlMs, onExpire }: ExpiringMapEntryOptions<K, V>): void {
         const existing = this.entries.get(key);
         if (existing) clearTimeout(existing.timer);
 
@@ -31,17 +41,29 @@ export class ExpiringMap<K, V> {
         this.entries.set(key, { value, timer });
     }
 
-    /** Current value for `key`, or `undefined` if absent or already expired. Does not affect its `ttlMs`. */
+    /**
+     * Reads the current value for a key.
+     * @param key The key to look up.
+     * @returns The value, or `undefined` if absent or already expired. Does not affect its `ttlMs`.
+     */
     get(key: K): V | undefined {
         return this.entries.get(key)?.value;
     }
 
-    /** Whether `key` currently has a live (unexpired) entry. */
+    /**
+     * Checks whether a key is still live.
+     * @param key The key to check.
+     * @returns Whether it currently has a live (unexpired) entry.
+     */
     has(key: K): boolean {
         return this.entries.has(key);
     }
 
-    /** Removes `key` immediately, canceling its timer — `onExpire` never runs for a key removed this way. */
+    /**
+     * Removes a key immediately, canceling its timer — `onExpire` never runs for a key removed this way.
+     * @param key The key to remove.
+     * @returns Whether it was present.
+     */
     delete(key: K): boolean {
         const existing = this.entries.get(key);
         if (existing) clearTimeout(existing.timer);

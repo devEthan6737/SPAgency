@@ -39,7 +39,7 @@ export class MaliciousMemberSystem {
         } else if (action === MaliciousMemberAction.Ban) {
             await MaliciousMemberSystem.notifyOwner(client, member.guildId, t.systems.maliciousMember.ownerDmBan(member.id, reason).get());
             await client.bans.create(member.guildId, member.id, { reason }).catch(() => {});
-            if (member.bot) void BotAdderSystem.enforce(client, member.guildId, member.id, RaidBotSource.MaliciousMember).catch(() => {});
+            if (member.bot) void BotAdderSystem.enforce(client, { guildId: member.guildId, botId: member.id, source: RaidBotSource.MaliciousMember }).catch(() => {});
         }
 
         void dispatchLog(client, MaliciousMemberSystem.log({ guildId: member.guildId, targetId: member.id, action })).catch(() => {});

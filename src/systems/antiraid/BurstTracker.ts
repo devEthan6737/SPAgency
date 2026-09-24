@@ -23,7 +23,7 @@ export class BurstTracker {
             return true;
         }
 
-        BurstTracker.entries.set(key, count, windowMs);
+        BurstTracker.entries.set(key, count, { ttlMs: windowMs });
         return false;
     }
 }

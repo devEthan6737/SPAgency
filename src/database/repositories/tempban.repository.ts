@@ -6,14 +6,11 @@ import { tempbans } from '../schema/tempban.js';
 export class TempbanRepository {
     /**
      * Creates a temp-ban record.
-     * @param guildId Guild the ban applies to.
-     * @param userId Banned user's id.
-     * @param reason Ban reason.
-     * @param expiresAt When the ban should be lifted.
+     * @param entry Guild, user, reason and expiry of the temp-ban.
      * @returns The created row(s).
      */
-    static create(guildId: string, userId: string, reason: string, expiresAt: Date) {
-        return db.insert(tempbans).values({ guildId, userId, reason, expiresAt }).returning();
+    static create(entry: { guildId: string; userId: string; reason: string; expiresAt: Date }) {
+        return db.insert(tempbans).values(entry).returning();
     }
 
     /** Every temp-ban whose expiry has already passed — what the poller acts on. */

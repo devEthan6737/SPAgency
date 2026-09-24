@@ -23,11 +23,16 @@ export async function dispatchLog(client: UsingClient, log: Log<string, PgTable>
     const embed = log.toEmbed(client.t(settings.language));
     const channelId = settings.logsChannel;
 
-    LogChannelThrottle.submit(log.guildId, embed, (embeds) => sendLogEmbeds(client, log.guildId, channelId, embeds));
+    LogChannelThrottle.submit(log.guildId, embed, (embeds) => sendLogEmbeds(client, { guildId: log.guildId, channelId, embeds }));
 }
 
-/** Any failure to send (channel deleted, access lost, a persistent outage...) unsets the log channel so we stop retrying against it on every future action, instead of failing the same way forever. */
-async function sendLogEmbeds(client: UsingClient, guildId: string, channelId: string, embeds: Embed[]): Promise<void> {
+/**
+ * Any failure to send (channel deleted, access lost, a persistent outage...) unsets the log channel
+ * so we stop retrying against it on every future action, instead of failing the same way forever.
+ * @param client Bot client.
+ * @param delivery The guild, its log channel and the embeds queued for it.
+ */
+async function sendLogEmbeds(client: UsingClient, { guildId, channelId, embeds }: { guildId: string; channelId: string; embeds: Embed[] }): Promise<void> {
     try {
         const channel = await client.channels.fetch(channelId);
         if (!('messages' in channel)) return;

@@ -72,6 +72,7 @@ Así está escrito todo `src/`. Si porta algo del bot legacy (`comandos/`, `even
 - Un comentario `//` de una línea es aceptable dentro de un método para el *por qué* no obvio (una restricción externa, un bug que se esquiva, una decisión no evidente) — nunca para el *qué*, que ya cubre el JSDoc o el propio nombre. Se mantiene lo más corto posible.
 - Sin `switch` para traducir un enum externo a forma propia cuando cada rama solo asigna los mismos campos: eso es una tabla (`Record<Enum, Forma>` o `Partial<...>`) + lookup y guard clause, no control de flujo. `switch`/`if` encadenado solo cuando hay comportamiento distinto de verdad.
 - Constante usada por una sola clase → `private static readonly` en PascalCase (`MaxRetries`), no módulo suelto en `SCREAMING_SNAKE_CASE`. Ese formato se reserva para constantes de módulo sin clase dueña.
+- Máximo 3 parámetros por función/método, `client: UsingClient` incluido. Al cuarto, los datos de la llamada (no `client`) se agrupan en un objeto — con su propia interfaz documentada si se reutiliza en más de una firma.
 
 ### Returns y guard clauses
 

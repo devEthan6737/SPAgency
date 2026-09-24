@@ -79,7 +79,7 @@ export class ApiServer {
     private static logRejected(client: UsingClient, prefix: string): void {
         if (ApiServer.rejected.has(prefix)) return;
 
-        ApiServer.rejected.set(prefix, true, 60_000);
+        ApiServer.rejected.set(prefix, true, { ttlMs: 60_000 });
         client.logger.warn(`[api] Refused an unauthenticated request to /${prefix} (more within a minute are not logged)`);
     }
 

@@ -58,7 +58,7 @@ export default class WarnCommand extends Command {
         if (!forced.ok) return await ctx.write({ content: shared.forceReasonRequired(forced.allowed).get() });
         const reason = forced.reason;
 
-        await WarnRepository.create(ctx.guildId, targetId, ctx.author.id, reason);
+        await WarnRepository.create({ guildId: ctx.guildId, userId: targetId, moderatorId: ctx.author.id, reason });
         const total = await WarnRepository.list(ctx.guildId, targetId);
 
         void dispatchLog(ctx.client, WarnCommand.log({ guildId: ctx.guildId, targetId, executorId: ctx.author.id, reason })).catch(() => {});

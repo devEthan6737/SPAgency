@@ -24,7 +24,7 @@ export class RollingWindowCounter {
         const timestamps = (this.entries.get(key) ?? []).filter((timestamp) => now - timestamp < this.windowMs);
         timestamps.push(now);
 
-        this.entries.set(key, timestamps, this.windowMs);
+        this.entries.set(key, timestamps, { ttlMs: this.windowMs });
         return timestamps.length;
     }
 
