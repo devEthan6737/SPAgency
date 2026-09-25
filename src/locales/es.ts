@@ -117,10 +117,33 @@ export default {
                 usage: 'Usa `/unnuke channels`, `/unnuke roles`, `/unnuke emojis` o `/unnuke bans`.',
                 started: '⏳ Limpiando, esto puede tardar un poco...',
                 done: (removed: number) => `✅ Hecho. Se han eliminado \`${removed}\` entradas.`,
-                channels: { name: 'channels', description: 'Elimina canales duplicados por nombre.' },
-                roles: { name: 'roles', description: 'Elimina roles duplicados por nombre.' },
-                emojis: { name: 'emojis', description: 'Elimina emojis duplicados por nombre.' },
-                bans: { name: 'bans', description: 'Desbanea a todos los usuarios baneados actualmente.' }
+                nothing: 'ℹ️ No hay nada que eliminar.',
+                confirmLabel: 'Sí, continuar',
+                cancelLabel: 'Cancelar',
+                channels: {
+                    name: 'channels',
+                    description: 'Elimina canales duplicados por nombre.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ Se eliminarán \`${count}\` canales cuyo nombre coincide con el de otro anterior: ${list}.\nSi alguno estaba duplicado a propósito, también se borrará y no se puede deshacer. ¿Seguro?`
+                },
+                roles: {
+                    name: 'roles',
+                    description: 'Elimina roles duplicados por nombre.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ Se eliminarán \`${count}\` roles cuyo nombre coincide con el de otro anterior: ${list}.\nSi alguno estaba duplicado a propósito, también se borrará y no se puede deshacer. ¿Seguro?`
+                },
+                emojis: {
+                    name: 'emojis',
+                    description: 'Elimina emojis duplicados por nombre.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ Se eliminarán \`${count}\` emojis cuyo nombre coincide con el de otro anterior: ${list}.\nSi alguno estaba duplicado a propósito, también se borrará y no se puede deshacer. ¿Seguro?`
+                },
+                bans: {
+                    name: 'bans',
+                    description: 'Desbanea a todos los usuarios baneados actualmente.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ Se desbanearán \`${count}\` usuarios: ${list}.\nSe levantan todos los baneos, no solo los de un raid. ¿Seguro?`
+                }
             }
         },
         moderation: {

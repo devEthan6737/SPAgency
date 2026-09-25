@@ -118,10 +118,33 @@ export default {
                 usage: 'Use `/unnuke channels`, `/unnuke roles`, `/unnuke emojis`, or `/unnuke bans`.',
                 started: "⏳ Cleaning up, this might take a moment...",
                 done: (removed: number) => `✅ Done. Removed \`${removed}\` entries.`,
-                channels: { name: 'channels', description: 'Deletes channels with a duplicate name.' },
-                roles: { name: 'roles', description: 'Deletes roles with a duplicate name.' },
-                emojis: { name: 'emojis', description: 'Deletes emojis with a duplicate name.' },
-                bans: { name: 'bans', description: 'Unbans every currently banned user.' }
+                nothing: 'ℹ️ There is nothing to delete.',
+                confirmLabel: 'Yes, continue',
+                cancelLabel: 'Cancel',
+                channels: {
+                    name: 'channels',
+                    description: 'Deletes channels with a duplicate name.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ \`${count}\` channels share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
+                },
+                roles: {
+                    name: 'roles',
+                    description: 'Deletes roles with a duplicate name.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ \`${count}\` roles share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
+                },
+                emojis: {
+                    name: 'emojis',
+                    description: 'Deletes emojis with a duplicate name.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ \`${count}\` emojis share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
+                },
+                bans: {
+                    name: 'bans',
+                    description: 'Unbans every currently banned user.',
+                    confirm: (count: number, list: string) =>
+                        `⚠️ \`${count}\` users will be unbanned: ${list}.\nEvery ban is lifted, not only those of a raid. Sure?`
+                }
             }
         },
         moderation: {

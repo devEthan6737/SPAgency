@@ -48,7 +48,9 @@ La detección registra `ServerEventLog` (`RaidDetected`), no `BotActionLog` — 
 
 **Ficheros:** [`src/commands/configuration/unnuke/`](../src/commands/configuration/unnuke/), [`src/systems/backup/BackupSystem.ts`](../src/systems/backup/BackupSystem.ts)
 
-- **`/unnuke bans|channels|roles|emojis`**: `bans` desbanea a todos; el resto borra duplicados por nombre (`UnnukeHelpers.deleteDuplicates`). Cooldown por subcomando, grupo compartido.
+- **`/unnuke bans|channels|roles|emojis`**: `bans` desbanea a todos; el resto borra duplicados por nombre (se conserva el primero de cada nombre). Cooldown por subcomando, grupo compartido.
+  - **Piden confirmación antes de tocar nada** (`UnnukeHelpers.confirm`, sobre `Confirmation.ask`): un duplicado puede ser intencionado y el comando no distingue uno de un raid. El aviso lista lo que se va a borrar (hasta 10 nombres y `+N` del resto) y, en `bans`, advierte de que se levantan **todos** los baneos, no solo los del raid. Si no hay nada que borrar lo dice y no pregunta.
+  - **El cooldown se devuelve** (`ctx.cooldown.reset()`) cuando no se borra nada (cancelado, sin respuesta o sin duplicados). Se consume antes de ejecutar el comando, y cancelar no debe costar 15 minutos. `/backup load` sigue usando `UnnukeHelpers.deleteDuplicates` sin este aviso, porque ya pregunta por su cuenta.
 - **`/backup create|load|delete|info`**: snapshot completo, restaurable si `/unnuke` no basta. Descargas de imágenes secuenciales, no en paralelo, para no saturar el CDN de Discord.
 
 Ambos generan `BotActionLog` y pasan por `Confirmation.ask()` antes de ejecutar, por destructivos.
