@@ -50,7 +50,7 @@ const LinkEmojis: Partial<Record<InfoLinkKind, EmojiKey>> = {
 @Declare({
     name: 'info',
     description: 'Shows information about the bot.',
-    aliases: ['ayuda', 'help', 'about', 'acerca', 'botinfo', 'informacion'],
+    aliases: ['ayuda', 'help', 'about', 'acerca', 'botinfo', 'informacion', 'invite', 'donate', 'donacion', 'donación', 'soporte', 'support'],
     props: { category: 'others' }
 })
 
