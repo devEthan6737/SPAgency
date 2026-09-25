@@ -15,7 +15,7 @@ import {
     type SeyfertLocale
 } from 'seyfert';
 import { Emojis, EmojiKey } from '../../systems/emojis/index.js';
-import { BotStats, InfoLinkKind, InfoLinks, type BotStatsSnapshot, type InfoLink, type InfoLinkGroups } from '../../systems/info/index.js';
+import { BotStats, InfoLinkButton, InfoLinks, type BotStatsSnapshot, type InfoLinkGroups } from '../../systems/info/index.js';
 import { BotEnvironment, getBotEnvironment } from '../../systems/shared/Environment.js';
 import { formatDuration } from '../../systems/shared/Duration.js';
 import { Paginator } from '../../systems/shared/pagination/index.js';
@@ -39,13 +39,6 @@ interface InfoData {
     avatar: string | null | undefined;
     links: InfoLinkGroups;
 }
-
-/** The emoji of each link that gets a button. */
-const LinkEmojis: Partial<Record<InfoLinkKind, EmojiKey>> = {
-    [InfoLinkKind.InviteBot]: EmojiKey.Attachment,
-    [InfoLinkKind.Support]: EmojiKey.Partner,
-    [InfoLinkKind.Donate]: EmojiKey.Visa
-};
 
 @Declare({
     name: 'info',
@@ -98,26 +91,13 @@ export default class InfoCommand extends Command {
             .setColor(EmbedColors.Blurple)
             .addComponents(avatar ? new Section().addComponents(intro).setAccessory(new Thumbnail().setMedia(avatar)) : intro);
 
-        const buttons = links.priority.map((link) => this.linkButton(link, t));
+        const buttons = links.priority.map((link) => InfoLinkButton.build(link, t.links[link.kind].get()));
         card.addComponents(new Separator(), new ActionRow<Button>().addComponents(buttons), new Separator());
 
         const line = links.secondary.map(({ kind, url }) => (url ? `[${t.links[kind].get()}](${url})` : t.links[kind].get())).join(' · ');
         card.addComponents(new TextDisplay().setContent(`-# ${line}`));
 
         return card.addComponents(new TextDisplay().setContent(`-# ${t.credits.text.get()}`));
-    }
-
-    /**
-     * @param link The link to draw.
-     * @param t The command's strings.
-     * @returns A link button, or a disabled grey one if the link has no address configured.
-     */
-    private linkButton({ kind, url }: InfoLink, t: InfoLocale): Button {
-        const button = new Button().setLabel(t.links[kind].get());
-        const emoji = LinkEmojis[kind];
-        if (emoji) button.setEmoji(Emojis.get(emoji));
-
-        return url ? button.setStyle(ButtonStyle.Link).setURL(url) : button.setStyle(ButtonStyle.Secondary).setCustomId(`info:unset:${kind}`).setDisabled(true);
     }
 
     /**
