@@ -484,6 +484,10 @@ export default {
             automaticAlert: (guildName: string, guildId: string, invite: string, reason: string) =>
                 `@everyone 🆘 **Automatic S.O.S.** from \`${guildName}\` (${guildId})!\n**Reason:** ${reason}\n${invite}`
         },
+        pagination: {
+            empty: 'There is nothing more to show.',
+            back: '◀ Back'
+        },
         support: {
             opening: {
                 title: (subject: string) => `🎫 ${subject}`,
