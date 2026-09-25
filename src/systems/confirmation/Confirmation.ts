@@ -7,6 +7,7 @@ import {
     type ButtonInteraction,
     type CommandContext
 } from 'seyfert';
+import { EmojiKey, Emojis } from '../emojis/index.js';
 
 /** Options for {@link Confirmation.ask}. */
 export interface ConfirmationOptions {
@@ -38,8 +39,8 @@ export class Confirmation {
         const embed = new Embed().setColor(EmbedColors.Yellow).setDescription(options.description);
         const row = (disabled: boolean) =>
             new ActionRow<Button>().addComponents(
-                new Button().setCustomId(confirmId).setLabel(options.confirmLabel).setStyle(ButtonStyle.Danger).setDisabled(disabled),
-                new Button().setCustomId(cancelId).setLabel(options.cancelLabel).setStyle(ButtonStyle.Secondary).setDisabled(disabled)
+                new Button().setCustomId(confirmId).setLabel(options.confirmLabel).setEmoji(Emojis.get(EmojiKey.SuccessAnimated)).setStyle(ButtonStyle.Danger).setDisabled(disabled),
+                new Button().setCustomId(cancelId).setLabel(options.cancelLabel).setEmoji(Emojis.get(EmojiKey.ErrorAnimated)).setStyle(ButtonStyle.Secondary).setDisabled(disabled)
             );
 
         const message = await ctx.write({ embeds: [embed], components: [row(false)] }, true);

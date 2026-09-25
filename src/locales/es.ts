@@ -18,7 +18,7 @@ export default {
             ping: {
                 name: 'ping',
                 description: 'Muestra la latencia del bot.',
-                calculating: 'Calculando...',
+                calculating: `${emoji(EmojiKey.LoadingGray)} Calculando...`,
                 latency: (message: number, api: number) =>
                     `${emoji(EmojiKey.MessageLatency)} Latencia del mensaje: \`${message}ms\`\n${emoji(EmojiKey.ApiLatency)} Latencia de la API: \`${api}ms\``,
                 withDatabase: (message: number, api: number, database: number) =>
@@ -120,7 +120,7 @@ export default {
                 name: 'unnuke',
                 description: 'Limpieza automática tras un raid: canales/roles/emojis duplicados, o baneos masivos.',
                 usage: 'Usa `/unnuke channels`, `/unnuke roles`, `/unnuke emojis` o `/unnuke bans`.',
-                started: '⏳ Limpiando, esto puede tardar un poco...',
+                started: `${emoji(EmojiKey.LoadingGreen)} Limpiando, esto puede tardar un poco...`,
                 done: (removed: number) => `${emoji(EmojiKey.Success)} Hecho. Se han eliminado \`${removed}\` entradas.`,
                 nothing: 'ℹ️ No hay nada que eliminar.',
                 confirmLabel: 'Sí, continuar',
@@ -234,7 +234,7 @@ export default {
             detect: {
                 name: 'detect',
                 description: 'Escanea los miembros de tu servidor contra la blacklist de UBFB.',
-                scanning: '🔎 Escaneando miembros, esto puede tardar un poco...',
+                scanning: `${emoji(EmojiKey.LoadingSpinner)} Escaneando miembros, esto puede tardar un poco...`,
                 noneFound: `${emoji(EmojiKey.Success)} No se ha encontrado ningún usuario malicioso.`,
                 found: (count: number, guildName: string) => `🚫 Se han encontrado \`${count}\` usuarios maliciosos en \`${guildName}\`:`,
                 entry: (userId: string, reason: string) => `<@${userId}> — Razón: \`${reason}\``,
@@ -363,11 +363,11 @@ export default {
             commands: {
                 name: 'comandos',
                 description: 'Obtén todos los comandos del bot.',
-                intro: 'Aquí tienes todos mis comandos.',
+                intro: `${emoji(EmojiKey.Book)} Aquí tienes todos mis comandos.`,
                 categories: {
-                    configuration: '⚙️ Configuración',
-                    moderation: '🛡️ Moderación',
-                    others: '📦 Otros'
+                    configuration: `${emoji(EmojiKey.StarBlue)} Configuración`,
+                    moderation: `${emoji(EmojiKey.StarRed)} Moderación`,
+                    others: `${emoji(EmojiKey.StarYellow)} Otros`
                 },
                 option: {
                     name: 'comando',
@@ -395,7 +395,7 @@ export default {
             appeal: {
                 name: 'apelar',
                 description: 'Indica dónde apelar si estás en la blacklist de UBFB.',
-                message: 'Puedes apelar tu entrada en la blacklist en https://ubfb.theindiebrand.es/panel.'
+                message: `${emoji(EmojiKey.Attachment)} Puedes apelar tu entrada en la blacklist en https://ubfb.theindiebrand.es/panel.`
             },
             report: {
                 name: 'reporte',
@@ -505,13 +505,13 @@ export default {
                 button: {
                     notStaff: `${emoji(EmojiKey.Error)} Solo el staff puede cerrar tickets.`,
                     notTicket: `${emoji(EmojiKey.Error)} Este canal no es un ticket.`,
-                    started: '🔒 Cerrando el ticket…',
+                    started: `${emoji(EmojiKey.LoadingBlue)} Cerrando el ticket…`,
                     already: 'ℹ️ Este ticket ya se está cerrando.',
                     failed: `${emoji(EmojiKey.Error)} No se pudo iniciar el cierre. Inténtalo de nuevo.`
                 },
                 truncated: (omitted: number) => `${emoji(EmojiKey.Warning)} La web solo recibió los últimos mensajes: los ${omitted} más antiguos no caben en su límite de tamaño. Están en la copia adjunta.`,
                 dm: (subject: string) => `🔒 Tu ticket «${subject}» se ha cerrado. Puedes consultar la conversación desde la web, en tu historial de soporte.`,
-                staffCopy: (subject: string, userId: string, by: string) => `${emoji(EmojiKey.Attachment)} Ticket **${subject}** de <@${userId}> cerrado ${by}. Copia con las notas internas adjunta.`,
+                staffCopy: (subject: string, userId: string, by: string) => `${emoji(EmojiKey.Document)} Ticket **${subject}** de <@${userId}> cerrado ${by}. Copia con las notas internas adjunta.`,
                 deliveryFailed: (subject: string, channelId: string, reason: string) =>
                     `${emoji(EmojiKey.Warning)} No se pudo entregar a la web el transcript del ticket **${subject}** (<#${channelId}>): ${reason}. El canal queda bloqueado y sin borrar; se reintentará al reiniciar el bot. Copia adjunta.`
             },
