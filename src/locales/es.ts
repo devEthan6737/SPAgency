@@ -384,6 +384,24 @@ export default {
                     aliases: 'Alias'
                 }
             },
+            canary: {
+                name: 'canary',
+                description: 'Explica qué es el bot canary y cómo ayudar a probarlo.',
+                title: '¿Qué es el canary?',
+                intro: '**SPAgency Canary** es la versión de pruebas del bot: una aplicación de Discord distinta a la de producción, que instala a propósito quien quiere probar los cambios antes que el resto. Si estás leyendo esto, eres parte de esa gente.',
+                expect: {
+                    title: 'Qué esperar',
+                    list: `${emoji(EmojiKey.Warning)} **::** Puede fallar, comportarse distinto o reiniciarse sin aviso. Es para probar, no para proteger un servidor importante.\n${emoji(EmojiKey.LoadingBlue)} **::** Las novedades llegan aquí antes que a producción.`
+                },
+                differs: {
+                    title: 'En qué se diferencia de producción',
+                    list: `${emoji(EmojiKey.Arrow)} **::** No está conectado a la web: no hay tickets de soporte, enlaces de verificación ni API.\n${emoji(EmojiKey.Arrow)} **::** La configuración del dashboard sí le llega igual que a producción.`
+                },
+                help: {
+                    title: 'Cómo ayudar',
+                    text: `${emoji(EmojiKey.Book)} **::** Prueba las funciones, intenta romperlas y cuéntanos qué pasa: en el servidor de soporte o en GitHub.`
+                }
+            },
             info: {
                 name: 'info',
                 description: 'Muestra información sobre el bot.',
