@@ -37,11 +37,18 @@ await client.start();
 if (isProduction()) {
     client.commands.values = client.commands.values.filter((command) => !command.props?.devOnly);
 }
-await client.uploadCommands({ cachePath: './commands-cache.json' });
+try {
+    await client.uploadCommands();
+} catch (error) {
+    client.logger.error('[commands] Uploading the commands to Discord failed, keeping the ones already registered', error);
+}
 ```
 
-`client.commands.values` es el mismo array que usa `uploadCommands()` para registrar y el propio proceso para resolver comandos entrantes — filtrar aquí deja `devOnly` fuera de los dos sitios en producción. `cachePath` evita resubir a la API si el set no cambió (`shouldUploadCommands`).
+**Se suben en cada arranque, sin caché.** `uploadCommands` de Seyfert admite un `cachePath` para no resubir lo que no cambió, pero eso es un fichero de estado más que mantener en sintonía con Discord, y uno desfasado esconde el problema. Aquí no se usa.
 
+**Una subida rechazada no tumba el bot.** Puede fallar por un `400` (una descripción de más de 100 caracteres, por ejemplo) o porque Discord no responda. El error queda en el log y el bot arranca con los comandos que Discord ya tuviera registrados, porque el `PUT` es todo o nada.
+
+`client.commands.values` es el mismo array que usa `uploadCommands()` para registrar y el propio proceso para resolver comandos entrantes — filtrar aquí deja `devOnly` fuera de los dos sitios en producción.
 ## Los tres subcomandos
 
 Todos aceptan `guild_id` opcional (por defecto, el servidor actual).

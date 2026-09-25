@@ -54,18 +54,15 @@ await client.start();
 const unrecognizedEnv = unrecognizedBotEnv();
 if (unrecognizedEnv) client.logger.warn(`[env] BOT_ENV="${unrecognizedEnv}" is not production, canary or developing — running as PRODUCTION, which talks to the web`);
 
-// Never registered before this — genuinely missing, not a deliberate manual step. `cachePath` makes
-// this a no-op against Discord's API on every boot where the command set hasn't actually changed
-// (Seyfert hashes and compares before deciding whether to PUT anything), so calling it unconditionally
-// on every start is safe. `devOnly` commands (see src/seyfert.d.ts) are stripped out of
-// `client.commands.values` in production *before* `uploadCommands()` reads from it — the same array
-// resolves incoming interactions, so this also makes them impossible to execute here, not just absent
-// from Discord's command list.
 if (isProduction()) {
     client.commands.values = client.commands.values.filter((command) => !command.props?.devOnly);
 }
 
-await client.uploadCommands({ cachePath: './commands-cache.json' });
+try {
+    await client.uploadCommands();
+} catch (error) {
+    client.logger.error('[commands] Uploading the commands to Discord failed, keeping the ones already registered', error);
+}
 
 process.on('unhandledRejection', (err) => {
     console.error(err);
