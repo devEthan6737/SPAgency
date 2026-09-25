@@ -36,7 +36,7 @@ export class InfoLinks {
      * @returns All the links. Priority: invite the bot, the support server, donate. Secondary: GitHub, the web.
      */
     static resolve(applicationId: string): InfoLinkGroups {
-        const web = InfoLinks.publicWebUrl();
+        const web = InfoLinks.webUrl();
 
         return {
             priority: [
@@ -57,7 +57,7 @@ export class InfoLinks {
     static missingVariables(): string[] {
         return [
             ...(InfoLinks.validUrl(process.env.SUPPORT_INVITE_URL) ? [] : ['SUPPORT_INVITE_URL']),
-            ...(InfoLinks.publicWebUrl() ? [] : ['WEB_PUBLIC_URL'])
+            ...(InfoLinks.webUrl() ? [] : ['WEB_URL'])
         ];
     }
 
@@ -76,12 +76,12 @@ export class InfoLinks {
     }
 
     /**
-     * `WEB_URL` is not used: it is where the bot reaches the web from the server (a loopback address
-     * in the example config, with the internal API key attached), not something a user can open.
-     * @returns The public address of the web from `WEB_PUBLIC_URL`, without a trailing slash, or `undefined`.
+     * The web's address is `WEB_URL`, the same variable the bot reaches the web with, so there is one
+     * address to keep right for both.
+     * @returns `WEB_URL` without a trailing slash, or `undefined` if it is unset or not an http(s) URL.
      */
-    private static publicWebUrl(): string | undefined {
-        return InfoLinks.validUrl(process.env.WEB_PUBLIC_URL)?.replace(/\/+$/, '');
+    private static webUrl(): string | undefined {
+        return InfoLinks.validUrl(process.env.WEB_URL)?.replace(/\/+$/, '');
     }
 
     /**
