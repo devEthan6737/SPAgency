@@ -39,6 +39,22 @@ Los emojis personalizados no se renderizan en **nombres ni descripciones de slas
 3. Para usarlo: añadir una clave a `EmojiKey` y su entrada en `EmojiCatalog` (con el unicode de respaldo), y usar `emoji(EmojiKey.X)` en el locale.
 4. Cambiar solo qué imagen representa una clave = editar su línea en `EmojiCatalog`.
 
+## Dónde se usa cada uno
+
+| Clave | Uso |
+|---|---|
+| `Success`, `Error`, `Warning`, `Ban`, `Raid`, `Welcome`, `Backup` | Prefijo de los mensajes de estado, moderación y logs |
+| `MessageLatency`, `ApiLatency`, `DatabaseLatency` | Las tres latencias de `/ping` |
+| `Members`, `Cpu`, `Ram` | Usuarios, CPU y RAM de `/info` (usan las mismas imágenes que `FbmUser` y `RiconcCpu`/`RiconcRam`; varias claves pueden apuntar al mismo emoji) |
+| `Document` | Copia del ticket para el staff (`.txt` adjunto) |
+| `Book` | Introducción de `/comandos` |
+| `StarBlue`, `StarRed`, `StarYellow` | Categorías de `/comandos` (configuración, moderación, otros) |
+| `LoadingGray`, `LoadingGreen`, `LoadingSpinner`, `LoadingBlue` | "Calculando" de `/ping`, "limpiando" de `/unnuke`, "escaneando" de `/detect`, "cerrando" de un ticket |
+| `SuccessAnimated`, `ErrorAnimated` | Emoji de los botones de confirmar y cancelar (`Confirmation.ask`) |
+| `BetaStart` + `BetaEnd`, `Arrow`, `TypeScript`, `JavaScript`, `Seyfert`, `PostgreSql`, `StarBlack`, `StarPurple`, `Developer`, `Heart` | `/info` ("Construido con", "En números" y créditos) |
+| `Attachment`, `Partner`, `Visa` | Iconos de los botones de invitar al bot, servidor de soporte y donar de `/info` (`Attachment` también en `/apelar`) |
+| `Boost`, `Luck`, `YoutubeBadge`, `YoutubeLogo` | Sin uso todavía: esperan contenido real |
+
 ## Pendientes
 
-Todos los emojis tienen clave, pero solo se usan en los locales los que ya encajan (mensajes de estado, ban, raid, latencias de `/ping`...). El resto (`Boost`, `Luck`, `Partner`, `Visa`, estrellas, `Loading*`, iconos de tecnología, insignia `Beta*`...) espera un sitio: la idea es un comando `/info`. Las dos mitades de `Beta*` van juntas (`BE` + `TA`).
+Solo quedan sin usar `Boost`, `Luck`, `YoutubeBadge` y `YoutubeLogo`. Tienen clave y fallback, así que basta con escribir `emoji(EmojiKey.X)` (o `Emojis.get(EmojiKey.X)` en código) en el sitio que les toque.

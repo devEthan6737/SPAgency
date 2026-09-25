@@ -8,6 +8,7 @@
  * compartido entre comandos hermanos vive bajo una clave `shared` de esa categoría, no duplicado.
  */
 import { EmojiKey, Emojis } from '../systems/emojis/index.js';
+import type { InfoStatsText } from '../systems/info/index.js';
 
 /** Shorthand for the emoji a message shows for a key, resolved when this file is imported. */
 const emoji = (key: EmojiKey): string => Emojis.get(key);
@@ -378,6 +379,40 @@ export default {
                     options: 'Opciones',
                     required: 'requerido',
                     noOptions: 'Este comando no tiene opciones.'
+                }
+            },
+            info: {
+                name: 'info',
+                description: 'Muestra información sobre el bot.',
+                links: {
+                    inviteBot: 'Invitar el bot',
+                    support: 'Servidor de soporte',
+                    donate: 'Donar',
+                    github: 'GitHub',
+                    web: 'Web'
+                },
+                pages: {
+                    general: 'General',
+                    technical: 'Técnica'
+                },
+                about: (badge: string) => `${badge}**SPAgency**, un bot de moderación y protección para tu servidor.\n${emoji(EmojiKey.Arrow)} Usa \`/comandos\` para ver todo lo que puedo hacer.`,
+                stack: {
+                    title: 'Construido con',
+                    list: `${emoji(EmojiKey.TypeScript)} **::** \`TypeScript\`\n${emoji(EmojiKey.JavaScript)} **::** \`Node.js\`\n${emoji(EmojiKey.Seyfert)} **::** \`Seyfert\`\n${emoji(EmojiKey.PostgreSql)} **::** \`PostgreSQL\``
+                },
+                stats: {
+                    title: 'En números',
+                    uptimeWords: { day: 'día', days: 'días', hour: 'hora', hours: 'horas', minute: 'minuto', minutes: 'minutos', second: 'segundo', seconds: 'segundos', and: 'y' },
+                    list: ({ guilds, users, commands, uptime }: InfoStatsText) =>
+                        `${emoji(EmojiKey.StarBlack)} **::** Servidores: \`${guilds}\`\n${emoji(EmojiKey.Members)} **::** Usuarios: \`${users}\`\n${emoji(EmojiKey.StarPurple)} **::** Comandos: \`${commands}\`\n${emoji(EmojiKey.LoadingGreen)} **::** Tiempo activo: \`${uptime}\``
+                },
+                resources: {
+                    title: 'Recursos',
+                    list: (cpu: number, ram: number) =>
+                        `${emoji(EmojiKey.Cpu)} **::** CPU: \`${cpu.toFixed(1)}%\`\n${emoji(EmojiKey.Ram)} **::** RAM: \`${ram.toFixed(1)} MB\``
+                },
+                credits: {
+                    text: `${emoji(EmojiKey.Developer)} **::** Desarrollado por **ether** ${emoji(EmojiKey.Heart)}`
                 }
             },
             me: {

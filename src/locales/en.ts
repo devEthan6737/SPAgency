@@ -9,6 +9,7 @@
  * duplicated per command.
  */
 import { EmojiKey, Emojis } from '../systems/emojis/index.js';
+import type { InfoStatsText } from '../systems/info/index.js';
 
 /** Shorthand for the emoji a message shows for a key, resolved when this file is imported. */
 const emoji = (key: EmojiKey): string => Emojis.get(key);
@@ -379,6 +380,40 @@ export default {
                     options: 'Options',
                     required: 'required',
                     noOptions: 'This command has no options.'
+                }
+            },
+            info: {
+                name: 'info',
+                description: 'Shows information about the bot.',
+                links: {
+                    inviteBot: 'Invite the bot',
+                    support: 'Support server',
+                    donate: 'Donate',
+                    github: 'GitHub',
+                    web: 'Website'
+                },
+                pages: {
+                    general: 'General',
+                    technical: 'Technical'
+                },
+                about: (badge: string) => `${badge}**SPAgency**, a moderation and protection bot for your server.\n${emoji(EmojiKey.Arrow)} Use \`/commands\` to see everything I can do.`,
+                stack: {
+                    title: 'Built with',
+                    list: `${emoji(EmojiKey.TypeScript)} **::** \`TypeScript\`\n${emoji(EmojiKey.JavaScript)} **::** \`Node.js\`\n${emoji(EmojiKey.Seyfert)} **::** \`Seyfert\`\n${emoji(EmojiKey.PostgreSql)} **::** \`PostgreSQL\``
+                },
+                stats: {
+                    title: 'By the numbers',
+                    uptimeWords: { day: 'day', days: 'days', hour: 'hour', hours: 'hours', minute: 'minute', minutes: 'minutes', second: 'second', seconds: 'seconds', and: 'and' },
+                    list: ({ guilds, users, commands, uptime }: InfoStatsText) =>
+                        `${emoji(EmojiKey.StarBlack)} **::** Servers: \`${guilds}\`\n${emoji(EmojiKey.Members)} **::** Users: \`${users}\`\n${emoji(EmojiKey.StarPurple)} **::** Commands: \`${commands}\`\n${emoji(EmojiKey.LoadingGreen)} **::** Uptime: \`${uptime}\``
+                },
+                resources: {
+                    title: 'Resources',
+                    list: (cpu: number, ram: number) =>
+                        `${emoji(EmojiKey.Cpu)} **::** CPU: \`${cpu.toFixed(1)}%\`\n${emoji(EmojiKey.Ram)} **::** RAM: \`${ram.toFixed(1)} MB\``
+                },
+                credits: {
+                    text: `${emoji(EmojiKey.Developer)} **::** Developed by **ether** ${emoji(EmojiKey.Heart)}`
                 }
             },
             me: {
