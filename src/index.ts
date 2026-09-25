@@ -4,6 +4,7 @@ import { cooldown, type CooldownMiddlewares, type CooldownResult } from '@sliphe
 import { GuildRepository } from './database/repositories/guild.repository.js';
 import { commandDefaults } from './systems/commands/defaults.js';
 import { commandMiddlewares } from './middlewares/isOwner.middleware.js';
+import { Emojis } from './systems/emojis/index.js';
 import { isProduction, unrecognizedBotEnv } from './systems/shared/Environment.js';
 
 const plugins = definePlugins(
@@ -49,6 +50,7 @@ client.setServices({
     middlewares: commandMiddlewares
 });
 
+await Emojis.setup(client);
 await client.start();
 
 const unrecognizedEnv = unrecognizedBotEnv();
