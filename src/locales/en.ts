@@ -367,10 +367,11 @@ export default {
                 description: "Get all the bot's commands.",
                 intro: `${emoji(EmojiKey.Book)} Here are all my commands.`,
                 categories: {
-                    configuration: `${emoji(EmojiKey.StarBlue)} Configuration`,
-                    moderation: `${emoji(EmojiKey.StarRed)} Moderation`,
-                    others: `${emoji(EmojiKey.StarYellow)} Others`
+                    configuration: 'Configuration',
+                    moderation: 'Moderation',
+                    others: 'Others'
                 },
+                hint: 'Use `/commands <command>` to see the detail of one.',
                 option: {
                     name: 'command',
                     description: 'Name of the command to look up.'
@@ -379,7 +380,9 @@ export default {
                 usage: {
                     options: 'Options',
                     required: 'required',
-                    noOptions: 'This command has no options.'
+                    noOptions: 'This command has no options.',
+                    subcommands: 'Subcommands',
+                    aliases: 'Aliases'
                 }
             },
             info: {
@@ -405,7 +408,7 @@ export default {
                     title: 'By the numbers',
                     uptimeWords: { day: 'day', days: 'days', hour: 'hour', hours: 'hours', minute: 'minute', minutes: 'minutes', second: 'second', seconds: 'seconds', and: 'and' },
                     list: ({ guilds, users, commands, uptime }: InfoStatsText) =>
-                        `${emoji(EmojiKey.StarBlack)} **::** Servers: \`${guilds}\`\n${emoji(EmojiKey.Members)} **::** Users: \`${users}\`\n${emoji(EmojiKey.StarPurple)} **::** Commands: \`${commands}\`\n${emoji(EmojiKey.LoadingGreen)} **::** Uptime: \`${uptime}\``
+                        `${emoji(EmojiKey.StarBlack)} **::** Servers: \`${guilds}\`\n${emoji(EmojiKey.StarYellow)} **::** Users: \`${users}\`\n${emoji(EmojiKey.StarPurple)} **::** Commands: \`${commands}\`\n${emoji(EmojiKey.LoadingGreen)} **::** Uptime: \`${uptime}\``
                 },
                 resources: {
                     title: 'Resources',

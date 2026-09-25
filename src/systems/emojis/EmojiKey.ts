@@ -15,7 +15,6 @@ export enum EmojiKey {
     MessageLatency = 'messageLatency',
     ApiLatency = 'apiLatency',
     DatabaseLatency = 'databaseLatency',
-    Members = 'members',
     Cpu = 'cpu',
     Ram = 'ram',
 

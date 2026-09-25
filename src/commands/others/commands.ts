@@ -1,27 +1,54 @@
 import {
     type AutocompleteInteraction,
+    Button,
+    ButtonStyle,
     Command,
+    Container,
     type ContextMenuCommand,
     createStringOption,
     Declare,
-    Embed,
     EmbedColors,
     LocalesT,
+    MessageFlags,
     Options,
-    type SeyfertChoice,
-    type SeyfertLocale,
+    Separator,
     SubCommand,
-    type CommandContext
+    TextDisplay,
+    type CommandContext,
+    type SeyfertChoice,
+    type SeyfertLocale
 } from 'seyfert';
+import { CommandLocalizer } from '../../systems/commands/CommandLocalizer.js';
+import { Emojis, EmojiKey } from '../../systems/emojis/index.js';
+import { Paginator } from '../../systems/shared/pagination/index.js';
 
 /** Locale accessor for this command's strings. */
 type CommandsLocale = SeyfertLocale['commands']['others']['commands'];
 
-/** Minimal shape of a command option, as needed to render it in the usage embed. */
-interface CommandOptionInfo {
+/** How many commands go on one page of the list. Keeps a page well under Discord's 4000 characters of text per message. */
+const CommandsPerPage = 10;
+
+/** The star that marks each category. A category that isn't here gets the black one. */
+const CategoryEmojis: Readonly<Record<string, EmojiKey>> = {
+    configuration: EmojiKey.StarBlue,
+    moderation: EmojiKey.StarRed,
+    others: EmojiKey.StarYellow
+};
+
+/** One command as the list shows it. */
+interface CommandEntry {
     name: string;
     description: string;
-    required?: boolean;
+    subcommands: string[];
+}
+
+/** One page of the list: a slice of one category. */
+interface CommandsPage {
+    category: string;
+    /** Which slice of the category this is, starting at 1, and how many there are. */
+    part: number;
+    parts: number;
+    entries: CommandEntry[];
 }
 
 const options = {
@@ -52,19 +79,17 @@ const options = {
 })
 @LocalesT('commands.others.commands.name', 'commands.others.commands.description')
 @Options(options)
-/** Lists every registered command grouped by category, or looks up one command's usage by name (with autocomplete). Read-only, no side effects. */
+/**
+ * Lists every registered command, one page per category, or shows one command's usage by name (with
+ * autocomplete). Both are Components V2 cards, in the language of whoever asks. Read-only, no side effects.
+ */
 export default class CommandsCommand extends Command {
     /** Type guard filtering out context-menu commands, which don't expose the fields this command displays. */
     static isCommand(value: Command | ContextMenuCommand): value is Command {
         return value instanceof Command;
     }
 
-    /** Distinguishes a plain option descriptor from a nested {@link SubCommand} entry in `command.options`. */
-    private isCommandOption(value: SubCommand | CommandOptionInfo): value is CommandOptionInfo {
-        return !(value instanceof SubCommand);
-    }
-
-    /** Shows a single command's usage if `command` was given, otherwise the full grouped list. */
+    /** Shows a single command's usage if `command` was given, otherwise the paged list. */
     async run(ctx: CommandContext<typeof options>) {
         const commandName = ctx.options.command;
 
@@ -75,64 +100,152 @@ export default class CommandsCommand extends Command {
         }
     }
 
-    /** Replies with the description and options of a single command, or a not-found message. */
+    /**
+     * Replies with the usage card of a single command, or a not-found message.
+     * @param ctx The command context.
+     * @param commandName What was typed: the command's name in any language.
+     */
     private async showUsage(ctx: CommandContext<typeof options>, commandName: string) {
         const t = ctx.t.commands.others.commands;
-        const command = ctx.client.commands.values.filter(CommandsCommand.isCommand).find((value: Command) => value.name === commandName);
+        const command = ctx.client.commands.values.filter(CommandsCommand.isCommand).find((value: Command) => CommandLocalizer.matches(value, commandName));
 
         if (!command) {
             await ctx.write({ content: t.notFound(commandName).get() });
             return;
         }
 
-        await ctx.write({ embeds: [this.buildUsageEmbed(command, t)] });
+        await ctx.write({ components: [this.buildUsage(command, t, CommandLocalizer.locale(ctx))], flags: MessageFlags.IsComponentsV2 });
     }
 
-    private buildUsageEmbed(command: Command, t: CommandsLocale) {
-        const commandOptions = (command.options ?? []).filter((option) => this.isCommandOption(option));
+    /**
+     * The card for one command: its name and description, its category and aliases in small text, then its options and subcommands.
+     * @param command The command.
+     * @param t The command's strings.
+     * @param locale The Discord locale to read names and descriptions in.
+     * @returns The card.
+     */
+    private buildUsage(command: Command, t: CommandsLocale, locale: string): Container {
+        const options = (command.options ?? []).filter((option) => !(option instanceof SubCommand));
+        const subcommands = (command.options ?? []).filter((option) => option instanceof SubCommand);
+        const categories: Record<string, string> = t.categories.get();
+        const category = command.props?.category as string | undefined;
 
-        return new Embed()
+        const details = [
+            category ? `${Emojis.get(this.categoryEmoji(category))} ${categories[category] ?? category}` : undefined,
+            command.aliases?.length ? `${t.usage.aliases.get()}: ${command.aliases.map((alias) => `\`${alias}\``).join(' · ')}` : undefined
+        ].filter(Boolean);
+
+        const card = new Container()
             .setColor(EmbedColors.Blue)
-            .setTitle(`/${command.name}`)
-            .setDescription(command.description)
-            .addFields({
-                name: t.usage.options.get(),
-                value: commandOptions.length ? commandOptions.map((option) => this.formatOption(option, t)).join('\n') : t.usage.noOptions.get()
-            });
+            .addComponents(new TextDisplay().setContent(`## /${CommandLocalizer.name(command, locale)}\n${CommandLocalizer.description(command, locale)}${details.length ? `\n-# ${details.join(' · ')}` : ''}`), new Separator());
+
+        const optionLines = options.map((option) => {
+            const required = 'required' in option && option.required ? ` (${t.usage.required.get()})` : '';
+
+            return `\`${CommandLocalizer.name(option, locale)}\`${required}: ${CommandLocalizer.description(option, locale)}`;
+        });
+        card.addComponents(new TextDisplay().setContent(`### ${t.usage.options.get()}\n${optionLines.length ? optionLines.join('\n') : t.usage.noOptions.get()}`));
+
+        if (subcommands.length) {
+            const lines = subcommands.map((subcommand) => `\`${CommandLocalizer.name(subcommand, locale)}\`: ${CommandLocalizer.description(subcommand, locale)}`);
+            card.addComponents(new Separator(), new TextDisplay().setContent(`### ${t.usage.subcommands.get()}\n${lines.join('\n')}`));
+        }
+
+        return card;
     }
 
-    private formatOption(option: CommandOptionInfo, t: CommandsLocale) {
-        const required = option.required ? ` (${t.usage.required.get()})` : '';
-        return `\`${option.name}\` — ${option.description}${required}`;
-    }
-
-    /** Replies with every command grouped by category. */
+    /**
+     * Replies with every command, a page per category (or per slice of a big one).
+     * @param ctx The command context.
+     */
     private async showList(ctx: CommandContext<typeof options>) {
         const t = ctx.t.commands.others.commands;
-        await ctx.write({ embeds: [this.buildListEmbed(ctx, t)] });
+        const locale = CommandLocalizer.locale(ctx);
+        const categories: Record<string, string> = t.categories.get();
+        const pages = this.buildPages(ctx, categories, locale);
+
+        await new Paginator(ctx, {
+            data: pages,
+            itemsPerPage: 1,
+            content: ([page]) => this.buildPage(page, t, categories),
+            middle: (view) =>
+                new Button()
+                    .setCustomId('commands:page')
+                    .setLabel(`${view.page}/${view.totalPages} · ${categories[pages[view.page - 1].category] ?? pages[view.page - 1].category}`)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true)
+        }).start();
     }
 
-    private buildListEmbed(ctx: CommandContext<typeof options>, t: CommandsLocale) {
-        const byCategory = this.groupByCategory(ctx);
-
-        const embed = new Embed().setColor(EmbedColors.Blue).setDescription(t.intro.get());
-        for (const [category, label] of Object.entries(t.categories.get())) {
-            const names = byCategory.get(category);
-            if (!names?.length) continue;
-            embed.addFields({ name: label, value: names.map((name) => `\`${name}\``).join(', ') });
-        }
-
-        return embed;
-    }
-
-    private groupByCategory(ctx: CommandContext<typeof options>) {
-        const byCategory = new Map<string, string[]>();
+    /**
+     * Groups the commands by category, in the order the locale lists the categories, and cuts big
+     * categories into slices of {@link CommandsPerPage}. Commands are sorted by their name in the asker's language.
+     * @param ctx The command context.
+     * @param categories The category labels, from the locale; their keys give the order.
+     * @param locale The Discord locale to read names and descriptions in.
+     * @returns The pages of the list; categories with no commands have none.
+     */
+    private buildPages(ctx: CommandContext<typeof options>, categories: Record<string, string>, locale: string): CommandsPage[] {
+        const byCategory = new Map<string, CommandEntry[]>();
         for (const command of ctx.client.commands.values.filter(CommandsCommand.isCommand)) {
-            if (!command.props?.category) continue;
-            const names = byCategory.get(command.props.category) ?? [];
-            names.push(command.name);
-            byCategory.set(command.props.category, names);
+            const category = command.props?.category as string | undefined;
+            if (!category) continue;
+
+            const entry: CommandEntry = {
+                name: CommandLocalizer.name(command, locale),
+                description: CommandLocalizer.description(command, locale),
+                subcommands: (command.options ?? []).filter((option) => option instanceof SubCommand).map((subcommand) => CommandLocalizer.name(subcommand, locale))
+            };
+            byCategory.set(category, [...(byCategory.get(category) ?? []), entry]);
         }
-        return byCategory;
+
+        const order = [...Object.keys(categories), ...[...byCategory.keys()].filter((category) => !(category in categories))];
+
+        return order.flatMap((category) => {
+            const entries = (byCategory.get(category) ?? []).sort((a, b) => a.name.localeCompare(b.name));
+            const parts = Math.ceil(entries.length / CommandsPerPage);
+
+            return Array.from({ length: parts }, (_, index) => ({
+                category,
+                part: index + 1,
+                parts,
+                entries: entries.slice(index * CommandsPerPage, (index + 1) * CommandsPerPage)
+            }));
+        });
+    }
+
+    /**
+     * One page of the list: the category as a heading, its commands with their descriptions, and a hint.
+     * @param page The slice to draw.
+     * @param t The command's strings.
+     * @param categories The category labels.
+     * @returns The page's card.
+     */
+    private buildPage(page: CommandsPage, t: CommandsLocale, categories: Record<string, string>): Container {
+        const part = page.parts > 1 ? ` (${page.part}/${page.parts})` : '';
+        const heading = `## ${Emojis.get(this.categoryEmoji(page.category))} **::** ${categories[page.category] ?? page.category}${part}`;
+        const lines = page.entries.map(({ name, description, subcommands }) => {
+            const subs = subcommands.length ? `\n-# ${subcommands.join(' · ')}` : '';
+
+            return `${Emojis.get(EmojiKey.Arrow)} **::** \`/${name}\` · ${description}${subs}`;
+        });
+
+        return new Container()
+            .setColor(EmbedColors.Blue)
+            .addComponents(
+                new TextDisplay().setContent(`${heading}\n-# ${t.intro.get()}`),
+                new Separator(),
+                new TextDisplay().setContent(lines.join('\n')),
+                new Separator(),
+                new TextDisplay().setContent(`-# ${t.hint.get()}`)
+            );
+    }
+
+    /**
+     * @param category A category key.
+     * @returns Its star.
+     */
+    private categoryEmoji(category: string): EmojiKey {
+        return CategoryEmojis[category] ?? EmojiKey.StarBlack;
     }
 }

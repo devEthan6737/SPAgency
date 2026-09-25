@@ -26,7 +26,6 @@ export const EmojiCatalog = {
     [EmojiKey.MessageLatency]: { name: AppEmojiName.FbmDiscord, fallback: '🌐' },
     [EmojiKey.ApiLatency]: { name: AppEmojiName.RiconcCpu, fallback: '🤖' },
     [EmojiKey.DatabaseLatency]: { name: AppEmojiName.RiconcRam, fallback: '📚' },
-    [EmojiKey.Members]: { name: AppEmojiName.FbmUser, fallback: '👥' },
     [EmojiKey.Cpu]: { name: AppEmojiName.RiconcCpu, fallback: '⚙️' },
     [EmojiKey.Ram]: { name: AppEmojiName.RiconcRam, fallback: '💾' },
 

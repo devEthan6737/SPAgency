@@ -45,13 +45,13 @@ Los emojis personalizados no se renderizan en **nombres ni descripciones de slas
 |---|---|
 | `Success`, `Error`, `Warning`, `Ban`, `Raid`, `Welcome`, `Backup` | Prefijo de los mensajes de estado, moderación y logs |
 | `MessageLatency`, `ApiLatency`, `DatabaseLatency` | Las tres latencias de `/ping` |
-| `Members`, `Cpu`, `Ram` | Usuarios, CPU y RAM de `/info` (usan las mismas imágenes que `FbmUser` y `RiconcCpu`/`RiconcRam`; varias claves pueden apuntar al mismo emoji) |
+| `Cpu`, `Ram` | CPU y RAM de `/info` (usan las mismas imágenes que `ApiLatency` y `DatabaseLatency`; varias claves pueden apuntar al mismo emoji) |
 | `Document` | Copia del ticket para el staff (`.txt` adjunto) |
 | `Book` | Introducción de `/comandos` |
-| `StarBlue`, `StarRed`, `StarYellow` | Categorías de `/comandos` (configuración, moderación, otros) |
+| `StarBlue`, `StarRed`, `StarYellow` | Categorías de `/comandos` (configuración, moderación, otros); `StarYellow` también en los usuarios de `/info` |
 | `LoadingGray`, `LoadingGreen`, `LoadingSpinner`, `LoadingBlue` | "Calculando" de `/ping`, "limpiando" de `/unnuke`, "escaneando" de `/detect`, "cerrando" de un ticket |
 | `SuccessAnimated`, `ErrorAnimated` | Emoji de los botones de confirmar y cancelar (`Confirmation.ask`) |
-| `BetaStart` + `BetaEnd`, `Arrow`, `TypeScript`, `JavaScript`, `Seyfert`, `PostgreSql`, `StarBlack`, `StarPurple`, `Developer`, `Heart` | `/info` ("Construido con", "En números" y créditos) |
+| `BetaStart` + `BetaEnd`, `Arrow` (también viñeta de la lista de `/comandos`), `TypeScript`, `JavaScript`, `Seyfert`, `PostgreSql`, `StarBlack`, `StarPurple`, `Developer`, `Heart` | `/info` ("Construido con", "En números" y créditos) |
 | `Attachment`, `Partner`, `Visa` | Iconos de los botones de invitar al bot, servidor de soporte y donar de `/info` (`Attachment` también en `/apelar`) |
 | `Boost`, `Luck`, `YoutubeBadge`, `YoutubeLogo` | Sin uso todavía: esperan contenido real |
 

@@ -366,10 +366,11 @@ export default {
                 description: 'Obtén todos los comandos del bot.',
                 intro: `${emoji(EmojiKey.Book)} Aquí tienes todos mis comandos.`,
                 categories: {
-                    configuration: `${emoji(EmojiKey.StarBlue)} Configuración`,
-                    moderation: `${emoji(EmojiKey.StarRed)} Moderación`,
-                    others: `${emoji(EmojiKey.StarYellow)} Otros`
+                    configuration: 'Configuración',
+                    moderation: 'Moderación',
+                    others: 'Otros'
                 },
+                hint: 'Usa `/comandos <comando>` para ver el detalle de uno.',
                 option: {
                     name: 'comando',
                     description: 'Nombre del comando a consultar.'
@@ -378,7 +379,9 @@ export default {
                 usage: {
                     options: 'Opciones',
                     required: 'requerido',
-                    noOptions: 'Este comando no tiene opciones.'
+                    noOptions: 'Este comando no tiene opciones.',
+                    subcommands: 'Subcomandos',
+                    aliases: 'Alias'
                 }
             },
             info: {
@@ -404,7 +407,7 @@ export default {
                     title: 'En números',
                     uptimeWords: { day: 'día', days: 'días', hour: 'hora', hours: 'horas', minute: 'minuto', minutes: 'minutos', second: 'segundo', seconds: 'segundos', and: 'y' },
                     list: ({ guilds, users, commands, uptime }: InfoStatsText) =>
-                        `${emoji(EmojiKey.StarBlack)} **::** Servidores: \`${guilds}\`\n${emoji(EmojiKey.Members)} **::** Usuarios: \`${users}\`\n${emoji(EmojiKey.StarPurple)} **::** Comandos: \`${commands}\`\n${emoji(EmojiKey.LoadingGreen)} **::** Tiempo activo: \`${uptime}\``
+                        `${emoji(EmojiKey.StarBlack)} **::** Servidores: \`${guilds}\`\n${emoji(EmojiKey.StarYellow)} **::** Usuarios: \`${users}\`\n${emoji(EmojiKey.StarPurple)} **::** Comandos: \`${commands}\`\n${emoji(EmojiKey.LoadingGreen)} **::** Tiempo activo: \`${uptime}\``
                 },
                 resources: {
                     title: 'Recursos',
