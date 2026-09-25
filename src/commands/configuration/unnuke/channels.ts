@@ -6,7 +6,7 @@ import { UnnukeHelpers } from './shared.js';
 
 @Declare({
     name: 'channels',
-    description: 'Deletes channels that share a name with an earlier one — undoes a raid that spammed duplicate channels.'
+    description: 'Deletes channels sharing a name with an earlier one, undoing a raid that spammed duplicates.'
 })
 
 @LocalesT('commands.configuration.unnuke.channels.name', 'commands.configuration.unnuke.channels.description')
