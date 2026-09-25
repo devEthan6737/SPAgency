@@ -5,6 +5,7 @@ import { GuildRepository } from './database/repositories/guild.repository.js';
 import { commandDefaults } from './systems/commands/defaults.js';
 import { commandMiddlewares } from './middlewares/isOwner.middleware.js';
 import { Emojis } from './systems/emojis/index.js';
+import { InfoLinks } from './systems/info/index.js';
 import { isProduction, unrecognizedBotEnv } from './systems/shared/Environment.js';
 
 const plugins = definePlugins(
@@ -57,6 +58,9 @@ const unrecognizedEnv = unrecognizedBotEnv();
 if (unrecognizedEnv) client.logger.warn(`[env] BOT_ENV="${unrecognizedEnv}" is not production, canary or developing — running as PRODUCTION, which talks to the web`);
 
 if (isProduction()) {
+    const missingLinks = InfoLinks.missingVariables();
+    if (missingLinks.length) client.logger.warn(`[info] ${missingLinks.join(', ')} not set or invalid, /info shows those links disabled`);
+
     client.commands.values = client.commands.values.filter((command) => !command.props?.devOnly);
 }
 
