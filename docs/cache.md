@@ -14,7 +14,15 @@ Se descartó gatear por lista de IDs: **producción, canary y desarrollo son apl
 
 `canary` es el bot canario. `testing`, su nombre anterior, se sigue leyendo como `canary`: si cayera al valor por defecto, un canario arrancaría como producción. Y como `production` ahora también significa «habla con la web», un valor mal escrito (`canry`) avisa en el arranque (`unrecognizedBotEnv`, `[env] BOT_ENV=… is not production, canary or developing`) en lugar de pasar en silencio.
 
-Cualquier comando puede marcarse `props: { devOnly: true }` ([`src/seyfert.d.ts`](../src/seyfert.d.ts)) para quedar fuera de producción.
+Un comando puede quedar fuera de algunos entornos con dos marcas en `props` ([`src/seyfert.d.ts`](../src/seyfert.d.ts)); la regla vive en [`CommandAvailability`](../src/systems/commands/CommandAvailability.ts):
+
+| Marca | production | canary | developing |
+|---|---|---|---|
+| (ninguna) | sí | sí | sí |
+| `devOnly: true` | no | sí | sí |
+| `canaryOnly: true` | no | sí | no |
+
+`devOnly` es para herramientas internas (`/cache`); `canaryOnly` para lo que solo tiene sentido en el bot de pruebas (`/canary`, que explica qué es el canary).
 
 ## Solo producción habla con la web — `isProduction()`
 
@@ -34,9 +42,8 @@ El proyecto nunca había llamado a `client.uploadCommands()` — un olvido, corr
 
 ```ts
 await client.start();
-if (isProduction()) {
-    client.commands.values = client.commands.values.filter((command) => !command.props?.devOnly);
-}
+const environment = getBotEnvironment();
+client.commands.values = client.commands.values.filter((command) => CommandAvailability.isAvailable(command.props, environment));
 try {
     await client.uploadCommands();
 } catch (error) {
@@ -48,7 +55,7 @@ try {
 
 **Una subida rechazada no tumba el bot.** Puede fallar por un `400` (una descripción de más de 100 caracteres, por ejemplo) o porque Discord no responda. El error queda en el log y el bot arranca con los comandos que Discord ya tuviera registrados, porque el `PUT` es todo o nada.
 
-`client.commands.values` es el mismo array que usa `uploadCommands()` para registrar y el propio proceso para resolver comandos entrantes — filtrar aquí deja `devOnly` fuera de los dos sitios en producción.
+`client.commands.values` es el mismo array que usa `uploadCommands()` para registrar y el propio proceso para resolver comandos entrantes — filtrar aquí deja fuera, en cada entorno, los comandos que no le tocan: ni se registran ni se pueden ejecutar.
 ## Los tres subcomandos
 
 Todos aceptan `guild_id` opcional (por defecto, el servidor actual).

@@ -19,5 +19,10 @@ declare module 'seyfert' {
          * For internal/debug tooling only (see `/cache`), never for anything a guild admin should use.
          */
         devOnly?: boolean;
+        /**
+         * Registers this command only on the canary bot: production and a developer's own machine
+         * never have it, and `/commands` doesn't list it there. See `CommandAvailability`.
+         */
+        canaryOnly?: boolean;
     }
 }

@@ -2,11 +2,12 @@ import { type AnyContext, Client, definePlugins } from 'seyfert';
 import 'dotenv/config';
 import { cooldown, type CooldownMiddlewares, type CooldownResult } from '@slipher/cooldown';
 import { GuildRepository } from './database/repositories/guild.repository.js';
+import { CommandAvailability } from './systems/commands/CommandAvailability.js';
 import { commandDefaults } from './systems/commands/defaults.js';
 import { commandMiddlewares } from './middlewares/isOwner.middleware.js';
 import { Emojis } from './systems/emojis/index.js';
 import { InfoLinks } from './systems/info/index.js';
-import { isProduction, unrecognizedBotEnv } from './systems/shared/Environment.js';
+import { getBotEnvironment, isProduction, unrecognizedBotEnv } from './systems/shared/Environment.js';
 
 const plugins = definePlugins(
     cooldown({
@@ -60,9 +61,10 @@ if (unrecognizedEnv) client.logger.warn(`[env] BOT_ENV="${unrecognizedEnv}" is n
 if (isProduction()) {
     const missingLinks = InfoLinks.missingVariables();
     if (missingLinks.length) client.logger.warn(`[info] ${missingLinks.join(', ')} not set or invalid, /info shows those links disabled`);
-
-    client.commands.values = client.commands.values.filter((command) => !command.props?.devOnly);
 }
+
+const environment = getBotEnvironment();
+client.commands.values = client.commands.values.filter((command) => CommandAvailability.isAvailable(command.props, environment));
 
 try {
     await client.uploadCommands();
