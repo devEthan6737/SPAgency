@@ -8,6 +8,11 @@
  * shared between sibling commands lives under a `shared` key in that category instead of being
  * duplicated per command.
  */
+import { EmojiKey, Emojis } from '../systems/emojis/index.js';
+
+/** Shorthand for the emoji a message shows for a key, resolved when this file is imported. */
+const emoji = (key: EmojiKey): string => Emojis.get(key);
+
 export default {
     commands: {
         configuration: {
@@ -16,16 +21,16 @@ export default {
                 description: 'Shows the bot latency.',
                 calculating: 'Calculating...',
                 latency: (message: number, api: number) =>
-                    `🌐 Message latency: \`${message}ms\`\n🤖 API latency: \`${api}ms\``,
+                    `${emoji(EmojiKey.MessageLatency)} Message latency: \`${message}ms\`\n${emoji(EmojiKey.ApiLatency)} API latency: \`${api}ms\``,
                 withDatabase: (message: number, api: number, database: number) =>
-                    `🌐 Message latency: \`${message}ms\`\n🤖 API latency: \`${api}ms\`\n📚 Database latency: \`${database}ms\``
+                    `${emoji(EmojiKey.MessageLatency)} Message latency: \`${message}ms\`\n${emoji(EmojiKey.ApiLatency)} API latency: \`${api}ms\`\n${emoji(EmojiKey.DatabaseLatency)} Database latency: \`${database}ms\``
             },
             channel: {
                 name: 'channel',
                 description: 'Manage your server channels.',
                 usage: 'Use `/channel create` or `/channel delete`.',
-                created: '✅ Channel created.',
-                deleted: '✅ Channel deleted.',
+                created: `${emoji(EmojiKey.Success)} Channel created.`,
+                deleted: `${emoji(EmojiKey.Success)} Channel deleted.`,
                 create: {
                     name: 'create',
                     description: 'Creates a new text channel.',
@@ -45,20 +50,20 @@ export default {
                     name: 'set-name',
                     description: "Changes the server's name.",
                     option: { name: { name: 'name', description: 'New server name.' } },
-                    done: '✅ Server name updated.'
+                    done: `${emoji(EmojiKey.Success)} Server name updated.`
                 },
                 setIcon: {
                     name: 'set-icon',
                     description: "Changes the server's icon.",
                     option: { url: { name: 'url', description: 'Link to the new icon image.' } },
-                    done: '✅ Server icon updated.',
+                    done: `${emoji(EmojiKey.Success)} Server icon updated.`,
                     invalidUrl: "❌ Couldn't download that image."
                 },
                 createInvite: {
                     name: 'create-invite',
                     description: 'Creates an invite for a random text channel.',
-                    done: (invite: string) => `✅ Invite created: ${invite}`,
-                    noChannel: '❌ No text channel is available.'
+                    done: (invite: string) => `${emoji(EmojiKey.Success)} Invite created: ${invite}`,
+                    noChannel: `${emoji(EmojiKey.Error)} No text channel is available.`
                 },
                 info: {
                     name: 'info',
@@ -81,17 +86,17 @@ export default {
                         member: { name: 'member', description: 'Member to edit.' },
                         nickname: { name: 'nickname', description: 'New nickname.' }
                     },
-                    done: '✅ Nickname updated.'
+                    done: `${emoji(EmojiKey.Success)} Nickname updated.`
                 },
                 addRole: {
                     name: 'add-role',
                     description: 'Adds a role to a member.',
-                    done: '✅ Role added.'
+                    done: `${emoji(EmojiKey.Success)} Role added.`
                 },
                 removeRole: {
                     name: 'remove-role',
                     description: 'Removes a role from a member.',
-                    done: '✅ Role removed.'
+                    done: `${emoji(EmojiKey.Success)} Role removed.`
                 },
                 role: {
                     option: {
@@ -117,7 +122,7 @@ export default {
                 description: 'Automated cleanup after a raid: duplicate channels/roles/emojis, or a mass-ban.',
                 usage: 'Use `/unnuke channels`, `/unnuke roles`, `/unnuke emojis`, or `/unnuke bans`.',
                 started: "⏳ Cleaning up, this might take a moment...",
-                done: (removed: number) => `✅ Done. Removed \`${removed}\` entries.`,
+                done: (removed: number) => `${emoji(EmojiKey.Success)} Done. Removed \`${removed}\` entries.`,
                 nothing: 'ℹ️ There is nothing to delete.',
                 confirmLabel: 'Yes, continue',
                 cancelLabel: 'Cancel',
@@ -125,25 +130,25 @@ export default {
                     name: 'channels',
                     description: 'Deletes channels with a duplicate name.',
                     confirm: (count: number, list: string) =>
-                        `⚠️ \`${count}\` channels share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
+                        `${emoji(EmojiKey.Warning)} \`${count}\` channels share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
                 },
                 roles: {
                     name: 'roles',
                     description: 'Deletes roles with a duplicate name.',
                     confirm: (count: number, list: string) =>
-                        `⚠️ \`${count}\` roles share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
+                        `${emoji(EmojiKey.Warning)} \`${count}\` roles share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
                 },
                 emojis: {
                     name: 'emojis',
                     description: 'Deletes emojis with a duplicate name.',
                     confirm: (count: number, list: string) =>
-                        `⚠️ \`${count}\` emojis share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
+                        `${emoji(EmojiKey.Warning)} \`${count}\` emojis share a name with an earlier one and will be deleted: ${list}.\nIf any were duplicated on purpose, they will be deleted too, and this can't be undone. Sure?`
                 },
                 bans: {
                     name: 'bans',
                     description: 'Unbans every currently banned user.',
                     confirm: (count: number, list: string) =>
-                        `⚠️ \`${count}\` users will be unbanned: ${list}.\nEvery ban is lifted, not only those of a raid. Sure?`
+                        `${emoji(EmojiKey.Warning)} \`${count}\` users will be unbanned: ${list}.\nEvery ban is lifted, not only those of a raid. Sure?`
                 }
             }
         },
@@ -164,16 +169,16 @@ export default {
                 name: 'clear',
                 description: 'Bulk-deletes messages from this channel.',
                 option: { amount: { name: 'amount', description: 'How many messages to delete (1-1000).' } },
-                done: (amount: number) => `✅ Deleted \`${amount}\` messages.`
+                done: (amount: number) => `${emoji(EmojiKey.Success)} Deleted \`${amount}\` messages.`
             },
             nuke: {
                 name: 'nuke',
                 description: 'Deletes and recreates this channel, wiping all its messages.',
-                notText: '❌ This can only be used in text channels.',
+                notText: `${emoji(EmojiKey.Error)} This can only be used in text channels.`,
                 confirm: "⚠️ This will delete **all** messages in this channel and can't be undone. Are you sure?",
                 confirmLabel: 'Yes, wipe it',
                 cancelLabel: 'Cancel',
-                done: '✅ Channel reset.'
+                done: `${emoji(EmojiKey.Success)} Channel reset.`
             },
             shared: {
                 cannotTargetBot: "❌ I can't do that to myself.",
@@ -182,7 +187,7 @@ export default {
                 defaultReason: 'No reason specified.',
                 dm: (guildName: string, reason: string) => `You received a moderation action in \`${guildName}\`.\n**Reason:** ${reason}`,
                 forceReasonRequired: (allowed: string[]) =>
-                    `❌ This server requires one of its predefined reasons: ${allowed.map((reason) => `\`${reason}\``).join(', ')}.`
+                    `${emoji(EmojiKey.Error)} This server requires one of its predefined reasons: ${allowed.map((reason) => `\`${reason}\``).join(', ')}.`
             },
             ban: {
                 name: 'ban',
@@ -191,7 +196,7 @@ export default {
                     member: { name: 'member', description: 'Member to ban.' },
                     reason: { name: 'reason', description: 'Ban reason.' }
                 },
-                done: (userId: string, reason: string) => `🔨 <@${userId}> has been banned.\n**Reason:** ${reason}`
+                done: (userId: string, reason: string) => `${emoji(EmojiKey.Ban)} <@${userId}> has been banned.\n**Reason:** ${reason}`
             },
             kick: {
                 name: 'kick',
@@ -212,7 +217,7 @@ export default {
                 },
                 invalidId: "❌ That isn't a valid id.",
                 failed: "❌ I couldn't ban that user.",
-                done: (userId: string, reason: string) => `🔨 \`${userId}\` has been banned.\n**Reason:** ${reason}`
+                done: (userId: string, reason: string) => `${emoji(EmojiKey.Ban)} \`${userId}\` has been banned.\n**Reason:** ${reason}`
             },
             timeout: {
                 name: 'timeout',
@@ -231,7 +236,7 @@ export default {
                 name: 'detect',
                 description: 'Scans your server members against the UBFB blacklist.',
                 scanning: '🔎 Scanning members, this might take a moment...',
-                noneFound: '✅ No malicious users found.',
+                noneFound: `${emoji(EmojiKey.Success)} No malicious users found.`,
                 found: (count: number, guildName: string) => `🚫 Found \`${count}\` malicious users in \`${guildName}\`:`,
                 entry: (userId: string, reason: string) => `<@${userId}> — Reason: \`${reason}\``,
                 entryUnknownReason: (userId: string) => `<@${userId}> — Unknown reason`
@@ -240,18 +245,18 @@ export default {
                 name: 'forceban',
                 description: 'Bans every UBFB blacklist entry from your server, member or not.',
                 option: { reason: { name: 'reason', description: 'Only ban blacklist entries with this reason. Defaults to everyone.' } },
-                noneMatching: '❌ No blacklist entries match.',
-                confirm: (count: number) => `⚠️ This will ban \`${count}\` users from the UBFB blacklist. Are you sure?`,
+                noneMatching: `${emoji(EmojiKey.Error)} No blacklist entries match.`,
+                confirm: (count: number) => `${emoji(EmojiKey.Warning)} This will ban \`${count}\` users from the UBFB blacklist. Are you sure?`,
                 confirmLabel: 'Yes, ban them all',
                 cancelLabel: 'Cancel',
-                done: (banned: number, total: number) => `✅ Banned \`${banned}\`/\`${total}\` users.`
+                done: (banned: number, total: number) => `${emoji(EmojiKey.Success)} Banned \`${banned}\`/\`${total}\` users.`
             },
             sos: {
                 name: 'sos',
                 description: 'Pings SPAgency staff with a fresh invite to this server. For emergencies.',
                 noStaffChannel: "❌ The staff alert channel isn't configured — contact SPAgency support directly.",
-                noChannel: '❌ No text channel is available to create the invite.',
-                done: '✅ Alert sent.'
+                noChannel: `${emoji(EmojiKey.Error)} No text channel is available to create the invite.`,
+                done: `${emoji(EmojiKey.Success)} Alert sent.`
             },
             baninfo: {
                 name: 'baninfo',
@@ -259,7 +264,7 @@ export default {
                 option: { user: { name: 'user', description: 'User to check.' } },
                 notBanned: "❌ That user isn't banned.",
                 noReason: 'No reason specified',
-                info: (username: string, reason: string) => `🔨 \`${username}\` is banned.\n**Reason:** ${reason}`
+                info: (username: string, reason: string) => `${emoji(EmojiKey.Ban)} \`${username}\` is banned.\n**Reason:** ${reason}`
             },
             unban: {
                 name: 'unban',
@@ -267,7 +272,7 @@ export default {
                 option: { id: { name: 'id', description: 'ID of the user to unban.' } },
                 invalidId: "❌ That isn't a valid id.",
                 notBanned: "❌ That user isn't banned.",
-                done: (userId: string) => `✅ \`${userId}\` has been unbanned.`
+                done: (userId: string) => `${emoji(EmojiKey.Success)} \`${userId}\` has been unbanned.`
             },
             untimeout: {
                 name: 'untimeout',
@@ -275,7 +280,7 @@ export default {
                 option: { member: { name: 'member', description: 'Member to remove the timeout from.' } },
                 notAMember: "❌ That user isn't a member of this server.",
                 failed: "❌ I couldn't remove that user's timeout.",
-                done: (userId: string) => `✅ Removed the timeout from <@${userId}>.`
+                done: (userId: string) => `${emoji(EmojiKey.Success)} Removed the timeout from <@${userId}>.`
             },
             tempban: {
                 name: 'tempban',
@@ -287,7 +292,7 @@ export default {
                 },
                 autoUnbanReason: 'Temp-ban expired.',
                 done: (userId: string, minutes: number, reason: string) =>
-                    `🔨 <@${userId}> banned for \`${minutes}\` minutes.\n**Reason:** ${reason}`
+                    `${emoji(EmojiKey.Ban)} <@${userId}> banned for \`${minutes}\` minutes.\n**Reason:** ${reason}`
             },
             warn: {
                 name: 'warn',
@@ -297,7 +302,7 @@ export default {
                     reason: { name: 'reason', description: 'Warn reason.' }
                 },
                 done: (userId: string, total: number, reason: string) =>
-                    `⚠️ <@${userId}> warned (\`${total}\` total).\n**Reason:** ${reason}`
+                    `${emoji(EmojiKey.Warning)} <@${userId}> warned (\`${total}\` total).\n**Reason:** ${reason}`
             },
             warns: {
                 name: 'warns',
@@ -315,18 +320,18 @@ export default {
                     id: { name: 'id', description: 'ID of the specific warning to remove (see /warns).' },
                     all: { name: 'all', description: "Remove all of this member's warnings instead of one." }
                 },
-                needsIdOrAll: '❌ Specify `id` or set `all` to true.',
+                needsIdOrAll: `${emoji(EmojiKey.Error)} Specify \`id\` or set \`all\` to true.`,
                 notFound: "❌ There's no warning with that id for that user.",
-                done: (userId: string, id: number) => `✅ Removed warning \`#${id}\` from <@${userId}>.`,
-                doneAll: (userId: string, total: number) => `✅ Removed \`${total}\` warnings from <@${userId}>.`
+                done: (userId: string, id: number) => `${emoji(EmojiKey.Success)} Removed warning \`#${id}\` from <@${userId}>.`,
+                doneAll: (userId: string, total: number) => `${emoji(EmojiKey.Success)} Removed \`${total}\` warnings from <@${userId}>.`
             },
             backup: {
                 name: 'backup',
                 description: 'Snapshot and restore this server (channels, roles, bans, emojis, stickers).',
                 usage: 'Use `/backup create`, `/backup info`, `/backup load`, or `/backup delete`.',
                 none: "❌ This server doesn't have a saved backup.",
-                deleted: '✅ Backup deleted.',
-                overwritePrompt: '⚠️ This will replace the existing backup — the old one will be lost. Are you sure?',
+                deleted: `${emoji(EmojiKey.Success)} Backup deleted.`,
+                overwritePrompt: `${emoji(EmojiKey.Warning)} This will replace the existing backup — the old one will be lost. Are you sure?`,
                 overwriteYes: 'Yes, overwrite it',
                 overwriteNo: 'Cancel',
                 deletePrompt: "⚠️ This will permanently delete this server's backup. Are you sure?",
@@ -334,15 +339,15 @@ export default {
                 deleteNo: 'Cancel',
                 creating: '⏳ Creating backup, this might take a moment...',
                 created: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
-                    `✅ Backup created: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                    `${emoji(EmojiKey.Success)} Backup created: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
                 details: (name: string, channels: number, roles: number, bans: number, emojis: number, stickers: number, createdAt: Date) =>
-                    `📦 Backup of \`${name}\`, taken <t:${Math.floor(createdAt.getTime() / 1000)}:R>.\n\`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
-                cleanupPrompt: '⚠️ Clean up duplicate-named channels/roles (from a raid) before restoring?',
+                    `${emoji(EmojiKey.Backup)} Backup of \`${name}\`, taken <t:${Math.floor(createdAt.getTime() / 1000)}:R>.\n\`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                cleanupPrompt: `${emoji(EmojiKey.Warning)} Clean up duplicate-named channels/roles (from a raid) before restoring?`,
                 cleanupYes: 'Yes, clean up first',
                 cleanupNo: 'No, just restore',
                 restoring: '⏳ Restoring, this might take a moment...',
                 restored: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
-                    `✅ Restored \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, and \`${stickers}\` stickers that were missing.`,
+                    `${emoji(EmojiKey.Success)} Restored \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, and \`${stickers}\` stickers that were missing.`,
                 create: {
                     name: 'create',
                     description: 'Snapshots this server (channels, roles, bans, emojis, stickers) so it can be restored later.'
@@ -369,7 +374,7 @@ export default {
                     name: 'command',
                     description: 'Name of the command to look up.'
                 },
-                notFound: (name: string) => `❌ There's no command called \`${name}\`.`,
+                notFound: (name: string) => `${emoji(EmojiKey.Error)} There's no command called \`${name}\`.`,
                 usage: {
                     options: 'Options',
                     required: 'required',
@@ -383,7 +388,7 @@ export default {
                     name: 'user',
                     description: 'User to check. Defaults to yourself.'
                 },
-                clean: (userId: string) => `✅ <@${userId}> isn't on the UBFB blacklist.`,
+                clean: (userId: string) => `${emoji(EmojiKey.Success)} <@${userId}> isn't on the UBFB blacklist.`,
                 blacklisted: (userId: string) => `🚫 <@${userId}> is on the UBFB blacklist.`,
                 reason: 'Reason',
                 status: 'Status'
@@ -419,18 +424,18 @@ export default {
                     }
                 },
                 success: "✅ Report sent. UBFB's team will review it.",
-                alreadyPending: '❌ That user already has a pending report.',
+                alreadyPending: `${emoji(EmojiKey.Error)} That user already has a pending report.`,
                 invalidProof: "❌ That proof link isn't valid, it must be an image."
             },
             cache: {
                 name: 'cache',
                 description: "Inspect/warm/invalidate a guild's GuildConfigCache entry.",
                 usage: 'Use `/cache info`, `/cache hit`, or `/cache reload`.',
-                noGuild: '❌ No guild id given, and this was not run in a guild.',
-                notCached: (guildId: string) => `❌ Nothing cached for \`${guildId}\` right now.`,
-                noRow: (guildId: string) => `❌ \`${guildId}\` has no row in the database at all.`,
+                noGuild: `${emoji(EmojiKey.Error)} No guild id given, and this was not run in a guild.`,
+                notCached: (guildId: string) => `${emoji(EmojiKey.Error)} Nothing cached for \`${guildId}\` right now.`,
+                noRow: (guildId: string) => `${emoji(EmojiKey.Error)} \`${guildId}\` has no row in the database at all.`,
                 hitResult: (ms: string) => `⏱️ Cache miss round-trip: \`${ms}ms\`.`,
-                reloaded: (guildId: string) => `✅ Reloaded the cache entry for \`${guildId}\`.`,
+                reloaded: (guildId: string) => `${emoji(EmojiKey.Success)} Reloaded the cache entry for \`${guildId}\`.`,
                 option: {
                     guildId: {
                         name: 'guild_id',
@@ -461,8 +466,8 @@ export default {
         },
         maliciousMember: {
             ownerDmMark: (userId: string, reason: string) =>
-                `⚠️ A known malicious user (<@${userId}>) joined your server. I changed their nickname to \`${reason}\` to flag them.`,
-            ownerDmBan: (userId: string, reason: string) => `⚠️ A known malicious user (<@${userId}>) joined your server. I banned them.\n**Reason:** ${reason}`
+                `${emoji(EmojiKey.Warning)} A known malicious user (<@${userId}>) joined your server. I changed their nickname to \`${reason}\` to flag them.`,
+            ownerDmBan: (userId: string, reason: string) => `${emoji(EmojiKey.Warning)} A known malicious user (<@${userId}>) joined your server. I banned them.\n**Reason:** ${reason}`
         },
         raidmode: {
             joinBanReason: 'Raidmode is active — no joins are allowed right now.',
@@ -498,17 +503,17 @@ export default {
                     staff: (staffId: string) => `🔒 Ticket closed by <@${staffId}>.`
                 },
                 button: {
-                    notStaff: '❌ Only staff can close tickets.',
-                    notTicket: '❌ This channel is not a ticket.',
+                    notStaff: `${emoji(EmojiKey.Error)} Only staff can close tickets.`,
+                    notTicket: `${emoji(EmojiKey.Error)} This channel is not a ticket.`,
                     started: '🔒 Closing the ticket…',
                     already: 'ℹ️ This ticket is already being closed.',
-                    failed: '❌ Could not start the close. Try again.'
+                    failed: `${emoji(EmojiKey.Error)} Could not start the close. Try again.`
                 },
-                truncated: (omitted: number) => `⚠️ The web only received the newest messages: the ${omitted} oldest ones don't fit its size limit. They are in the attached copy.`,
+                truncated: (omitted: number) => `${emoji(EmojiKey.Warning)} The web only received the newest messages: the ${omitted} oldest ones don't fit its size limit. They are in the attached copy.`,
                 dm: (subject: string) => `🔒 Your ticket «${subject}» has been closed. You can read the conversation on the web, in your support history.`,
-                staffCopy: (subject: string, userId: string, by: string) => `📎 Ticket **${subject}** from <@${userId}> closed ${by}. Copy with the internal notes attached.`,
+                staffCopy: (subject: string, userId: string, by: string) => `${emoji(EmojiKey.Attachment)} Ticket **${subject}** from <@${userId}> closed ${by}. Copy with the internal notes attached.`,
                 deliveryFailed: (subject: string, channelId: string, reason: string) =>
-                    `⚠️ Could not deliver the transcript of ticket **${subject}** (<#${channelId}>) to the web: ${reason}. The channel stays locked and undeleted; it will be retried when the bot restarts. Copy attached.`
+                    `${emoji(EmojiKey.Warning)} Could not deliver the transcript of ticket **${subject}** (<#${channelId}>) to the web: ${reason}. The channel stays locked and undeleted; it will be retried when the bot restarts. Copy attached.`
             },
             transcript: {
                 header: (subject: string, ticketId: string, userId: string, openedAt: string, closedAt: string, by: string) =>
@@ -524,7 +529,7 @@ export default {
             }
         },
         verification: {
-            dm: (link: string) => `👋 Welcome! To access this server, verify yourself here:\n${link}\n\nThis link expires in 15 minutes.`
+            dm: (link: string) => `${emoji(EmojiKey.Welcome)} Welcome! To access this server, verify yourself here:\n${link}\n\nThis link expires in 15 minutes.`
         },
         automod: {
             reason: {
@@ -547,68 +552,68 @@ export default {
             webhookFloodReason: () => 'Webhook flood.'
         },
         cooldown: {
-            blocked: (seconds: number) => `❌ Slow down — try again in \`${seconds}s\`.`
+            blocked: (seconds: number) => `${emoji(EmojiKey.Error)} Slow down — try again in \`${seconds}s\`.`
         },
         logs: {
             events: {
                 channelCreate: (channelId: string) => `📁 A channel was created: <#${channelId}>.`,
                 channelDelete: (channelId: string) => `🗑️ A channel was deleted: \`${channelId}\`.`,
                 channelUpdate: (channelId: string) => `✏️ A channel was updated: <#${channelId}>.`,
-                roleCreate: (roleId: string) => `✅ A role was created: <@&${roleId}>.`,
+                roleCreate: (roleId: string) => `${emoji(EmojiKey.Success)} A role was created: <@&${roleId}>.`,
                 roleDelete: (roleId: string) => `🗑️ A role was deleted: \`${roleId}\`.`,
                 webhookCreate: () => '🪝 A webhook was created.',
-                ban: (userId: string) => `🔨 \`${userId}\` was banned.`,
-                unban: (userId: string) => `✅ \`${userId}\` was unbanned.`,
-                raidDetected: (userId: string) => `🚨 Raid detected — banned <@${userId}>.`,
+                ban: (userId: string) => `${emoji(EmojiKey.Ban)} \`${userId}\` was banned.`,
+                unban: (userId: string) => `${emoji(EmojiKey.Success)} \`${userId}\` was unbanned.`,
+                raidDetected: (userId: string) => `${emoji(EmojiKey.Raid)} Raid detected — banned <@${userId}>.`,
                 antibotsKick: (userId: string) => `🤖 <@${userId}> was kicked — bots aren't allowed to join.`,
                 antiraidDisabled: () =>
                     "⚠️ Antiraid was turned off automatically: I no longer have Ban Members/View Audit Log, or another role sits above mine. Fix that and turn it back on.",
-                logsDisabled: () => '⚠️ The log channel was unset after a failed send. Set a new one to turn logs back on.',
+                logsDisabled: () => `${emoji(EmojiKey.Warning)} The log channel was unset after a failed send. Set a new one to turn logs back on.`,
                 maliciousMemberNone: (userId: string) => `👁️ A known malicious user (<@${userId}>) joined — no action taken.`,
                 maliciousMemberMark: (userId: string) => `🚩 A known malicious user (<@${userId}>) joined — nickname changed to flag them.`,
-                maliciousMemberBan: (userId: string) => `🔨 A known malicious user (<@${userId}>) joined — banned.`,
+                maliciousMemberBan: (userId: string) => `${emoji(EmojiKey.Ban)} A known malicious user (<@${userId}>) joined — banned.`,
                 raidmodeJoinBan: (userId: string) => `🔒 <@${userId}> joined during raidmode — temp-banned.`,
                 raidmodeActionBan: (userId: string) => `🔒 <@${userId}> made a change during raidmode — banned.`,
                 raidmodeExpired: () => '🔓 Raidmode expired and was turned off automatically.',
                 selfbotKick: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — kicked.`,
                 selfbotBan: (userId: string) => `🕵️ <@${userId}> was flagged as a likely selfbot/fake account — banned.`,
                 automodViolation: (userId: string, detector: string, sanction: string) =>
-                    `⚠️ <@${userId}> tripped automod (\`${detector}\`) — \`${sanction}\`.`,
+                    `${emoji(EmojiKey.Warning)} <@${userId}> tripped automod (\`${detector}\`) — \`${sanction}\`.`,
                 webhookFloodPurge: (webhookId: string) => `🪝 Deleted webhook \`${webhookId}\` for flooding.`,
-                raidBotAdderBan: (userId: string, botId: string) => `🔨 <@${userId}> added \`${botId}\`, which was just banned as a raider — banned too.`
+                raidBotAdderBan: (userId: string, botId: string) => `${emoji(EmojiKey.Ban)} <@${userId}> added \`${botId}\`, which was just banned as a raider — banned too.`
             },
             actions: {
                 ban: (userId: string, reason?: string) =>
-                    `🔨 <@${userId}> has been banned.` + (reason ? `\n**Reason:** ${reason}` : ''),
-                warn: (userId: string, reason: string) => `⚠️ <@${userId}> has been warned.\n**Reason:** ${reason}`,
-                unban: (userId: string) => `✅ \`${userId}\` has been unbanned.`,
-                forceban: (banned: number, total: number) => `🔨 Force-banned \`${banned}\`/\`${total}\` blacklist entries.`,
-                hackban: (userId: string, reason: string) => `🔨 \`${userId}\` has been banned (hackban).\n**Reason:** ${reason}`,
+                    `${emoji(EmojiKey.Ban)} <@${userId}> has been banned.` + (reason ? `\n**Reason:** ${reason}` : ''),
+                warn: (userId: string, reason: string) => `${emoji(EmojiKey.Warning)} <@${userId}> has been warned.\n**Reason:** ${reason}`,
+                unban: (userId: string) => `${emoji(EmojiKey.Success)} \`${userId}\` has been unbanned.`,
+                forceban: (banned: number, total: number) => `${emoji(EmojiKey.Ban)} Force-banned \`${banned}\`/\`${total}\` blacklist entries.`,
+                hackban: (userId: string, reason: string) => `${emoji(EmojiKey.Ban)} \`${userId}\` has been banned (hackban).\n**Reason:** ${reason}`,
                 kick: (userId: string, reason: string) => `👢 <@${userId}> has been kicked.\n**Reason:** ${reason}`,
                 timeout: (userId: string, minutes: number, reason: string) =>
                     `🔇 <@${userId}> timed out for \`${minutes}\` minutes.\n**Reason:** ${reason}`,
-                untimeout: (userId: string) => `✅ Removed the timeout from <@${userId}>.`,
+                untimeout: (userId: string) => `${emoji(EmojiKey.Success)} Removed the timeout from <@${userId}>.`,
                 unwarn: (userId: string, warnId: number | 'all') =>
-                    `✅ Removed warning(s) from <@${userId}> (${warnId === 'all' ? 'all' : `#${warnId}`}).`,
+                    `${emoji(EmojiKey.Success)} Removed warning(s) from <@${userId}> (${warnId === 'all' ? 'all' : `#${warnId}`}).`,
                 clear: (amount: number, channelId: string) => `🧹 Cleared \`${amount}\` messages in <#${channelId}>.`,
                 lock: (roleId: string, channelId: string) => `🔒 Locked <#${channelId}> for <@&${roleId}>.`,
                 unlock: (roleId: string, channelId: string) => `🔓 Unlocked <#${channelId}> for <@&${roleId}>.`,
                 backupCreate: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
-                    `📦 Backup created: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                    `${emoji(EmojiKey.Backup)} Backup created: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
                 backupLoad: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
-                    `📦 Backup restored: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
+                    `${emoji(EmojiKey.Backup)} Backup restored: \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, \`${stickers}\` stickers.`,
                 tempban: (userId: string, minutes: number, reason: string) =>
-                    `🔨 <@${userId}> temp-banned for \`${minutes}\` minutes.\n**Reason:** ${reason}`,
+                    `${emoji(EmojiKey.Ban)} <@${userId}> temp-banned for \`${minutes}\` minutes.\n**Reason:** ${reason}`,
                 nuke: (channelId: string) => `💥 Channel <#${channelId}> was nuked (deleted and recreated).`,
                 backupDelete: () => "🗑️ This server's backup was deleted.",
-                channelCreate: (channelId: string) => `✅ Channel <#${channelId}> was created.`,
+                channelCreate: (channelId: string) => `${emoji(EmojiKey.Success)} Channel <#${channelId}> was created.`,
                 channelDelete: (channelId: string) => `🗑️ Channel \`${channelId}\` was deleted.`,
-                createInvite: (channelId: string, code: string) => `✅ Invite \`${code}\` created for <#${channelId}>.`,
+                createInvite: (channelId: string, code: string) => `${emoji(EmojiKey.Success)} Invite \`${code}\` created for <#${channelId}>.`,
                 setIcon: () => "✅ This server's icon was changed.",
-                setName: (name: string) => `✅ This server's name was changed to \`${name}\`.`,
-                addRole: (userId: string, roleId: string) => `✅ Added <@&${roleId}> to <@${userId}>.`,
-                removeRole: (userId: string, roleId: string) => `✅ Removed <@&${roleId}> from <@${userId}>.`,
-                setNickname: (userId: string, nickname: string) => `✅ Changed <@${userId}>'s nickname to \`${nickname}\`.`,
+                setName: (name: string) => `${emoji(EmojiKey.Success)} This server's name was changed to \`${name}\`.`,
+                addRole: (userId: string, roleId: string) => `${emoji(EmojiKey.Success)} Added <@&${roleId}> to <@${userId}>.`,
+                removeRole: (userId: string, roleId: string) => `${emoji(EmojiKey.Success)} Removed <@&${roleId}> from <@${userId}>.`,
+                setNickname: (userId: string, nickname: string) => `${emoji(EmojiKey.Success)} Changed <@${userId}>'s nickname to \`${nickname}\`.`,
                 unnukeBans: (removed: number) => `🧹 Unnuke: removed \`${removed}\` bans.`,
                 unnukeChannels: (removed: number) => `🧹 Unnuke: removed \`${removed}\` duplicate channels.`,
                 unnukeRoles: (removed: number) => `🧹 Unnuke: removed \`${removed}\` duplicate roles.`,
@@ -616,11 +621,11 @@ export default {
             }
         },
         commands: {
-            optionsError: (options: string) => `❌ Check what you wrote, something isn't valid: \`${options}\`.`,
-            permissionsFail: (permissions: string) => `❌ You're missing permissions to use this: \`${permissions}\`.`,
-            botPermissionsFail: (permissions: string) => `❌ I'm missing permissions to do this: \`${permissions}\`.`,
-            middlewaresError: (reason: string) => `❌ ${reason}`,
-            runError: '❌ Something went wrong running that command.',
+            optionsError: (options: string) => `${emoji(EmojiKey.Error)} Check what you wrote, something isn't valid: \`${options}\`.`,
+            permissionsFail: (permissions: string) => `${emoji(EmojiKey.Error)} You're missing permissions to use this: \`${permissions}\`.`,
+            botPermissionsFail: (permissions: string) => `${emoji(EmojiKey.Error)} I'm missing permissions to do this: \`${permissions}\`.`,
+            middlewaresError: (reason: string) => `${emoji(EmojiKey.Error)} ${reason}`,
+            runError: `${emoji(EmojiKey.Error)} Something went wrong running that command.`,
             ownerOnly: 'Only the server owner can use this command.'
         }
     }
