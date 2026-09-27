@@ -49,9 +49,9 @@ export class VerificationSystem {
         const settings = await GuildConfigCache.get(member.guildId);
         if (!settings?.verificationEnable || !settings.verificationRole) return false;
 
-        const webUrl = process.env.VERIFICATION_WEB_URL;
+        const webUrl = process.env.WEB_URL;
         if (!webUrl) {
-            client.logger.error('[verification] VERIFICATION_WEB_URL is not set — cannot send a verification link');
+            client.logger.error('[verification] WEB_URL is not set — cannot send a verification link');
             return false;
         }
 
@@ -59,7 +59,7 @@ export class VerificationSystem {
         if (!token) return false;
 
         const t = client.t(settings.language).systems.verification;
-        await member.user.write({ content: t.dm(`${webUrl}/${token}`).get() }).catch(() => {});
+        await member.user.write({ content: t.dm(`${webUrl.replace(/\/+$/, '')}/verify/${token}`).get() }).catch(() => {});
         return true;
     }
 

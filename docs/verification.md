@@ -16,7 +16,7 @@ La primera versión usaba Postgres como canal bot↔dashboard (tabla de tokens p
 
 ## El flujo
 
-1. **Join** (`VerificationSystem.enforce()`): si está habilitado, firma un token y lo manda por DM (`<VERIFICATION_WEB_URL>/<token>`). Nada se guarda — el token es autocontenido.
+1. **Join** (`VerificationSystem.enforce()`): si está habilitado, firma un token y lo manda por DM (`<WEB_URL>/verify/<token>`). Nada se guarda — el token es autocontenido.
 2. El usuario abre el enlace; la web llama `GET /verify/:token` para saber a quién pertenece.
 3. OAuth2 + captcha, en el dashboard — fuera de este repo.
 4. Al completar, la web llama `POST /verify/:token/complete` (autenticada). El bot concede el rol en el momento — sin DB, sin cola.
@@ -57,7 +57,6 @@ Módulo de [`ApiServer`](api.md) montado en `/verify/*`: dos rutas, sin cuerpo q
 
 - `VERIFICATION_SECRET` — firma tokens, nunca se comparte.
 - `INTERNAL_API_KEY` — clave compartida con la web, ver [api.md](api.md); autentica al dashboard y nunca se expone al navegador.
-- `VERIFICATION_WEB_URL` — base del enlace en el DM.
 - `BOT_API_PORT` — puerto del servidor HTTP compartido (default `4501`), ver [api.md](api.md).
 
 ## Dónde encaja en `guildMemberAdd.ts`
