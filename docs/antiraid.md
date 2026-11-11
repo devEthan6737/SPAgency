@@ -14,7 +14,7 @@ Sistema de detección de ráfagas de SPAgency. El antibots (kick de bots al unir
 
 `BurstTracker` es un contador de ráfaga genérico: cada `hit()` con la misma `key` suma uno sobre un [`ExpiringMap`](../src/systems/shared/ExpiringMap.ts) (ver `moderation.md`) que se autolimpia sin más hits. Al llegar al `threshold` dentro de `windowMs`, devuelve `true` una vez y se resetea explícitamente.
 
-`AntiraidSystem.detect()` usa un contador **por servidor** (no por tipo de acción), `threshold=3`, `windowMs=10_000` — un raid que mezcla canales y roles debe contar como una sola ráfaga.
+`AntiraidSystem.detect()` usa un contador **por servidor y ejecutor** (clave `guildId:executorId`, no por tipo de acción: si no, dos acciones del raider más una de un admin legítimo banearían al admin), `threshold=3`, `windowMs=10_000`: un raid que mezcla canales y roles debe contar como una sola ráfaga.
 
 No todos los hits valen igual: `weightFor()` pondera doble un canal creado con nombre duplicado (comprobado contra caché, sin red — patrón típico de raid) para que la ráfaga salte antes. El efecto está acotado: solo adelanta *cuándo* salta el umbral, nunca lo baja para el resto.
 
@@ -28,7 +28,7 @@ Al saltar, banea al causante y registra `ServerEventLog` (`private static log()`
 
 `Map<guildId, GuildSettings>` en memoria, fallback a `GuildRepository.getGuildSettings` (sin joins de más). Vive en `src/systems/protection/`, no en `antiraid/`, porque también la usan antibots y `AutomodSystem`.
 
-**Invalidación vive en Postgres, no en el bot**: `guild_protection`/`guild_configuration` tienen un trigger `pg_notify('guild_config_changed', guild_id)` en cualquier `UPDATE`, de cualquier proceso. El bot hace `LISTEN` y borra la entrada — la dashboard no necesita avisar de nada. Red de seguridad: `setInterval` que vacía toda la caché cada 10 minutos. Para inspeccionarla a mano, ver [`cache.md`](cache.md).
+**Invalidación vive en Postgres, no en el bot**: `guild_protection`/`guild_configuration` tienen un trigger `pg_notify('guild_config_changed', guild_id)` en cualquier `UPDATE`, de cualquier proceso. El bot hace `LISTEN` y borra la entrada; la dashboard no necesita avisar de nada. Red de seguridad: cada entrada caduca por su cuenta a los 10 minutos (no se vacía toda a la vez). Un guild sin fila se recuerda 30 s como tal, y las consultas simultáneas del mismo guild comparten una sola. Para inspeccionarla a mano, ver [`cache.md`](cache.md).
 
 **Por qué no se mueve a Redis, ni en la misma VPS:** `BurstTracker`/`GuildConfigCache` están en el camino de decisión de un ban — Redis en localhost sigue siendo una petición de red (socket, serialización), reintroduciendo la latencia que la idea 1 existe para evitar. Se queda en proceso salvo sharding real con estado compartido entre procesos (y aun así, cada guild siempre lo procesa el mismo shard).
 
@@ -52,6 +52,14 @@ La detección registra `ServerEventLog` (`RaidDetected`), no `BotActionLog` — 
   - **Piden confirmación antes de tocar nada** (`UnnukeHelpers.confirm`, sobre `Confirmation.ask`): un duplicado puede ser intencionado y el comando no distingue uno de un raid. El aviso lista lo que se va a borrar (hasta 10 nombres y `+N` del resto) y, en `bans`, advierte de que se levantan **todos** los baneos, no solo los del raid. Si no hay nada que borrar lo dice y no pregunta.
   - **El cooldown se devuelve** (`ctx.cooldown.reset()`) cuando no se borra nada (cancelado, sin respuesta o sin duplicados). Se consume antes de ejecutar el comando, y cancelar no debe costar 15 minutos. `/backup load` sigue usando `UnnukeHelpers.deleteDuplicates` sin este aviso, porque ya pregunta por su cuenta.
 - **`/backup create|load|delete|info`**: snapshot completo, restaurable si `/unnuke` no basta. Descargas de imágenes secuenciales, no en paralelo, para no saturar el CDN de Discord.
+  - **`load` restaura roles antes que canales**: los overwrites de permisos de un canal guardan los ids de rol de *antes* del nuke, que ya no existen; crear el canal con uno de esos ids hace que Discord lo rechace entero. El snapshot guarda ahora el `id` de cada rol y el restore reapunta cada overwrite al rol recreado (por nombre); los overwrites de rol sin equivalente se descartan. Backups antiguos sin `id` solo conservan los overwrites cuyo rol sigue existiendo.
+  - Un canal ya existe si coinciden **tipo, categoría y nombre** (no solo el nombre): dos canales homónimos en categorías distintas se restauran los dos.
+  - Si el aviso "¿limpiar duplicados antes?" caduca sin respuesta, `load` **aborta** (y devuelve el cooldown) en vez de restaurar igualmente.
+  - **El backup sobrevive a que el bot salga del servidor** (ver "Salida del bot" abajo).
+
+### Salida del bot de un servidor
+
+`guildDelete` ya no borra la fila del servidor. Seyfert entrega ese evento también cuando un guild solo deja de estar disponible (caída de Discord), y borrar arrastraba por cascada config, warns, logs, tempbans y backups. Ahora: si el payload dice `unavailable` se ignora; si no, se confirma por REST que el bot perdió el acceso (403/404) y solo entonces se marca `guilds.left_at`. `GuildSync` (en cada `ready`) borra las filas con `left_at` de hace más de 30 días, reactiva las de los servidores a los que el bot volvió, marca las de los que lo echaron estando apagado y **crea la fila de los servidores a los que lo añadieron estando apagado** (el gateway los entrega como `rawGuildCreate` al arrancar, nunca como `guildCreate`). Si no puede leer la lista de servidores de Discord, no hace nada.
 
 Ambos generan `BotActionLog` y pasan por `Confirmation.ask()` antes de ejecutar, por destructivos.
 
@@ -59,7 +67,7 @@ Ambos generan `BotActionLog` y pasan por `Confirmation.ask()` antes de ejecutar,
 
 **Ficheros:** [`src/systems/antiraid/AntiraidPrerequisites.ts`](../src/systems/antiraid/AntiraidPrerequisites.ts), [`guildRoleUpdate.ts`](../src/events/guildRoleUpdate.ts), [`guildRoleDelete.ts`](../src/events/guildRoleDelete.ts), [`guildMemberUpdate.ts`](../src/events/guildMemberUpdate.ts)
 
-`meets()` comprueba tres cosas sin excepción: permiso **Ban Members**, permiso **View Audit Log** (sin él, Discord ni dispara el evento), y rol del bot en la **posición más alta** de la jerarquía. Las tres salen de caché de gateway, cero red.
+`meets()` comprueba tres cosas sin excepción: permiso **Ban Members**, permiso **View Audit Log** (sin él, Discord ni dispara el evento), y rol del bot en la **posición más alta** de la jerarquía. Los permisos y roles del bot salen de caché de gateway, pero la lista de roles del servidor se pide por REST (la caché de roles está desactivada en `src/index.ts`). Por eso `meets()` devuelve `true`/`false`/`undefined`: `undefined` es "no pude comprobarlo" (fallo de red/REST) y **nunca** apaga el antiraid: solo un `false` real lo hace. Los rechequeos de un mismo guild se coalescen: mientras uno corre, los siguientes solo lo marcan para repetirse una vez, para que una ráfaga de eventos de rol no dispare decenas de llamadas.
 
 **No es un timer** — `recheckPrerequisites()` se llama desde los tres eventos que pueden romper esto (`guildRoleUpdate`, `guildRoleDelete`, `guildMemberUpdate` filtrado al propio bot), no desde un `setInterval`. El único caso que ningún evento cubre es el cambio mientras el bot estaba desconectado — para eso, `recheckAllPrerequisites()` corre en cada `ready` (cada sesión de gateway nueva, no solo el arranque).
 

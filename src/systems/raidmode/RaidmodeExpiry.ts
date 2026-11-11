@@ -52,7 +52,13 @@ export class RaidmodeExpiry {
         RaidmodeExpiry.timers.delete(guildId);
 
         const state = await GuildRepository.getRaidmodeState(guildId);
-        if (!state?.raidmodeEnable || !state.raidmodeActivatedAt) return;
+        if (!state?.raidmodeEnable) return;
+
+        // Raidmode turned on elsewhere (the dashboard) has no start time: stamp it, which fires the trigger again., which lands in the scheduling below.
+        if (!state.raidmodeActivatedAt) {
+            await GuildRepository.updateProtection(guildId, { raidmodeActivatedAt: new Date() });
+            return;
+        }
 
         const durationMs = parseDurationMs(state.raidmodeTimeToDisable);
         const delay = Math.max(0, state.raidmodeActivatedAt.getTime() + durationMs - Date.now());

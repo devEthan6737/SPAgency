@@ -11,6 +11,8 @@ import { getUbfb } from '../ubfb/client.js';
  * — see docs/malicious-members.md for the full reasoning behind each case.
  */
 export class MaliciousMemberSystem {
+    private static readonly MaxNicknameLength = 32;
+
     /**
      * @returns Whether this call removed `member` from the guild (only when the resolved action is
      * `Ban`). `guildMemberAdd.ts` runs this system before `AntibotsSystem` and skips the latter when
@@ -33,7 +35,7 @@ export class MaliciousMemberSystem {
 
         if (action === MaliciousMemberAction.Mark) {
             await MaliciousMemberSystem.notifyOwner(client, member.guildId, t.systems.maliciousMember.ownerDmMark(member.id, reason).get());
-            await client.members.edit(member.guildId, member.id, { nick: `${member.user.username} (${reason})` }).catch(() => {});
+            await client.members.edit(member.guildId, member.id, { nick: MaliciousMemberSystem.markedNickname(member.user.username, reason) }).catch(() => {});
         } else if (action === MaliciousMemberAction.Ban) {
             await MaliciousMemberSystem.notifyOwner(client, member.guildId, t.systems.maliciousMember.ownerDmBan(member.id, reason).get());
             await client.bans.create(member.guildId, member.id, { reason }).catch(() => {});
@@ -50,6 +52,15 @@ export class MaliciousMemberSystem {
         void dispatchLog(client, MaliciousMemberSystem.log({ guildId: member.guildId, targetId: member.id, action })).catch(() => {});
 
         return action === MaliciousMemberAction.Ban;
+    }
+
+    /** `username (reason)` cut to Discord's 32-character nickname limit, shortening the reason first so the mark itself still fits. */
+    private static markedNickname(username: string, reason: string): string {
+        const full = `${username} (${reason})`;
+        if (full.length <= MaliciousMemberSystem.MaxNicknameLength) return full;
+
+        const room = MaliciousMemberSystem.MaxNicknameLength - username.length - 4;
+        return room > 0 ? `${username} (${reason.slice(0, room)}…)` : `⚠ ${username}`.slice(0, MaliciousMemberSystem.MaxNicknameLength);
     }
 
     /** DMs the server owner, if the bot can reach them — never worth failing the rest of the flow over. */

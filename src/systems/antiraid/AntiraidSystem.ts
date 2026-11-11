@@ -27,14 +27,17 @@ interface WeighableAuditLogEntry {
 
 /**
  * Detects raid-style bursts (channels/roles spammed or deleted, mass bans) and bans whoever's
- * behind them. One shared counter per guild — a raid mixing channel and role spam still trips it,
- * matching the legacy bot's behavior.
+ * behind them. One counter per guild and executor: a raid mixing channel and role spam still trips it, but
+ * unrelated admins' actions never add up against each other.
  */
 export class AntiraidSystem {
     /** How many flagged actions within the window count as a raid. */
     private static readonly BurstThreshold = 3;
     /** Rolling window: each new flagged action resets it, so the threshold is "N actions within this long of each other". */
     private static readonly BurstWindowMs = 10_000;
+
+    /** Guilds with a prerequisites recheck in flight; the value says whether another was requested meanwhile. */
+    private static rechecking = new Map<string, boolean>();
 
     /** Call for a flagged audit log entry (channel/role create-delete, ban add) — `executorId` comes straight off the gateway payload, no REST lookup needed. */
     static async detect({ client, guildId, executorId, weight = 1 }: AntiraidDetectOptions): Promise<void> {
@@ -45,7 +48,7 @@ export class AntiraidSystem {
         if (settings.whitelist.includes(executorId)) return;
 
         const tripped = BurstTracker.hit({
-            key: guildId,
+            key: `${guildId}:${executorId}`,
             threshold: AntiraidSystem.BurstThreshold,
             windowMs: AntiraidSystem.BurstWindowMs,
             weight
@@ -54,9 +57,9 @@ export class AntiraidSystem {
 
         const t = client.t(settings.language);
         const reason = t.systems.antiraid.banReason.get();
-        await client.bans.create(guildId, executorId, { reason }).catch(() => {});
+        const banned = await client.bans.create(guildId, executorId, { reason }).then(() => true).catch(() => false);
 
-        void dispatchLog(client, AntiraidSystem.log({ guildId, targetId: executorId })).catch(() => {});
+        if (banned) void dispatchLog(client, AntiraidSystem.log({ guildId, targetId: executorId })).catch(() => {});
         void IntelligentSosSystem.trigger(client, guildId, reason).catch(() => {});
 
         const executor = await client.users.fetch(executorId).catch(() => undefined);
@@ -104,11 +107,25 @@ export class AntiraidSystem {
      * `guildRoleDelete.ts`, `guildMemberUpdate.ts`) — not on a timer.
      */
     static async recheckPrerequisites(client: UsingClient, guildId: string): Promise<void> {
-        const settings = await GuildConfigCache.get(guildId);
-        if (!settings?.antiraidEnable) return;
+        // A role raid fires dozens of events: while one check runs, later requests only mark it to run once more.
+        if (AntiraidSystem.rechecking.has(guildId)) {
+            AntiraidSystem.rechecking.set(guildId, true);
+            return;
+        }
 
-        const meets = await AntiraidPrerequisites.meets(client, guildId);
-        if (!meets) await AntiraidSystem.disable(client, guildId);
+        try {
+            do {
+                AntiraidSystem.rechecking.set(guildId, false);
+
+                const settings = await GuildConfigCache.get(guildId);
+                if (!settings?.antiraidEnable) return;
+
+                const meets = await AntiraidPrerequisites.meets(client, guildId);
+                if (meets === false) await AntiraidSystem.disable(client, guildId);
+            } while (AntiraidSystem.rechecking.get(guildId));
+        } finally {
+            AntiraidSystem.rechecking.delete(guildId);
+        }
     }
 
     /** Re-checks every antiraid-enabled guild — call from `ready` (fires on every fresh gateway session, not just process start) to catch drift from while the bot was offline/disconnected that no event could have told it about. */

@@ -11,6 +11,6 @@ export default createEvent({
     async run(execution, client) {
         if (execution.userId === client.botId) return;
 
-        await AutomodSystem.handleNativeAction(client, execution.guildId, execution.userId);
+        await AutomodSystem.handleNativeAction(client, { guildId: execution.guildId, userId: execution.userId, ruleId: execution.ruleId });
     }
 });

@@ -20,7 +20,7 @@ export class AutomodEscalation {
     /** How long an in-channel violation announcement stays up before deleting itself. */
     private static readonly AnnouncementLifetimeMs = 8_000;
 
-    /** Warn, then escalate if the running automod count just crossed a threshold. */
+    /** Warn, then escalate according to the running automod count: at or past the final-action threshold that action, else at or past the mute threshold a mute. `>=` rather than `===` so a count that skipped the exact value (two concurrent violations) still escalates, and repeat offenders keep being muted. */
     static async sanctionUser(client: UsingClient, { settings, guildId, channelId, userId, detector, mentionedUserId }: SanctionUserInput): Promise<void> {
         const t = client.t(settings.language).systems.automod;
         const reason = t.reason[detector]().get();
@@ -36,13 +36,13 @@ export class AutomodEscalation {
 
         let sanction = AutomodSanction.Warn;
 
-        if (subCount === settings.automodMuteAt) {
-            sanction = AutomodSanction.Mute;
-            await client.members.timeout(guildId, userId, settings.automodMuteMinutes * 60_000, reason).catch(() => {});
-        } else if (settings.automodFinalAction !== AutomodFinalAction.None && subCount === settings.automodFinalActionAt) {
+        if (settings.automodFinalAction !== AutomodFinalAction.None && subCount >= settings.automodFinalActionAt) {
             sanction = settings.automodFinalAction === AutomodFinalAction.Kick ? AutomodSanction.Kick : AutomodSanction.Ban;
             if (sanction === AutomodSanction.Kick) await client.members.kick(guildId, userId, reason).catch(() => {});
             else await client.bans.create(guildId, userId, { reason }).catch(() => {});
+        } else if (subCount >= settings.automodMuteAt) {
+            sanction = AutomodSanction.Mute;
+            await client.members.timeout(guildId, userId, settings.automodMuteMinutes * 60_000, reason).catch(() => {});
         }
 
         if (channelId) await AutomodEscalation.announce(client, channelId, { detector, userId, mentionedUserId, t });

@@ -21,6 +21,13 @@ export class AutomodSystem {
     private static readonly FloodWindowMs = 5_000;
     private static readonly FloodThreshold = 5;
     private static floodCounter = new RollingWindowCounter(AutomodSystem.FloodWindowMs);
+    /** After flood trips for a member, further flooded messages are ignored for this long: one burst earns one warn, not one per extra message. */
+    private static readonly FloodCooldownMs = 30_000;
+    private static floodCooldown = new ExpiringMap<string, true>();
+
+    /** A native AutoMod rule that blocks and alerts reports once per action; reports for the same member and rule inside this window are one violation. */
+    private static readonly NativeDedupeMs = 5_000;
+    private static nativeRecent = new ExpiringMap<string, true>();
 
     /** How long a mention-carrying message stays a ghostping candidate — deleted any later than this and it no longer counts as "shortly after". */
     private static readonly GhostpingWindowMs = 60_000;
@@ -31,7 +38,7 @@ export class AutomodSystem {
         if (message.author.bot || !message.guildId) return;
 
         const settings = await GuildConfigCache.get(message.guildId);
-        if (!settings) return;
+        if (!settings || settings.whitelist.includes(message.author.id)) return;
 
         const detector = AutomodSystem.detect(settings, message);
         if (!detector) return;
@@ -46,17 +53,25 @@ export class AutomodSystem {
      * every other detector, so someone can't dodge escalation just because the block happened to come
      * from Discord instead of from us.
      */
-    static async handleNativeAction(client: UsingClient, guildId: string, userId: string): Promise<void> {
+    static async handleNativeAction(client: UsingClient, { guildId, userId, ruleId }: NativeActionInput): Promise<void> {
+        const dedupeKey = `${guildId}:${userId}:${ruleId}`;
+        if (AutomodSystem.nativeRecent.has(dedupeKey)) return;
+        AutomodSystem.nativeRecent.set(dedupeKey, true, { ttlMs: AutomodSystem.NativeDedupeMs });
+
         const settings = await GuildConfigCache.get(guildId);
-        if (!settings) return;
+        if (!settings || settings.whitelist.includes(userId)) return;
 
         await AutomodEscalation.sanctionUser(client, { settings, guildId, userId, channelId: null, detector: AutomodDetector.NativeAutomod });
     }
 
     /** Checked in a fixed order — the first one that trips wins; a message that fails more than one still only earns a single warn, same as the legacy bot. */
     private static detect(settings: GuildSettings, message: MessageStructure): AutomodDetector | null {
-        if (settings.antiflood && AutomodSystem.floodCounter.hit(`${message.guildId}:${message.author.id}`) > AutomodSystem.FloodThreshold) {
-            return AutomodDetector.Flood;
+        if (settings.antiflood) {
+            const key = `${message.guildId}:${message.author.id}`;
+            if (AutomodSystem.floodCounter.hit(key) > AutomodSystem.FloodThreshold && !AutomodSystem.floodCooldown.has(key)) {
+                AutomodSystem.floodCooldown.set(key, true, { ttlMs: AutomodSystem.FloodCooldownMs });
+                return AutomodDetector.Flood;
+            }
         }
 
         // Empty content can't trip any of the three content-based checks below (0 words, 0 emojis, no
@@ -108,7 +123,7 @@ export class AutomodSystem {
         AutomodSystem.ghostpingCandidates.delete(messageId);
 
         const settings = await GuildConfigCache.get(candidate.guildId);
-        if (!settings?.ghostpingEnable) return;
+        if (!settings?.ghostpingEnable || settings.whitelist.includes(candidate.authorId)) return;
 
         await AutomodEscalation.sanctionUser(client, {
             settings,
@@ -122,7 +137,11 @@ export class AutomodSystem {
 
     /** Deletes the message where the message itself is the violation, applies flood's immediate mute, then hands off to `AutomodEscalation` for the shared warn/escalate/announce/log flow. */
     private static async sanction(client: UsingClient, { settings, message, detector }: SanctionInput): Promise<void> {
-        if (AutomodEscalation.deletesMessage.has(detector)) await message.delete().catch(() => {});
+        if (AutomodEscalation.deletesMessage.has(detector)) {
+            // The bot's own deletion is not the author's ghostping: drop the candidate before `messageDelete` sees it.
+            AutomodSystem.ghostpingCandidates.delete(message.id);
+            await message.delete().catch(() => {});
+        }
 
         const guildId = message.guildId!;
         const userId = message.author.id;
@@ -134,4 +153,12 @@ export class AutomodSystem {
 
         await AutomodEscalation.sanctionUser(client, { settings, guildId, channelId: message.channelId, userId, detector });
     }
+}
+
+/** Input for {@link AutomodSystem.handleNativeAction}: one native AutoMod action report. */
+export interface NativeActionInput {
+    guildId: string;
+    userId: string;
+    /** The native rule that acted. One report per action means several share a rule id. */
+    ruleId: string;
 }

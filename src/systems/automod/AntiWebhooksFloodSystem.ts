@@ -27,7 +27,7 @@ export class AntiWebhooksFloodSystem {
         const settings = await GuildConfigCache.get(message.guildId);
         if (!settings?.antiWebhooksFlood) return;
 
-        if (AntiWebhooksFloodSystem.counter.hit(message.guildId) <= AntiWebhooksFloodSystem.Threshold) return;
+        if (AntiWebhooksFloodSystem.counter.hit(`${message.guildId}:${message.webhookId}`) <= AntiWebhooksFloodSystem.Threshold) return;
 
         const webhook = await client.webhooks.fetch(message.webhookId).catch(() => undefined);
         if (!webhook) return;

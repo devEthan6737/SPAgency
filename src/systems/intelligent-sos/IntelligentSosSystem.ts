@@ -28,7 +28,9 @@ export class IntelligentSosSystem {
 
         IntelligentSosSystem.cooldowns.set(guildId, true, { ttlMs: 120_000 });
 
-        await IntelligentSosSystem.sendAlert(client, guildId, reason);
+        // Taken up front so concurrent triggers don't all send, and given back if the alert failed.
+        const result = await IntelligentSosSystem.sendAlert(client, guildId, reason).catch(() => undefined);
+        if (result !== 'sent') IntelligentSosSystem.cooldowns.delete(guildId);
     }
 
     /**
@@ -47,10 +49,11 @@ export class IntelligentSosSystem {
 
         const channels = await client.guilds.channels.list(guildId);
         const textChannels = channels.filter((channel): channel is TextGuildChannelStructure => channel.type === ChannelType.GuildText);
-        const inviteChannel = textChannels[Math.floor(Math.random() * textChannels.length)];
-        if (!inviteChannel) return 'noInviteChannel';
 
-        const invite = await inviteChannel.invites.create({ max_age: 86_400 });
+        // A channel without Create Invite must not sink the alert, so try them in random order.
+        const invite = await IntelligentSosSystem.createInvite(IntelligentSosSystem.shuffle(textChannels));
+        if (!invite) return 'noInviteChannel';
+
         const guildName = await IntelligentSosSystem.getGuildName(client, guildId);
 
         const settings = await GuildConfigCache.get(guildId);
@@ -60,6 +63,27 @@ export class IntelligentSosSystem {
 
         await staffChannel.messages.write({ content, allowed_mentions: { parse: ['everyone'] } });
         return 'sent';
+    }
+
+    /** @returns A 24h invite from the first of `channels` that allows it, or `undefined` if none does. */
+    private static async createInvite(channels: TextGuildChannelStructure[]) {
+        for (const channel of channels) {
+            const invite = await channel.invites.create({ max_age: 86_400 }).catch(() => undefined);
+            if (invite) return invite;
+        }
+
+        return undefined;
+    }
+
+    /** @returns A shuffled copy of `items` (Fisher–Yates). */
+    private static shuffle<T>(items: T[]): T[] {
+        const copy = [...items];
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+
+        return copy;
     }
 
     /**

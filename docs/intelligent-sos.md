@@ -4,8 +4,8 @@
 
 Avisa al staff de SPAgency (`STAFF_LOGS_CHANNEL`) con invitación fresca, de dos formas que comparten mecanismo:
 
-- **Manual — `/sos`**: un admin lo pulsa a propósito. Sin gate, sin cooldown.
-- **Automático — `IntelligentSosSystem.trigger()`**: lo llama un sistema de detección. Gateado por `intelligentSosEnable`, con cooldown.
+- **Manual (`/sos`)**: un admin lo pulsa a propósito. Sin gate de `intelligentSosEnable`, pero con cooldown de 5 min por servidor (cada uso hace `@everyone` al staff); si falla, el cooldown se devuelve.
+- **Automático (`IntelligentSosSystem.trigger()`)**: lo llama un sistema de detección. Gateado por `intelligentSosEnable`, con cooldown. El cooldown se arma antes de enviar (para que triggers simultáneos no envíen todos) pero se devuelve si el aviso no salió, y `sendAlert` prueba los canales de texto en orden aleatorio hasta que uno permita crear la invitación.
 
 ## Por qué comparten código
 
