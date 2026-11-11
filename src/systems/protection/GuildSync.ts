@@ -46,7 +46,7 @@ export class GuildSync {
         try {
             let after: string | undefined;
             for (;;) {
-                const page = await client.guilds.list({ limit: GuildSync.PageSize, after }, true);
+                const page = await client.guilds.list(after ? { limit: GuildSync.PageSize, after } : { limit: GuildSync.PageSize }, true);
                 ids.push(...page.map((guild) => guild.id));
                 if (page.length < GuildSync.PageSize) return ids;
                 after = page[page.length - 1].id;
