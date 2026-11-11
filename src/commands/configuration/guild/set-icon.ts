@@ -1,5 +1,7 @@
-import { isIP } from 'node:net';
-import { lookup } from 'node:dns/promises';
+import { lookup, type LookupAddress } from 'node:dns';
+import http from 'node:http';
+import https from 'node:https';
+import { isIP, type LookupFunction } from 'node:net';
 import { createStringOption, Declare, EmbedColors, LocalesT, Options, SubCommand, type CommandContext } from 'seyfert';
 import { BotActionType } from '../../../database/schema/bot-action-log.js';
 import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
@@ -30,10 +32,13 @@ const options = {
  * Changes the server's icon from a user-supplied image URL. Requires `ManageGuild`.
  *
  * The URL is downloaded under an SSRF guard (see {@link SetIconSubCommand.urlToDataUri}): only
- * `http`/`https`, resolved hosts checked against private/loopback/link-local ranges, no redirects,
- * a fetch timeout, and a size cap enforced on the real stream rather than trusting `Content-Length`.
+ * `http`/`https`, the address the socket connects to checked against private/loopback/link-local
+ * ranges at connect time (so DNS rebinding can't swap it afterwards), no redirects, a timeout, and a
+ * size cap enforced on the real stream rather than trusting `Content-Length`.
  */
 export default class SetIconSubCommand extends SubCommand {
+    private static readonly MaxBytes = 8 * 1024 * 1024;
+
     /** True for loopback/private/link-local addresses (incl. cloud metadata hosts like 169.254.169.254). */
     private static isPrivateIp(ip: string): boolean {
         if (ip.includes(':')) {
@@ -58,48 +63,62 @@ export default class SetIconSubCommand extends SubCommand {
         );
     }
 
-    /** Resolves `hostname` (or uses it directly if it's already an IP) and rejects if any resolved address is private. */
-    private static async assertPublicHost(hostname: string) {
-        const targets = isIP(hostname) ? [hostname] : (await lookup(hostname, { all: true })).map((entry) => entry.address);
-        if (targets.some(SetIconSubCommand.isPrivateIp)) throw new Error('Blocked private address.');
+    /**
+     * Rejects an IP-literal host that is private; names are validated at connect time instead, see {@link SetIconSubCommand.safeLookup}.
+     * @param hostname The URL's hostname, with the brackets of an IPv6 literal if it has them.
+     * @throws {Error} If the host is a private, loopback or link-local address.
+     */
+    private static assertPublicLiteral(hostname: string) {
+        const literal = hostname.startsWith('[') ? hostname.slice(1, -1) : hostname;
+        if (isIP(literal) && SetIconSubCommand.isPrivateIp(literal)) throw new Error('Blocked private address.');
     }
 
+    /**
+     * DNS lookup used for the connection itself, refusing private addresses. Checking the host before
+     * `fetch` and letting it resolve again would leave a window for DNS rebinding (public answer first,
+     * private one second); validating the very address the socket connects to has no such window.
+     */
+    private static safeLookup: LookupFunction = (hostname, options, callback) => {
+        lookup(hostname, { ...options, all: true }, (error, addresses) => {
+            if (error) return callback(error, '', 4);
+            if (addresses.some((entry) => SetIconSubCommand.isPrivateIp(entry.address))) return callback(new Error('Blocked private address.'), '', 4);
+
+            if (options.all) return (callback as unknown as (error: null, addresses: LookupAddress[]) => void)(null, addresses);
+            callback(null, addresses[0].address, addresses[0].family);
+        });
+    };
+
     /** Downloads `url` and returns it as a base64 data URI, guarding against SSRF and oversized/never-ending responses. */
-    private static async urlToDataUri(url: string): Promise<string> {
+    private static urlToDataUri(url: string): Promise<string> {
         const parsed = new URL(url);
-        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new Error('Only http/https URLs are allowed.');
-        await SetIconSubCommand.assertPublicHost(parsed.hostname);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return Promise.reject(new Error('Only http/https URLs are allowed.'));
+        SetIconSubCommand.assertPublicLiteral(parsed.hostname);
 
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 10_000);
+        return new Promise((resolve, reject) => {
+            const request = (parsed.protocol === 'https:' ? https : http).get(parsed, { lookup: SetIconSubCommand.safeLookup, timeout: 10_000 }, (response) => {
+                const contentType = response.headers['content-type'] ?? '';
+                if (response.statusCode !== 200) return fail(new Error('Could not download that image.'));
+                if (!contentType.startsWith('image/')) return fail(new Error('That URL is not an image.'));
 
-        try {
-            const response = await fetch(parsed, { signal: controller.signal, redirect: 'error' });
-            if (!response.ok || !response.body) throw new Error('Could not download that image.');
+                const chunks: Buffer[] = [];
+                let total = 0;
+                response.on('data', (chunk: Buffer) => {
+                    total += chunk.length;
+                    if (total > SetIconSubCommand.MaxBytes) return fail(new Error('That image is too large.'));
+                    chunks.push(chunk);
+                });
+                response.on('end', () => resolve(`data:${contentType};base64,${Buffer.concat(chunks).toString('base64')}`));
+                response.on('error', fail);
 
-            const contentType = response.headers.get('content-type') ?? '';
-            if (!contentType.startsWith('image/')) throw new Error('That URL is not an image.');
-
-            const reader = response.body.getReader();
-            const chunks: Uint8Array[] = [];
-            let total = 0;
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                total += value.length;
-                if (total > 8 * 1024 * 1024) {
-                    await reader.cancel();
-                    throw new Error('That image is too large.');
+                function fail(error: Error) {
+                    request.destroy();
+                    reject(error);
                 }
-                chunks.push(value);
-            }
+            });
 
-            return `data:${contentType};base64,${Buffer.concat(chunks).toString('base64')}`;
-        } finally {
-            clearTimeout(timeout);
-        }
+            request.on('timeout', () => request.destroy(new Error('The download timed out.')));
+            request.on('error', reject);
+        });
     }
 
     /** Downloads the given URL as a data URI (via the SSRF-guarded {@link SetIconSubCommand.urlToDataUri}) and applies it as the guild icon. */

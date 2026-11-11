@@ -1,6 +1,6 @@
 import { Declare, LocalesT, Options, SubCommand, type CommandContext } from 'seyfert';
 import { GuildConfigCache } from '../../../systems/protection/index.js';
-import { cacheGuildIdOption, resolveCacheGuildId } from './shared.js';
+import { cacheGuildIdOption, CacheGuild } from './shared.js';
 
 /**
  * Forces a genuine cache miss (unlike just re-running `get()`, which would come back instantly if
@@ -21,7 +21,7 @@ export default class HitSubCommand extends SubCommand {
     async run(ctx: CommandContext<typeof cacheGuildIdOption>) {
         const t = ctx.t.commands.others.cache;
 
-        const guildId = resolveCacheGuildId(ctx);
+        const guildId = await CacheGuild.resolve(ctx);
         if (!guildId) return await ctx.write({ content: t.noGuild.get() });
 
         GuildConfigCache.invalidate(guildId);

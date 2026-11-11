@@ -23,7 +23,8 @@ import { BotActionLog, dispatchLog } from '../../../systems/logs/index.js';
 export default class LoadSubCommand extends SubCommand {
     /**
      * Fetches the saved backup, optionally cleans up duplicate entities first (if the invoker
-     * confirms), then restores via `BackupSystem.restore` and reports the resulting counts.
+     * confirms), then restores via `BackupSystem.restore` and reports the resulting counts. A prompt
+     * left unanswered aborts without restoring and gives the cooldown back.
      */
     async run(ctx: CommandContext) {
         if (!ctx.inGuild()) return;
@@ -33,15 +34,20 @@ export default class LoadSubCommand extends SubCommand {
         const backup = await BackupRepository.get(guild.id);
         if (!backup) return await ctx.write({ content: t.none.get() });
 
-        const cleanFirst = await Confirmation.ask(ctx, {
+        const choice = await Confirmation.choose(ctx, {
             description: t.cleanupPrompt.get(),
             confirmLabel: t.cleanupYes.get(),
             cancelLabel: t.cleanupNo.get()
         });
 
+        if (choice === 'timeout') {
+            ctx.cooldown.reset();
+            return await ctx.editOrReply({ content: t.expired.get() });
+        }
+
         await ctx.editOrReply({ content: t.restoring.get() });
 
-        if (cleanFirst) await BackupSystem.cleanupDuplicates(guild);
+        if (choice === 'confirmed') await BackupSystem.cleanupDuplicates(guild);
 
         const counts = await BackupSystem.restore(guild, backup);
 

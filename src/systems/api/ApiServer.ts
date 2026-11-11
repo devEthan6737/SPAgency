@@ -35,7 +35,7 @@ export class ApiServer {
 
         const port = Number(process.env.BOT_API_PORT ?? 4501);
 
-        createServer((req, res) => {
+        const server = createServer((req, res) => {
             void ApiServer.handle(client, modules, req).then(
                 (response) => ApiServer.write(res, response),
                 (error) => {
@@ -45,7 +45,11 @@ export class ApiServer {
                     ApiServer.write(res, reply(500, { error: 'internal_error' }));
                 }
             );
-        }).listen(port, '127.0.0.1', () => client.logger.info(`[api] Listening on 127.0.0.1:${port}`));
+        });
+
+        // Without a handler, a taken port would be an uncaught exception that kills the bot.
+        server.on('error', (error) => client.logger.error(`[api] The HTTP server failed on 127.0.0.1:${port}`, error));
+        server.listen(port, '127.0.0.1', () => client.logger.info(`[api] Listening on 127.0.0.1:${port}`));
     }
 
     /**

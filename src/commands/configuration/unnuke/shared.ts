@@ -43,14 +43,14 @@ export class UnnukeHelpers {
      * Deletes entries one by one. A failure on one doesn't stop the rest.
      * @param entries What to delete.
      * @param remove Deletes a single entry.
-     * @returns How many deletions were attempted.
+     * @returns How many deletions succeeded.
      */
     static async removeAll<T>(entries: T[], remove: (entry: T) => Promise<unknown>): Promise<number> {
         let removed = 0;
 
         for (const entry of entries) {
-            await remove(entry).catch(() => {});
-            removed++;
+            const ok = await remove(entry).then(() => true, () => false);
+            if (ok) removed++;
         }
 
         return removed;
@@ -62,7 +62,7 @@ export class UnnukeHelpers {
      * @param entries Everything to check, in order.
      * @param getName Reads an entry's name. Entries without one are ignored.
      * @param remove Deletes a single entry.
-     * @returns How many deletions were attempted.
+     * @returns How many deletions succeeded.
      */
     static async deleteDuplicates<T>(entries: T[], getName: (entry: T) => string | null | undefined, remove: (entry: T) => Promise<unknown>): Promise<number> {
         const duplicates = UnnukeHelpers.findDuplicates(entries, getName);

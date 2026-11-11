@@ -19,6 +19,9 @@ export interface ConfirmationOptions {
     timeoutMs?: number;
 }
 
+/** How a {@link Confirmation.choose} prompt ended. */
+export type ConfirmationChoice = 'confirmed' | 'cancelled' | 'timeout';
+
 /**
  * Shared "are you sure?" prompt for destructive actions — sends an embed with
  * confirm/cancel buttons and resolves once the invoker clicks one (or it times out).
@@ -32,6 +35,17 @@ export class Confirmation {
      * @returns `true` if confirmed, `false` if cancelled or if no click arrived within `timeoutMs`.
      */
     static async ask(ctx: CommandContext, options: ConfirmationOptions): Promise<boolean> {
+        return (await Confirmation.choose(ctx, options)) === 'confirmed';
+    }
+
+    /**
+     * Same prompt as {@link Confirmation.ask}, for callers where "no answer" must not be read as the
+     * cancel button, e.g. when cancelling still goes ahead with the rest of the command.
+     * @param ctx Command context: the prompt is sent as its reply, and only `ctx.author` may click.
+     * @param options See {@link ConfirmationOptions}.
+     * @returns Which button was clicked, or `'timeout'` if none was within `timeoutMs`.
+     */
+    static async choose(ctx: CommandContext, options: ConfirmationOptions): Promise<ConfirmationChoice> {
         const timeoutMs = options.timeoutMs ?? 15_000;
         const confirmId = `confirm-${ctx.author.id}-${Date.now()}`;
         const cancelId = `cancel-${ctx.author.id}-${Date.now()}`;
@@ -51,10 +65,10 @@ export class Confirmation {
 
         if (!interaction) {
             await ctx.editOrReply({ embeds: [embed], components: [row(true)] });
-            return false;
+            return 'timeout';
         }
 
         await interaction.update({ embeds: [embed], components: [row(true)] });
-        return interaction.customId === confirmId;
+        return interaction.customId === confirmId ? 'confirmed' : 'cancelled';
     }
 }

@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ChannelType, StickerFormatType, type GuildChannelTypes, type GuildStructure } from 'seyfert';
+import { AttachmentBuilder, ChannelType, OverwriteType, StickerFormatType, type APIOverwrite, type GuildChannelTypes, type GuildStructure } from 'seyfert';
 import { UnnukeHelpers } from '../../commands/configuration/unnuke/shared.js';
 import type { BackupSnapshot } from '../../database/repositories/backup.repository.js';
 import type { backups, BackupChannel, BackupEmoji, BackupSticker } from '../../database/schema/backup.js';
@@ -12,6 +12,12 @@ export interface RestoreCounts {
     bans: number;
     emojis: number;
     stickers: number;
+}
+
+/** Role ids {@link BackupSystem.restore} resolved while recreating roles: where each backed-up id ended up, and every id that exists in the guild now. */
+interface RestoredRoleIds {
+    remapped: Map<string, string>;
+    live: Set<string>;
 }
 
 /** Snapshotting and restoring a guild's channels, roles, bans, emojis and stickers. */
@@ -108,6 +114,7 @@ export class BackupSystem {
             roles: roles
                 .filter((role) => role.id !== guild.id && !role.managed)
                 .map((role) => ({
+                    id: role.id,
                     name: role.name,
                     colors: role.colors,
                     hoist: role.hoist,
@@ -137,21 +144,89 @@ export class BackupSystem {
         );
     }
 
-    /** Restores whatever from `backup` is missing in `guild`, matched by name. Never deletes anything. */
+    /**
+     * Identity of a channel for "is it already there?": type, parent category name and name. Matching
+     * on the name alone would treat same-named channels in different categories as one and skip them.
+     */
+    private static channelKey(type: ChannelType, parent: string | undefined, name: string): string {
+        return `${type}\u0000${parent ?? ''}\u0000${name}`;
+    }
+
+    /**
+     * Points a channel's permission overwrites at roles that exist now. The backup holds the role ids
+     * from before the nuke; creating a channel with an id that no longer exists makes Discord reject
+     * the whole channel. Role overwrites without a live counterpart are dropped, member overwrites and
+     * `@everyone` (whose id is the guild's) are kept as they are.
+     */
+    private static remapOverwrites(overwrites: APIOverwrite[], guildId: string, roleIds: RestoredRoleIds): APIOverwrite[] {
+        const result: APIOverwrite[] = [];
+
+        for (const overwrite of overwrites) {
+            if (overwrite.type !== OverwriteType.Role || overwrite.id === guildId) {
+                result.push(overwrite);
+                continue;
+            }
+
+            const id = roleIds.remapped.get(overwrite.id) ?? (roleIds.live.has(overwrite.id) ? overwrite.id : undefined);
+            if (id) result.push({ ...overwrite, id });
+        }
+
+        return result;
+    }
+
+    /** Restores whatever from `backup` is missing in `guild`, matched by name. Roles go first so channel overwrites can reference them. Never deletes anything. */
     static async restore(guild: GuildStructure<'cached' | 'api'>, backup: Backup): Promise<RestoreCounts> {
+        const currentRoles = await guild.roles.list();
+        const roleIdByName = new Map(currentRoles.map((role) => [role.name, role.id]));
+        const roleIds: RestoredRoleIds = { remapped: new Map(), live: new Set(currentRoles.map((role) => role.id)) };
+
+        let roles = 0;
+        for (const role of backup.roles) {
+            let id = roleIdByName.get(role.name);
+
+            if (!id) {
+                const created = await guild.roles
+                    .create({
+                        name: role.name,
+                        colors: {
+                            primary_color: role.colors.primaryColor,
+                            secondary_color: role.colors.secondaryColor,
+                            tertiary_color: role.colors.tertiaryColor
+                        },
+                        hoist: role.hoist,
+                        permissions: role.permissions,
+                        mentionable: role.mentionable
+                    })
+                    .catch(() => undefined);
+                if (created) {
+                    roles++;
+                    id = created.id;
+                    roleIdByName.set(role.name, id);
+                    roleIds.live.add(id);
+                }
+            }
+
+            if (id && role.id) roleIds.remapped.set(role.id, id);
+        }
+
         const existingChannels = await guild.channels.list();
-        const existingNames = new Set(existingChannels.filter((channel) => channel.isNamed()).map((channel) => channel.name));
+        const categoryNameById = new Map(existingChannels.filter((channel) => channel.isCategory()).map((channel) => [channel.id, channel.name]));
         const categoryIdByName = new Map(existingChannels.filter((channel) => channel.isCategory()).map((channel) => [channel.name, channel.id]));
+        const existingKeys = new Set(
+            existingChannels
+                .filter((channel) => channel.isNamed())
+                .map((channel) => BackupSystem.channelKey(channel.type, 'parentId' in channel && channel.parentId ? categoryNameById.get(channel.parentId) : undefined, channel.name))
+        );
 
         let channels = 0;
         for (const category of backup.channelsCategory) {
-            if (existingNames.has(category.name)) continue;
+            if (existingKeys.has(BackupSystem.channelKey(ChannelType.GuildCategory, undefined, category.name))) continue;
             const created = await guild.channels
                 .create({
                     type: ChannelType.GuildCategory as GuildChannelTypes,
                     name: category.name,
                     position: category.rawPosition,
-                    permission_overwrites: category.permissionOverwrites
+                    permission_overwrites: BackupSystem.remapOverwrites(category.permissionOverwrites, guild.id, roleIds)
                 })
                 .catch(() => undefined);
             if (!created) continue;
@@ -160,7 +235,7 @@ export class BackupSystem {
         }
 
         for (const channel of [...backup.channelsText, ...backup.channelsNoCategory]) {
-            if (existingNames.has(channel.name)) continue;
+            if (existingKeys.has(BackupSystem.channelKey(channel.type, channel.parent, channel.name))) continue;
             const created = await guild.channels
                 .create({
                     type: channel.type as GuildChannelTypes,
@@ -169,30 +244,10 @@ export class BackupSystem {
                     nsfw: channel.nsfw,
                     position: channel.rawPosition,
                     parent_id: channel.parent ? categoryIdByName.get(channel.parent) : undefined,
-                    permission_overwrites: channel.permissionOverwrites
+                    permission_overwrites: BackupSystem.remapOverwrites(channel.permissionOverwrites, guild.id, roleIds)
                 })
                 .catch(() => undefined);
             if (created) channels++;
-        }
-
-        const existingRoleNames = new Set((await guild.roles.list()).map((role) => role.name));
-        let roles = 0;
-        for (const role of backup.roles) {
-            if (existingRoleNames.has(role.name)) continue;
-            const created = await guild.roles
-                .create({
-                    name: role.name,
-                    colors: {
-                        primary_color: role.colors.primaryColor,
-                        secondary_color: role.colors.secondaryColor,
-                        tertiary_color: role.colors.tertiaryColor
-                    },
-                    hoist: role.hoist,
-                    permissions: role.permissions,
-                    mentionable: role.mentionable
-                })
-                .catch(() => undefined);
-            if (created) roles++;
         }
 
         const currentBans = new Set((await guild.bans.list()).map((ban) => ban.user.id));
