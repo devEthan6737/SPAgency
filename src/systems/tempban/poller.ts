@@ -2,6 +2,7 @@ import { EmbedColors, type UsingClient } from 'seyfert';
 import { TempbanRepository } from '../../database/repositories/tempban.repository.js';
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { BotActionLog, dispatchLog } from '../logs/index.js';
+import { DiscordErrors } from '../shared/DiscordErrors.js';
 
 /** Unbans every temp-ban whose expiry has passed. DB-backed, so pending temp-bans survive a restart. */
 async function processExpiredTempbans(client: UsingClient) {
@@ -22,11 +23,11 @@ async function processExpiredTempbans(client: UsingClient) {
                     executorId: 'system'
                 })
             ).catch(() => {});
-            
-        } catch (error) {
-            client.logger.error(`[tempban] Failed to auto-unban ${tempban.userId} in guild ${tempban.guildId}`, error);
-        } finally {
+
             await TempbanRepository.delete(tempban.id);
+        } catch (error) {
+            if (DiscordErrors.isNotFound(error)) await TempbanRepository.delete(tempban.id);
+            else client.logger.error(`[tempban] Failed to auto-unban ${tempban.userId} in guild ${tempban.guildId}, will retry`, error);
         }
     }
 }

@@ -1,4 +1,4 @@
-import { pgTable, text } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 /**
  * Any `UPDATE` on this table fires `guilds_notify_config_changed` — a Postgres trigger (see
@@ -8,13 +8,19 @@ import { pgTable, text } from 'drizzle-orm/pg-core';
  * primary key is `id`, not `guild_id`. `GuildConfigCache` listens on the same channel either way —
  * see docs/antiraid.md section 2.
  */
-export const guilds = pgTable('guilds', {
-    /** Discord server id. */
-    id: text('id').primaryKey(),
-    /** Discord user id of the server owner. */
-    ownerId: text('owner_id').notNull(),
-    /** Command prefix for this server. */
-    prefix: text('prefix').notNull().default('sp!'),
-    /** Language used for bot replies in this server. */
-    language: text('language').notNull().default('es')
-});
+export const guilds = pgTable(
+    'guilds',
+    {
+        /** Discord server id. */
+        id: text('id').primaryKey(),
+        /** Discord user id of the server owner. */
+        ownerId: text('owner_id').notNull(),
+        /** Command prefix for this server. */
+        prefix: text('prefix').notNull().default('sp!'),
+        /** Language used for bot replies in this server. */
+        language: text('language').notNull().default('es'),
+        /** When the bot was removed from the server, `null` while it is in it. `GuildRepository.purgeLeftBefore` deletes the row (and its backup) only after a grace period. */
+        leftAt: timestamp('left_at')
+    },
+    (table) => [index('guilds_left_at_idx').on(table.leftAt)]
+);

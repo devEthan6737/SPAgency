@@ -1,16 +1,25 @@
 import { createEvent, Embed, EmbedColors } from 'seyfert';
 import { GuildRepository } from '../database/repositories/guild.repository.js';
+import { DiscordErrors } from '../systems/shared/DiscordErrors.js';
 
 /**
- * Fires when the bot leaves or is removed from a guild. Deletes that guild's row via
- * `GuildRepository.delete` so no config lingers for a server the bot no longer serves, then posts a
- * notice embed to `STAFF_LOGS_CHANNEL` if configured. Discord may only hand back a partial `guild`
- * (id only) in this event, hence the `'name' in guild` check before reading richer fields.
+ * Fires when the bot leaves or is removed from a guild, and also when a guild merely goes
+ * unavailable during a Discord outage, which Seyfert delivers through this same event. The row is
+ * only flagged as left (`GuildRepository.markLeft`) once REST confirms the bot lost access, and is
+ * never deleted here: the backup has to survive an attacker kicking the bot before a nuke, so
+ * `GuildSync` purges it after a grace period instead. Then posts a notice embed to
+ * `STAFF_LOGS_CHANNEL` if configured. Discord may only hand back a partial `guild` (id only), hence
+ * the `'name' in guild` check before reading richer fields.
  */
 export default createEvent({
     data: { name: 'guildDelete' },
     async run(guild, client) {
-        await GuildRepository.delete(guild.id);
+        if ('unavailable' in guild && guild.unavailable) return;
+
+        const lostAccess = await client.guilds.fetch(guild.id, true).then(() => false).catch(DiscordErrors.isLostAccess);
+        if (!lostAccess) return;
+
+        await GuildRepository.markLeft(guild.id);
 
         const channelId = process.env.STAFF_LOGS_CHANNEL;
         if (!channelId) return;

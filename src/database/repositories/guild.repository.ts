@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, isNotNull, inArray, isNull, lt } from 'drizzle-orm';
 import { db } from '../connection.js';
 import { guildConfiguration } from '../schema/guild-configuration.js';
 import { AutomodFinalAction, guildModeration } from '../schema/guild-moderation.js';
@@ -15,12 +15,6 @@ export interface GuildConfig {
 
 /** Static-method repository spanning `guilds`, `guild_protection`, `guild_moderation` and `guild_configuration`. */
 export class GuildRepository {
-    /** Single-column lookup for the message prefix handler, avoids the full joined get(). */
-    static async getPrefix(id: string): Promise<string | null> {
-        const [row] = await db.select({ prefix: guilds.prefix }).from(guilds).where(eq(guilds.id, id));
-        return row?.prefix ?? null;
-    }
-
     /**
      * Lean lookup backing `GuildConfigCache` — avoids the full joined get(). Covers the join/audit-log
      * protection systems (antiraid, antibots...), `AutomodSystem`'s message-time settings, and the log
@@ -28,6 +22,7 @@ export class GuildRepository {
      */
     static async getGuildSettings(id: string): Promise<{
         language: string;
+        prefix: string;
         antiraidEnable: boolean;
         whitelist: string[];
         antibotsEnable: boolean;
@@ -58,6 +53,7 @@ export class GuildRepository {
         const [row] = await db
             .select({
                 language: guilds.language,
+                prefix: guilds.prefix,
                 antiraidEnable: guildProtection.antiraidEnable,
                 whitelist: guildConfiguration.whitelist,
                 antibotsEnable: guildProtection.antibotsEnable,
@@ -161,7 +157,10 @@ export class GuildRepository {
      */
     static async findOrCreate(id: string, ownerId: string): Promise<GuildConfig> {
         const existing = await GuildRepository.get(id);
-        if (existing) return existing;
+        if (existing) {
+            if (existing.core.leftAt) await GuildRepository.updateCore(id, { leftAt: null });
+            return existing;
+        }
 
         await db.transaction(async (tx) => {
             await tx.insert(guilds).values({ id, ownerId });
@@ -213,8 +212,40 @@ export class GuildRepository {
         return db.update(guildConfiguration).set(patch).where(eq(guildConfiguration.guildId, id)).returning();
     }
 
-    /** Deletes the guild row — protection/moderation/configuration/backups cascade with it. */
-    static delete(id: string) {
-        return db.delete(guilds).where(eq(guilds.id, id)).returning();
+    /**
+     * Flags the bot as no longer being in the guild; the row (and its backup) stays until {@link GuildRepository.purgeLeftBefore} runs.
+     * @param id The guild id.
+     * @returns The update, already running.
+     */
+    static markLeft(id: string) {
+        return db.update(guilds).set({ leftAt: new Date() }).where(and(eq(guilds.id, id), isNull(guilds.leftAt)));
+    }
+
+    /**
+     * Every stored guild id, with whether it is currently flagged as left, for the startup membership sync.
+     * @returns One entry per stored guild.
+     */
+    static async listMembership(): Promise<{ id: string; left: boolean }[]> {
+        const rows = await db.select({ id: guilds.id, leftAt: guilds.leftAt }).from(guilds);
+        return rows.map((row) => ({ id: row.id, left: row.leftAt !== null }));
+    }
+
+    /**
+     * Flags the given guilds as left, for the ones the bot was removed from while it was offline.
+     * @param ids The ids of the stored guilds the bot is no longer in.
+     * @returns The update, already running (or `undefined` if there was nothing to flag).
+     */
+    static markLeftMany(ids: string[]) {
+        if (!ids.length) return;
+        return db.update(guilds).set({ leftAt: new Date() }).where(and(isNull(guilds.leftAt), inArray(guilds.id, ids)));
+    }
+
+    /**
+     * Deletes the rows of guilds the bot left before `cutoff`; protection, moderation, configuration and backups cascade with them.
+     * @param cutoff Guilds flagged as left before this moment are deleted.
+     * @returns The ids of the deleted guilds.
+     */
+    static purgeLeftBefore(cutoff: Date) {
+        return db.delete(guilds).where(and(isNotNull(guilds.leftAt), lt(guilds.leftAt, cutoff))).returning({ id: guilds.id });
     }
 }

@@ -1,5 +1,6 @@
 import { createEvent, Embed, EmbedColors } from 'seyfert';
 import { GuildRepository } from '../database/repositories/guild.repository.js';
+import { GuildConfigCache } from '../systems/protection/index.js';
 
 /**
  * Fires when the bot joins a new guild. Ensures a `guild_configuration`/`guild_protection` row exists
@@ -10,6 +11,7 @@ export default createEvent({
     data: { name: 'guildCreate' },
     async run(guild, client) {
         await GuildRepository.findOrCreate(guild.id, guild.ownerId);
+        GuildConfigCache.invalidate(guild.id);
 
         const channelId = process.env.STAFF_LOGS_CHANNEL;
         if (!channelId) return;

@@ -3,6 +3,7 @@ import type { PgTable } from 'drizzle-orm/pg-core';
 import { GuildRepository } from '../../database/repositories/guild.repository.js';
 import { ServerEventType } from '../../database/schema/server-event-log.js';
 import { GuildConfigCache } from '../protection/index.js';
+import { DiscordErrors } from '../shared/DiscordErrors.js';
 import { ServerEventLog } from './events/ServerEventLog.js';
 import { LogChannelThrottle } from './LogChannelThrottle.js';
 import type { Log } from './Log.js';
@@ -27,8 +28,9 @@ export async function dispatchLog(client: UsingClient, log: Log<string, PgTable>
 }
 
 /**
- * Any failure to send (channel deleted, access lost, a persistent outage...) unsets the log channel
+ * A send that fails because the channel was deleted or access to it was lost unsets the log channel
  * so we stop retrying against it on every future action, instead of failing the same way forever.
+ * Any other failure (a Discord outage, a rate limit) only drops that batch and keeps the channel.
  * @param client Bot client.
  * @param delivery The guild, its log channel and the embeds queued for it.
  */
@@ -39,6 +41,11 @@ async function sendLogEmbeds(client: UsingClient, { guildId, channelId, embeds }
 
         await channel.messages.write({ embeds });
     } catch (error) {
+        if (!DiscordErrors.isLostAccess(error)) {
+            client.logger.error(`[logs] Failed to send a log to guild ${guildId}'s log channel, keeping it configured`, error);
+            return;
+        }
+
         await GuildRepository.updateConfiguration(guildId, { logsChannel: null });
         client.logger.error(`[logs] Failed to send a log to guild ${guildId}'s log channel, unsetting it`, error);
 

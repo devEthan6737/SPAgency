@@ -1,13 +1,19 @@
 import { type AnyContext, Client, definePlugins } from 'seyfert';
 import 'dotenv/config';
 import { cooldown, type CooldownMiddlewares, type CooldownResult } from '@slipher/cooldown';
-import { GuildRepository } from './database/repositories/guild.repository.js';
 import { CommandAvailability } from './systems/commands/CommandAvailability.js';
 import { commandDefaults } from './systems/commands/defaults.js';
 import { commandMiddlewares } from './middlewares/isOwner.middleware.js';
 import { Emojis } from './systems/emojis/index.js';
 import { InfoLinks } from './systems/info/index.js';
+import { GuildConfigCache } from './systems/protection/index.js';
 import { getBotEnvironment, isProduction, unrecognizedBotEnv } from './systems/shared/Environment.js';
+
+process.on('unhandledRejection', (err) => {
+    console.error(err);
+});
+
+if (!process.env.BOT_TOKEN) throw new Error('BOT_TOKEN is not set: copy .env.example to .env and fill it in.');
 
 const plugins = definePlugins(
     cooldown({
@@ -30,8 +36,8 @@ const client = new Client({
     plugins,
     commands: {
         prefix: async (message) => {
-            const prefix = message.guildId ? await GuildRepository.getPrefix(message.guildId) : null;
-            return [prefix ?? process.env.PREFIX ?? 'sp!'];
+            const settings = message.guildId ? await GuildConfigCache.get(message.guildId) : null;
+            return [settings?.prefix ?? process.env.PREFIX ?? 'sp!'];
         },
         reply: () => true,
         defaults: commandDefaults
@@ -72,6 +78,3 @@ try {
     client.logger.error('[commands] Uploading the commands to Discord failed, keeping the ones already registered', error);
 }
 
-process.on('unhandledRejection', (err) => {
-    console.error(err);
-});

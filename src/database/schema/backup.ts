@@ -15,6 +15,8 @@ export interface BackupChannel {
 
 /** One backed-up role, as stored in `backups.roles`. */
 export interface BackupRole extends Pick<APIRole, 'name' | 'hoist' | 'permissions' | 'mentionable'> {
+    /** The role's id when the backup was taken: what channel permission overwrites reference, so a restore can point them at the recreated role. Absent in backups taken before this was stored. */
+    id?: string;
     colors: { primaryColor: number; secondaryColor: number | null; tertiaryColor: number | null };
     rawPosition: number;
 }

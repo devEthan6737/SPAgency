@@ -1,7 +1,7 @@
 import { createEvent } from 'seyfert';
 import { ApiServer } from '../systems/api/index.js';
 import { AntiraidSystem } from '../systems/antiraid/index.js';
-import { GuildConfigCache } from '../systems/protection/index.js';
+import { GuildConfigCache, GuildSync } from '../systems/protection/index.js';
 import { RaidmodeExpiry } from '../systems/raidmode/index.js';
 import { startTempbanPoller } from '../systems/tempban/poller.js';
 import { initUbfb } from '../systems/ubfb/client.js';
@@ -36,10 +36,11 @@ export default createEvent({
             ApiServer.start(client, [VerificationApi, SupportApi]);
         }
 
-        // Covers drift from while offline — everything else reacts to role/member events, not a timer.
-        void AntiraidSystem.recheckAllPrerequisites(client).catch((error) =>
-            client.logger.error('[antiraid] Startup prerequisites check failed', error)
-        );
+        // Guilds added while offline need their row before the antiraid recheck can cover them.
+        void GuildSync.run(client)
+            .catch((error) => client.logger.error('[protection] Startup guild sync failed', error))
+            .then(() => AntiraidSystem.recheckAllPrerequisites(client))
+            .catch((error) => client.logger.error('[antiraid] Startup prerequisites check failed', error));
 
         // The index is rebuilt on every fresh session, not just the first: a ticket channel deleted while the gateway was down never fires `channelDelete`.
         void SupportSystem.start(client);

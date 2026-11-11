@@ -8,6 +8,13 @@
       "when": 1789220991229,
       "tag": "0000_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794355476229,
+      "tag": "0001_guild_left_at_and_indexes",
+      "breakpoints": true
     }
   ]
 }

@@ -15,7 +15,10 @@ export function connectDatabase(url: string) {
 /** Type of the drizzle client returned by {@link connectDatabase}. */
 export type Database = ReturnType<typeof connectDatabase>;
 
-const client = postgres(process.env.DATABASE_URL!);
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) throw new Error('DATABASE_URL is not set: copy .env.example to .env and fill it in.');
+
+const client = postgres(databaseUrl);
 
 /** Shared drizzle client the whole bot queries through — built from `DATABASE_URL`. */
 export const db = drizzle(client, { schema });
