@@ -20,6 +20,14 @@ export interface VerificationTokenPayload {
 export type GrantRoleResult = 'granted' | 'notConfigured' | 'failed';
 
 /**
+ * Outcome of {@link VerificationSystem.sendLink}.
+ * - `sent`: the DM with a fresh link went out.
+ * - `notConfigured`: verification is off, has no role, or can't run here (not production, or `WEB_URL`/`VERIFICATION_SECRET` missing).
+ * - `dmFailed`: the member has DMs closed (or blocked the bot).
+ */
+export type SendLinkResult = 'sent' | 'notConfigured' | 'dmFailed';
+
+/**
  * Web-only verification (OAuth2 + captcha on SPA's own dashboard, outside this repo) — see
  * docs/verification.md for the full design and the API contract the dashboard has to implement
  * against. This class owns everything the bot side needs: issuing/validating the signed token that
@@ -44,23 +52,34 @@ export class VerificationSystem {
      * @returns Whether a DM with a verification link was sent.
      */
     static async enforce(client: UsingClient, member: GuildMemberStructure): Promise<boolean> {
-        if (!isProduction() || member.bot) return false;
+        return (await VerificationSystem.sendLink(client, member)) === 'sent';
+    }
+
+    /**
+     * DMs `member` a fresh verification link: the join-time DM, and what `/verify` uses to reissue
+     * one when that DM failed or its 15 minutes ran out.
+     * @param client Bot client, used to read the guild's language and send the DM.
+     * @param member The member the link is for.
+     * @returns See {@link SendLinkResult}.
+     */
+    static async sendLink(client: UsingClient, member: GuildMemberStructure): Promise<SendLinkResult> {
+        if (!isProduction() || member.bot) return 'notConfigured';
 
         const settings = await GuildConfigCache.get(member.guildId);
-        if (!settings?.verificationEnable || !settings.verificationRole) return false;
+        if (!settings?.verificationEnable || !settings.verificationRole) return 'notConfigured';
 
         const webUrl = process.env.WEB_URL;
         if (!webUrl) {
             client.logger.error('[verification] WEB_URL is not set — cannot send a verification link');
-            return false;
+            return 'notConfigured';
         }
 
         const token = VerificationSystem.issueToken(member.guildId, member.id);
-        if (!token) return false;
+        if (!token) return 'notConfigured';
 
         const t = client.t(settings.language).systems.verification;
-        await member.user.write({ content: t.dm(`${webUrl.replace(/\/+$/, '')}/verify/${token}`).get() }).catch(() => {});
-        return true;
+        const sent = await member.user.write({ content: t.dm(`${webUrl.replace(/\/+$/, '')}/verify/${token}`).get() }).then(() => true, () => false);
+        return sent ? 'sent' : 'dmFailed';
     }
 
     /**

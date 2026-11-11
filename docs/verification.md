@@ -17,6 +17,7 @@ La primera versión usaba Postgres como canal bot↔dashboard (tabla de tokens p
 ## El flujo
 
 1. **Join** (`VerificationSystem.enforce()`): si está habilitado, firma un token y lo manda por DM (`<WEB_URL>/verify/<token>`). Nada se guarda — el token es autocontenido.
+   Si el MD falla (los tiene cerrados) o pasan los 15 minutos, **`/verify`** reemite un enlace nuevo por MD (`VerificationSystem.sendLink`, el mismo camino que el join). Solo responde al invocador, en efímero, y solo si el servidor tiene verificación y el miembro aún no tiene el rol.
 2. El usuario abre el enlace; la web llama `GET /verify/:token` para saber a quién pertenece.
 3. OAuth2 + captcha, en el dashboard — fuera de este repo.
 4. Al completar, la web llama `POST /verify/:token/complete` (autenticada). El bot concede el rol en el momento — sin DB, sin cola.
