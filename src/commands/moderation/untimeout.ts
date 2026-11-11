@@ -1,6 +1,7 @@
 import { Command, createUserOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
+import { ModerationGuard } from '../../systems/moderation/index.js';
 
 const options = {
     member: createUserOption({
@@ -49,12 +50,7 @@ export default class UntimeoutCommand extends Command {
         const target = await guild.members.fetch(targetId).catch(() => undefined);
         if (!target) return await ctx.write({ content: t.notAMember.get() });
 
-        if (ctx.member.id !== guild.ownerId) {
-            const [invokerHighest, targetHighest] = await Promise.all([ctx.member.roles.highest(), target.roles.highest()]);
-            if ((invokerHighest?.position ?? 0) <= (targetHighest?.position ?? 0)) {
-                return await ctx.write({ content: shared.hierarchyError.get() });
-            }
-        }
+        if (!(await ModerationGuard.outranks(ctx.member, target, guild.ownerId))) return await ctx.write({ content: shared.hierarchyError.get() });
 
         try {
             await target.timeout(null);

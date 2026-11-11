@@ -346,6 +346,7 @@ export default {
                 cleanupPrompt: `${emoji(EmojiKey.Warning)} Clean up duplicate-named channels/roles (from a raid) before restoring?`,
                 cleanupYes: 'Yes, clean up first',
                 cleanupNo: 'No, just restore',
+                expired: `${emoji(EmojiKey.Error)} No answer in time, nothing was restored. Run the command again when you're ready.`,
                 restoring: '⏳ Restoring, this might take a moment...',
                 restored: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
                     `${emoji(EmojiKey.Success)} Restored \`${channels}\` channels, \`${roles}\` roles, \`${bans}\` bans, \`${emojis}\` emojis, and \`${stickers}\` stickers that were missing.`,
@@ -453,6 +454,14 @@ export default {
                 name: 'appeal',
                 description: 'Tells you where to appeal if you are on the UBFB blacklist.',
                 message: `${emoji(EmojiKey.Attachment)} You can appeal your blacklist entry at https://ubfb.theindiebrand.es/panel.`
+            },
+            verify: {
+                name: 'verify',
+                description: 'Sends you a fresh verification link by DM.',
+                notEnabled: `${emoji(EmojiKey.Error)} Verification is not active in this server.`,
+                alreadyVerified: `${emoji(EmojiKey.Success)} You are already verified.`,
+                dmClosed: `${emoji(EmojiKey.Error)} I can't DM you. Enable DMs for this server and run the command again.`,
+                sent: `${emoji(EmojiKey.Success)} I sent you a fresh link by DM. It expires in 15 minutes.`
             },
             report: {
                 name: 'report',

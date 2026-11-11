@@ -345,6 +345,7 @@ export default {
                 cleanupPrompt: `${emoji(EmojiKey.Warning)} ¿Limpiar canales/roles duplicados (de un raid) antes de restaurar?`,
                 cleanupYes: 'Sí, limpiar primero',
                 cleanupNo: 'No, solo restaurar',
+                expired: `${emoji(EmojiKey.Error)} Sin respuesta a tiempo, no se ha restaurado nada. Vuelve a ejecutar el comando cuando estés listo.`,
                 restoring: '⏳ Restaurando, esto puede tardar un momento...',
                 restored: (channels: number, roles: number, bans: number, emojis: number, stickers: number) =>
                     `${emoji(EmojiKey.Success)} Restaurados \`${channels}\` canales, \`${roles}\` roles, \`${bans}\` baneos, \`${emojis}\` emojis y \`${stickers}\` stickers que faltaban.`,
@@ -452,6 +453,14 @@ export default {
                 name: 'apelar',
                 description: 'Indica dónde apelar si estás en la blacklist de UBFB.',
                 message: `${emoji(EmojiKey.Attachment)} Puedes apelar tu entrada en la blacklist en https://ubfb.theindiebrand.es/panel.`
+            },
+            verify: {
+                name: 'verificar',
+                description: 'Te envía por MD un enlace de verificación nuevo.',
+                notEnabled: `${emoji(EmojiKey.Error)} La verificación no está activa en este servidor.`,
+                alreadyVerified: `${emoji(EmojiKey.Success)} Ya estás verificado.`,
+                dmClosed: `${emoji(EmojiKey.Error)} No puedo escribirte por MD. Actívalos para este servidor y vuelve a ejecutar el comando.`,
+                sent: `${emoji(EmojiKey.Success)} Te he enviado un enlace nuevo por MD. Caduca en 15 minutos.`
             },
             report: {
                 name: 'reporte',

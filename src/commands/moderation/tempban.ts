@@ -2,7 +2,7 @@ import { Command, createIntegerOption, createStringOption, createUserOption, Dec
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { TempbanRepository } from '../../database/repositories/tempban.repository.js';
 import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
-import { ForceReasons } from '../../systems/moderation/index.js';
+import { ForceReasons, ModerationGuard } from '../../systems/moderation/index.js';
 
 const options = {
     member: createUserOption({
@@ -68,12 +68,7 @@ export default class TempbanCommand extends Command {
         if (targetId === ctx.author.id) return await ctx.write({ content: shared.cannotTargetSelf.get() });
 
         const target = await guild.members.fetch(targetId).catch(() => undefined);
-        if (target && ctx.member.id !== guild.ownerId) {
-            const [invokerHighest, targetHighest] = await Promise.all([ctx.member.roles.highest(), target.roles.highest()]);
-            if ((invokerHighest?.position ?? 0) <= (targetHighest?.position ?? 0)) {
-                return await ctx.write({ content: shared.hierarchyError.get() });
-            }
-        }
+        if (target && !(await ModerationGuard.outranks(ctx.member, target, guild.ownerId))) return await ctx.write({ content: shared.hierarchyError.get() });
 
         const forced = await ForceReasons.resolve(guild.id, ctx.options.reason, shared.defaultReason.get());
         if (!forced.ok) return await ctx.write({ content: shared.forceReasonRequired(forced.allowed).get() });

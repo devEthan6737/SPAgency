@@ -67,7 +67,7 @@ Cada uno con enable+umbral en `guild_moderation`, salvo `antiflood` (fijo) y `gh
 
 ## `AntiWebhooksFloodSystem` — por qué no es un detector más
 
-Un webhook no es un miembro con historial de warns, no pasa por la escalada — solo detecta flood y borra el webhook. Misma categoría que `AntiraidSystem`/`RaidmodeSystem` (acción de seguridad directa), no infracción de conducta. `RollingWindowCounter` propio (4 msg / 10s, por guild).
+Un webhook no es un miembro con historial de warns, no pasa por la escalada: solo detecta flood y borra el webhook. Misma categoría que `AntiraidSystem`/`RaidmodeSystem` (acción de seguridad directa), no infracción de conducta. `RollingWindowCounter` propio (4 msg / 10s, **por webhook**: varios webhooks legítimos activos a la vez no se suman entre sí).
 
 **No banea al dueño del webhook, ni en reincidencia.** El diseño original sí lo hacía (columna eliminada), asumiendo que el creador es el atacante — un patrón de 2020. Hoy el vector más probable es un token filtrado, abusado por alguien externo: el creador es la víctima, no el atacante.
 
@@ -82,7 +82,12 @@ Cada violación (los cinco detectores + `nativeAutomod`, nunca webhook flood) in
 - **`automodMuteAt`** (default 3) → timeout nativo por `automodMuteMinutes` (default 10).
 - **`automodFinalAction`** (`None|Kick|Ban`, default `None`) + **`automodFinalActionAt`** (default 6).
 
-Comparación con `===`, no `>=` — si no, cada mensaje tras cruzar el umbral repetiría la sanción indefinidamente.
+Comparación con `>=`, no `===`: con `===` solo se sancionaba en el warn exacto número N, así que dos infracciones concurrentes que se saltaran ese valor nunca escalaban, y quien seguía infringiendo no volvía a ser muteado (el esquema promete "mutea mientras reincida"). Pasado el umbral final (`automodFinalActionAt`) manda la acción final; entre `automodMuteAt` y ese umbral, el mute. Lo que evita que una sola ráfaga recorra toda la escalera es que cada detector emita **una** infracción por episodio, no la comparación:
+
+- **Flood**: tras saltar, ese usuario queda 30 s sin volver a contar flood (`FloodCooldownMs`), en vez de un warn por cada mensaje de más.
+- **AutoMod nativo**: Discord emite un evento por acción de la regla (bloquear + alertar = 2); varios del mismo usuario y regla en 5 s cuentan como una infracción.
+- **Ghostping**: si el bot borra el mensaje (caps, emojis, palabras), ya no cuenta como ghostping del autor. Un mensaje borrado por un moderador sigue contando: el gateway no dice quién lo borró.
+- **Whitelist**: los ids de `guild_configuration.whitelist` quedan fuera de todos los detectores de mensaje y del AutoMod nativo. No hay exención por rol de staff: sin caché de roles habría que consultar a Discord en cada mensaje.
 
 ## Intent necesario — `MessageContent`
 

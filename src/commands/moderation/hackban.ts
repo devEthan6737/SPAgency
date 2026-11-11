@@ -1,7 +1,7 @@
 import { Command, createStringOption, Declare, Embed, EmbedColors, LocalesT, Options, type CommandContext } from 'seyfert';
 import { BotActionType } from '../../database/schema/bot-action-log.js';
 import { BotActionLog, dispatchLog } from '../../systems/logs/index.js';
-import { ForceReasons } from '../../systems/moderation/index.js';
+import { ForceReasons, ModerationGuard } from '../../systems/moderation/index.js';
 
 const options = {
     id: createStringOption({
@@ -39,9 +39,9 @@ const options = {
 /** Bans a user by id, whether or not they are a member of the server. */
 export default class HackbanCommand extends Command {
     /**
-     * Validates the id looks like a snowflake, rejects the bot or self, resolves a reason via
-     * `ForceReasons`, then bans by id. No invoker-vs-target hierarchy check applies here since
-     * the target need not be a member.
+     * Validates the id looks like a snowflake, rejects the bot or self, applies the invoker-vs-target
+     * hierarchy check when the id belongs to a member (it can't apply to non-members), resolves a
+     * reason via `ForceReasons`, then bans by id.
      */
     async run(ctx: CommandContext<typeof options>) {
         if (!ctx.inGuild()) return;
@@ -51,7 +51,11 @@ export default class HackbanCommand extends Command {
         const userId = ctx.options.id;
 
         if (!/^\d{17,20}$/.test(userId)) return await ctx.write({ content: t.invalidId.get() });
-        if (userId === ctx.client.botId || userId === ctx.author.id) return await ctx.write({ content: shared.cannotTargetSelf.get() });
+        if (userId === ctx.client.botId) return await ctx.write({ content: shared.cannotTargetBot.get() });
+        if (userId === ctx.author.id) return await ctx.write({ content: shared.cannotTargetSelf.get() });
+
+        const target = await guild.members.fetch(userId).catch(() => undefined);
+        if (target && !(await ModerationGuard.outranks(ctx.member, target, guild.ownerId))) return await ctx.write({ content: shared.hierarchyError.get() });
 
         const forced = await ForceReasons.resolve(guild.id, ctx.options.reason, shared.defaultReason.get());
         if (!forced.ok) return await ctx.write({ content: shared.forceReasonRequired(forced.allowed).get() });
